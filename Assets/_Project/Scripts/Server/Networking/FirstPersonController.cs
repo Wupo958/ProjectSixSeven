@@ -1,3 +1,4 @@
+using ProjectSixSeven.Shared;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,6 +10,9 @@ public class FirstPersonController : NetworkBehaviour
     public float moveSpeed = 5f;
     public float gravity = -9.81f;
     public float jumpHeight = 1.2f;
+
+    [Tooltip("Downward speed applied while grounded to keep the player pinned to the moving floor.")]
+    public float groundStick = -4f;
 
     [Header("Look")]
     public float lookSensitivity = 0.1f;
@@ -22,8 +26,9 @@ public class FirstPersonController : NetworkBehaviour
     InputAction lookAction;
     InputAction jumpAction;
 
-    float pitch;           
-    float verticalVelocity;  
+    float pitch;
+    float verticalVelocity;
+    bool controlEnabled;
 
     NetworkVariable<int> HEALTH= new NetworkVariable<int>(100, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
@@ -44,25 +49,44 @@ public class FirstPersonController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        controller.enabled = IsOwner;
- 
-        if (!IsOwner)
-        {
-            if (cameraTransform != null)
-                cameraTransform.gameObject.SetActive(false);
+        // The player object is spawned as soon as you connect, while everyone is still in the lobby.
+        // It must stay inert there — no camera, no cursor grab, no input — so lobby buttons stay
+        // clickable. Control switches on only once we're actually in the train scene, detected by a
+        // Carriage being present. This also covers a client that joins straight into a running game.
+        controller.enabled = false;
+
+        if (cameraTransform != null)
+            cameraTransform.gameObject.SetActive(false);
+
+        if (IsOwner)
+            TryEnableControl();
+    }
+
+    void TryEnableControl()
+    {
+        if (controlEnabled || !IsOwner || Carriage.Main == null)
             return;
-        }
- 
+
+        controlEnabled = true;
+        controller.enabled = true;
+
+        if (cameraTransform != null)
+            cameraTransform.gameObject.SetActive(true);
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-
     }
 
     void Update()
     {
-
-        if(!IsOwner)
+        if (!IsOwner)
         {
+            return;
+        }
+
+        if (!controlEnabled)
+        {
+            TryEnableControl();
             return;
         }
 
@@ -72,6 +96,9 @@ public class FirstPersonController : NetworkBehaviour
 
     void Look()
     {
+        if (lookAction == null || cameraTransform == null)
+            return;
+
         Vector2 look = lookAction.ReadValue<Vector2>() * lookSensitivity;
 
         transform.Rotate(Vector3.up * look.x);
@@ -82,13 +109,15 @@ public class FirstPersonController : NetworkBehaviour
 
     void Move()
     {
-        Vector2 input = moveAction.ReadValue<Vector2>();
+        Vector2 input = moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
         Vector3 move = transform.right * input.x + transform.forward * input.y;
 
+        // A firm downward bias while grounded keeps the controller stuck to the carriage floor as it
+        // rises and dips over grades, instead of skipping off crests and losing its grounded state.
         if (controller.isGrounded && verticalVelocity < 0f)
-            verticalVelocity = -2f;
+            verticalVelocity = groundStick;
 
-        if (jumpAction.WasPressedThisFrame() && controller.isGrounded)
+        if (jumpAction != null && jumpAction.WasPressedThisFrame() && controller.isGrounded)
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
 
         verticalVelocity += gravity * Time.deltaTime;

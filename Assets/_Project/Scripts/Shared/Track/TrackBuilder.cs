@@ -7,9 +7,19 @@ namespace ProjectSixSeven.Shared.Track
     [ExecuteAlways]
     public sealed class TrackBuilder : MonoBehaviour
     {
+        public enum TrackMode
+        {
+            /// Connects the last node back to the first: one continuous circuit the train laps.
+            Loop,
+
+            /// Connects the nodes in a line and leaves the ends open: a run between two spots that
+            /// the train travels A-to-B rather than looping.
+            PointToPoint
+        }
+
         [Header("Nodes")]
         [SerializeField] private List<TrackNode> _nodes = new List<TrackNode>();
-        [SerializeField] private bool _loop;
+        [SerializeField] private TrackMode _mode = TrackMode.Loop;
 
         [Header("Railway limits")]
         [Tooltip("Tightest curve the track may ever take, in metres. Mainline rail sits around 300-800.")]
@@ -43,6 +53,15 @@ namespace ProjectSixSeven.Shared.Track
 
         public float MinRadius => _minRadius;
         public float MaxGrade => _maxGrade;
+        public bool IsLoop => _mode == TrackMode.Loop;
+
+        /// The clothoid easement length, in metres. Procedural generation sets this from node spacing
+        /// so the easements never overlap (which forces the solver into min-radius loops).
+        public float TransitionLength
+        {
+            get => _transitionLength;
+            set => _transitionLength = Mathf.Max(0f, value);
+        }
 
         private void Awake()
         {
@@ -58,11 +77,20 @@ namespace ProjectSixSeven.Shared.Track
             _path = null;
         }
 
+        /// Replaces the node set and mode wholesale, then re-solves. Used by procedural generation to
+        /// drive the same track system a designer uses by hand.
+        public void Configure(List<TrackNode> nodes, TrackMode mode)
+        {
+            _nodes = nodes ?? new List<TrackNode>();
+            _mode = mode;
+            Rebuild();
+        }
+
         public void Rebuild()
         {
             List<TrackSegment> segments = new List<TrackSegment>();
 
-            int pairs = _loop ? _nodes.Count : _nodes.Count - 1;
+            int pairs = IsLoop ? _nodes.Count : _nodes.Count - 1;
             for (int i = 0; i < pairs; i++)
             {
                 TrackNode from = _nodes[i];

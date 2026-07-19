@@ -42,7 +42,7 @@ namespace ProjectSixSeven.Shared.Track.Editor
                 nodeList.GetArrayElementAtIndex(i).objectReferenceValue = nodes[i];
             }
 
-            serialized.FindProperty("_loop").boolValue = true;
+            serialized.FindProperty("_mode").enumValueIndex = (int)TrackBuilder.TrackMode.Loop;
             serialized.ApplyModifiedPropertiesWithoutUndo();
 
             builder.Rebuild();
