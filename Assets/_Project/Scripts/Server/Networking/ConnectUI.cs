@@ -9,10 +9,6 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 
-/// Lobby + connect flow. Hosting only creates the session and opens the session; players keep
-/// gathering in the lobby until the host presses Start, which network-loads the gameplay scene for
-/// everyone at once. This is what gives late joiners time to enter with their code before the train
-/// scene loads.
 public class ConnectUI : MonoBehaviour
 {
     [Header("Buttons")]
@@ -40,7 +36,6 @@ public class ConnectUI : MonoBehaviour
 
     private async void Start()
     {
-        // The lobby is mouse-driven; make sure nothing left the cursor locked from a previous game.
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
@@ -57,11 +52,6 @@ public class ConnectUI : MonoBehaviour
 
             if (!AuthenticationService.Instance.IsSignedIn)
             {
-                // Each running instance needs its own identity. Instances launched from the same
-                // project (Multiplayer Play Mode virtual players especially) share the auth token
-                // cache and would otherwise sign in as the SAME anonymous account — which makes the
-                // second player fail to join with "NetworkManagerStartFailed / Relay: not connected".
-                // A unique profile per launch gives each instance a separate account.
                 try
                 {
                     string profile = "p" + Guid.NewGuid().ToString("N").Substring(0, 20);
@@ -132,8 +122,6 @@ public class ConnectUI : MonoBehaviour
         }
     }
 
-    /// The host waits in the lobby. Show the code so others can join, keep a live player count, and
-    /// arm the Start button.
     private void EnterHostLobby()
     {
         if (joinButton != null) joinButton.gameObject.SetActive(false);
@@ -152,7 +140,6 @@ public class ConnectUI : MonoBehaviour
         }
         else if (hostButton != null)
         {
-            // No dedicated Start button assigned: reuse the Host button.
             hostButton.onClick.RemoveAllListeners();
             hostButton.onClick.AddListener(StartGame);
             hostButton.interactable = true;
@@ -162,13 +149,16 @@ public class ConnectUI : MonoBehaviour
         }
     }
 
-    /// A joiner just waits for the host to start.
-    private void EnterClientLobby()
+    private async void EnterClientLobby()
     {
         if (hostButton != null) hostButton.gameObject.SetActive(false);
         if (joinButton != null) joinButton.gameObject.SetActive(false);
         if (joinCodeInput != null) joinCodeInput.gameObject.SetActive(false);
         if (startButton != null) startButton.gameObject.SetActive(false);
+
+        if (VoiceChatManager.Instance != null && session != null) {
+            await VoiceChatManager.Instance.JoinSessionVoiceAsync(session.Id);
+        }
 
         if (joinCodeDisplay != null)
         {
@@ -176,7 +166,7 @@ public class ConnectUI : MonoBehaviour
         }
     }
 
-    private void StartGame()
+    private async void StartGame()
     {
         NetworkManager nm = NetworkManager.Singleton;
         if (nm == null || !nm.IsServer)
@@ -188,6 +178,10 @@ public class ConnectUI : MonoBehaviour
         if (panelToHideOnConnect != null)
         {
             panelToHideOnConnect.SetActive(false);
+        }
+
+        if (VoiceChatManager.Instance != null && session != null) {
+            await VoiceChatManager.Instance.JoinSessionVoiceAsync(session.Id);
         }
 
         nm.SceneManager.LoadScene(gameplayScene, LoadSceneMode.Single);
