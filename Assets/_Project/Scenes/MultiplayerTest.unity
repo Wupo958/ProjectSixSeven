@@ -2020,8 +2020,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44f23817b65c4ec4582172ddb7b8bd09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VoiceChatManager
-  conversationalDistance: 1
-  audibleDistance: 20
+  conversationalDistance: 10
+  audibleDistance: 25
   muteToggleKey: 27
 --- !u!4 &1523303864
 Transform:
