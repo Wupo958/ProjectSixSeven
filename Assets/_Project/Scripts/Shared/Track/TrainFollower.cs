@@ -23,7 +23,11 @@ namespace ProjectSixSeven.Shared.Track
         [SerializeField] private float _rideHeight = 2f;
 
         [SerializeField] private float _startDistance;
-        [SerializeField] private bool _loopAtEnd = true;
+
+        [Tooltip("Seconds the train waits at the start before it begins moving, so players can spawn " +
+                 "and settle onto the floor. Measured on the shared network clock, so every client " +
+                 "starts moving together.")]
+        [SerializeField] private float _startDelay = 5f;
 
         private float _distance;
 
@@ -42,23 +46,40 @@ namespace ProjectSixSeven.Shared.Track
                 return;
             }
 
+            float length = _track.Path.Length;
+
             if (Application.isPlaying)
             {
-                float elapsed = TimeSource != null ? TimeSource() : Time.timeSinceLevelLoad;
-                _distance = _startDistance + _speed * elapsed;
+                float time = TimeSource != null ? TimeSource() : Time.timeSinceLevelLoad;
+                float moving = Mathf.Max(0f, time - _startDelay);
+                _distance = _track.IsLoop ? LoopDistance(moving, length) : ShuttleDistance(moving, length);
             }
             else
             {
-                _distance = _startDistance;
-            }
-
-            float length = _track.Path.Length;
-            if (_distance > length)
-            {
-                _distance = _loopAtEnd ? _distance % length : length;
+                _distance = Mathf.Clamp(_startDistance, 0f, length);
             }
 
             PlaceOnTrack();
+        }
+
+        /// A circuit: keep advancing and wrap back to the start at the end.
+        private float LoopDistance(float moving, float length)
+        {
+            return Mathf.Repeat(_startDistance + _speed * moving, length);
+        }
+
+        /// An open run between two spots: ease from one end to the other and back for good, the train
+        /// slowing to a stop and reversing at each end so riders aren't jolted. Distance follows a
+        /// cosine, so speed is exactly zero at the endpoints and peaks at _speed mid-run.
+        private float ShuttleDistance(float moving, float length)
+        {
+            if (length < 0.01f)
+            {
+                return 0f;
+            }
+
+            float omega = 2f * _speed / length;
+            return 0.5f * length * (1f - Mathf.Cos(omega * moving));
         }
 
         private void PlaceOnTrack()

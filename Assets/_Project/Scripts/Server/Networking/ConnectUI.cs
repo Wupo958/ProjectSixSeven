@@ -9,11 +9,18 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 
+/// Lobby + connect flow. Hosting only creates the session and opens the session; players keep
+/// gathering in the lobby until the host presses Start, which network-loads the gameplay scene for
+/// everyone at once. This is what gives late joiners time to enter with their code before the train
+/// scene loads.
 public class ConnectUI : MonoBehaviour
 {
     [Header("Buttons")]
     [SerializeField] private Button hostButton;
     [SerializeField] private Button joinButton;
+
+    [Tooltip("Optional. If left empty, the Host button is reused as the Start button after hosting.")]
+    [SerializeField] private Button startButton;
 
     [Header("Join code")]
     [SerializeField] private TMP_InputField joinCodeInput;
@@ -22,14 +29,27 @@ public class ConnectUI : MonoBehaviour
     [Header("Session")]
     [SerializeField] private int maxPlayers = 4;
 
-    [Tooltip("This is optional.")]
+    [Tooltip("Gameplay scene the host network-loads on Start. Must be in Build Settings.")]
+    [SerializeField] private string gameplayScene = "RailTestMultiplayer";
+
+    [Tooltip("Optional. Hidden once the game starts (the lobby scene unloads anyway on start).")]
     [SerializeField] private GameObject panelToHideOnConnect;
 
     private ISession session;
+    private bool subscribedToClients;
 
     private async void Start()
     {
+        // The lobby is mouse-driven; make sure nothing left the cursor locked from a previous game.
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         SetButtonsInteractable(false);
+
+        if (startButton != null)
+        {
+            startButton.gameObject.SetActive(false);
+        }
 
         try
         {
@@ -37,6 +57,21 @@ public class ConnectUI : MonoBehaviour
 
             if (!AuthenticationService.Instance.IsSignedIn)
             {
+                // Each running instance needs its own identity. Instances launched from the same
+                // project (Multiplayer Play Mode virtual players especially) share the auth token
+                // cache and would otherwise sign in as the SAME anonymous account — which makes the
+                // second player fail to join with "NetworkManagerStartFailed / Relay: not connected".
+                // A unique profile per launch gives each instance a separate account.
+                try
+                {
+                    string profile = "p" + Guid.NewGuid().ToString("N").Substring(0, 20);
+                    AuthenticationService.Instance.SwitchProfile(profile);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"Could not switch auth profile: {e.Message}");
+                }
+
                 await AuthenticationService.Instance.SignInAnonymouslyAsync();
             }
 
@@ -64,18 +99,8 @@ public class ConnectUI : MonoBehaviour
             var options = new SessionOptions { MaxPlayers = maxPlayers }.WithRelayNetwork();
             session = await MultiplayerService.Instance.CreateSessionAsync(options);
 
-            if (joinCodeDisplay != null)
-            {
-                joinCodeDisplay.text = $"Code: {session.Code}";
-            }
-
-            if (NetworkManager.Singleton.IsServer)
-            {
-                NetworkManager.Singleton.SceneManager.LoadScene("RailTest", LoadSceneMode.Single);
-            }
-
             Debug.Log($"Session created. Join code: {session.Code}");
-            OnConnected();
+            EnterHostLobby();
         }
         catch (Exception e)
         {
@@ -98,7 +123,7 @@ public class ConnectUI : MonoBehaviour
         {
             session = await MultiplayerService.Instance.JoinSessionByCodeAsync(code);
             Debug.Log($"Joined session {session.Id}");
-            OnConnected();
+            EnterClientLobby();
         }
         catch (Exception e)
         {
@@ -107,20 +132,105 @@ public class ConnectUI : MonoBehaviour
         }
     }
 
-    private async Task JoinVoice()
+    /// The host waits in the lobby. Show the code so others can join, keep a live player count, and
+    /// arm the Start button.
+    private void EnterHostLobby()
     {
-        if (VoiceChatManager.Instance != null && session != null)
+        if (joinButton != null) joinButton.gameObject.SetActive(false);
+        if (joinCodeInput != null) joinCodeInput.gameObject.SetActive(false);
+
+        SubscribeToClientChanges();
+        UpdateHostLobbyText();
+
+        if (startButton != null)
         {
-            await VoiceChatManager.Instance.JoinSessionVoiceAsync(session.Id);
+            startButton.gameObject.SetActive(true);
+            startButton.onClick.RemoveAllListeners();
+            startButton.onClick.AddListener(StartGame);
+            startButton.interactable = true;
+            if (hostButton != null) hostButton.gameObject.SetActive(false);
+        }
+        else if (hostButton != null)
+        {
+            // No dedicated Start button assigned: reuse the Host button.
+            hostButton.onClick.RemoveAllListeners();
+            hostButton.onClick.AddListener(StartGame);
+            hostButton.interactable = true;
+
+            TMP_Text label = hostButton.GetComponentInChildren<TMP_Text>();
+            if (label != null) label.text = "Start Game";
         }
     }
 
-    private void OnConnected()
+    /// A joiner just waits for the host to start.
+    private void EnterClientLobby()
     {
+        if (hostButton != null) hostButton.gameObject.SetActive(false);
+        if (joinButton != null) joinButton.gameObject.SetActive(false);
+        if (joinCodeInput != null) joinCodeInput.gameObject.SetActive(false);
+        if (startButton != null) startButton.gameObject.SetActive(false);
+
+        if (joinCodeDisplay != null)
+        {
+            joinCodeDisplay.text = "Joined! Waiting for the host to start…";
+        }
+    }
+
+    private void StartGame()
+    {
+        NetworkManager nm = NetworkManager.Singleton;
+        if (nm == null || !nm.IsServer)
+        {
+            Debug.LogWarning("Only the host can start the game.");
+            return;
+        }
+
         if (panelToHideOnConnect != null)
         {
             panelToHideOnConnect.SetActive(false);
-        } 
+        }
+
+        nm.SceneManager.LoadScene(gameplayScene, LoadSceneMode.Single);
+    }
+
+    private void SubscribeToClientChanges()
+    {
+        NetworkManager nm = NetworkManager.Singleton;
+        if (nm == null || subscribedToClients)
+        {
+            return;
+        }
+
+        nm.OnClientConnectedCallback += OnClientChanged;
+        nm.OnClientDisconnectCallback += OnClientChanged;
+        subscribedToClients = true;
+    }
+
+    private void OnClientChanged(ulong clientId)
+    {
+        UpdateHostLobbyText();
+    }
+
+    private void UpdateHostLobbyText()
+    {
+        if (joinCodeDisplay == null || session == null)
+        {
+            return;
+        }
+
+        NetworkManager nm = NetworkManager.Singleton;
+        int players = nm != null && nm.IsServer ? nm.ConnectedClients.Count : 1;
+        joinCodeDisplay.text = $"Code: {session.Code}\nPlayers: {players}/{maxPlayers}";
+    }
+
+    private void OnDestroy()
+    {
+        NetworkManager nm = NetworkManager.Singleton;
+        if (nm != null && subscribedToClients)
+        {
+            nm.OnClientConnectedCallback -= OnClientChanged;
+            nm.OnClientDisconnectCallback -= OnClientChanged;
+        }
     }
 
     private void SetButtonsInteractable(bool value)

@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 958691076323445673}
   - component: {fileID: 130677474925377861}
   - component: {fileID: 8907786118003607902}
-  - component: {fileID: 6990295791307850184}
   - component: {fileID: 7404472066117551522}
+  - component: {fileID: 7404472066117551523}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -108,7 +108,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3969269851
+  GlobalObjectIdHash: 2205324801
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -138,6 +138,7 @@ MonoBehaviour:
   moveSpeed: 5
   gravity: -9.81
   jumpHeight: 1.2
+  groundStick: -4
   lookSensitivity: 0.1
   maxPitch: 90
   cameraTransform: {fileID: 7291492307345919182}
@@ -166,52 +167,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6990295791307850184
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2439380001659679026}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c44afbd80d08d634cbee7bb35cb47d71, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ClientNetworkTransform
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkTransformExpanded: 1
-  AutoOwnerAuthorityTickOffset: 1
-  PositionInterpolationType: 0
-  RotationInterpolationType: 0
-  ScaleInterpolationType: 0
-  PositionLerpSmoothing: 1
-  PositionMaxInterpolationTime: 0.1
-  RotationLerpSmoothing: 1
-  RotationMaxInterpolationTime: 0.1
-  ScaleLerpSmoothing: 1
-  ScaleMaxInterpolationTime: 0.1
-  AuthorityMode: 1
-  TickSyncChildren: 0
-  UseUnreliableDeltas: 0
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 1
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 0
-  SwitchTransformSpaceWhenParented: 0
-  Interpolate: 1
-  SlerpPosition: 0
 --- !u!114 &7404472066117551522
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,6 +181,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VoicePositionReporter
   ShowTopMostFoldoutHeaderGroup: 1
   updateInterval: 0.25
+--- !u!114 &7404472066117551523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2439380001659679026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec248b8352c1ee641aa63597ba29e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCarriageAttachment
+  ShowTopMostFoldoutHeaderGroup: 1
+  remoteSmoothing: 15
 --- !u!1 &7452620094663333145
 GameObject:
   m_ObjectHideFlags: 0

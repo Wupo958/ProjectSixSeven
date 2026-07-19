@@ -563,7 +563,7 @@ MonoBehaviour:
   - {fileID: 1420002}
   - {fileID: 1430002}
   - {fileID: 1440002}
-  _loop: 1
+  _mode: 0
   _minRadius: 300
   _maxGrade: 0.025
   _transitionLength: 120
@@ -929,7 +929,7 @@ MonoBehaviour:
   _bogieSpacing: 16
   _rideHeight: 2
   _startDistance: 0
-  _loopAtEnd: 1
+  _startDelay: 5
 --- !u!114 &1500005
 MonoBehaviour:
   m_ObjectHideFlags: 0
