@@ -49,10 +49,6 @@ public class FirstPersonController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        // The player object is spawned as soon as you connect, while everyone is still in the lobby.
-        // It must stay inert there — no camera, no cursor grab, no input — so lobby buttons stay
-        // clickable. Control switches on only once we're actually in the train scene, detected by a
-        // Carriage being present. This also covers a client that joins straight into a running game.
         controller.enabled = false;
 
         if (cameraTransform != null)
@@ -112,8 +108,6 @@ public class FirstPersonController : NetworkBehaviour
         Vector2 input = moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
         Vector3 move = transform.right * input.x + transform.forward * input.y;
 
-        // A firm downward bias while grounded keeps the controller stuck to the carriage floor as it
-        // rises and dips over grades, instead of skipping off crests and losing its grounded state.
         if (controller.isGrounded && verticalVelocity < 0f)
             verticalVelocity = groundStick;
 
