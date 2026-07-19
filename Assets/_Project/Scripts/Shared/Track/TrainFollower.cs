@@ -8,6 +8,8 @@ namespace ProjectSixSeven.Shared.Track
     [ExecuteAlways]
     public sealed class TrainFollower : MonoBehaviour
     {
+        public static System.Func<float> TimeSource;
+
         [SerializeField] private TrackBuilder _track;
 
         [Tooltip("Speed in metres per second. 30 is roughly 110 km/h.")]
@@ -42,7 +44,8 @@ namespace ProjectSixSeven.Shared.Track
 
             if (Application.isPlaying)
             {
-                _distance += _speed * Time.deltaTime;
+                float elapsed = TimeSource != null ? TimeSource() : Time.timeSinceLevelLoad;
+                _distance = _startDistance + _speed * elapsed;
             }
             else
             {

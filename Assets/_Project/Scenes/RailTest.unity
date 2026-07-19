@@ -129,7 +129,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1000001}
   - component: {fileID: 1000002}
-  - component: {fileID: 1000003}
   - component: {fileID: 1000004}
   - component: {fileID: 1000005}
   m_Layer: 0
@@ -205,14 +204,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &1000003
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1000000}
-  m_Enabled: 1
 --- !u!114 &1000004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -414,6 +405,7 @@ GameObject:
   - component: {fileID: 1200001}
   - component: {fileID: 1200002}
   - component: {fileID: 1200003}
+  - component: {fileID: 1200004}
   m_Layer: 0
   m_Name: Ground
   m_TagString: Untagged
@@ -493,6 +485,28 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &1200004
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1200000}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1300000
 GameObject:
   m_ObjectHideFlags: 0
@@ -818,6 +832,7 @@ GameObject:
   - component: {fileID: 1500002}
   - component: {fileID: 1500003}
   - component: {fileID: 1500004}
+  - component: {fileID: 1500005}
   m_Layer: 0
   m_Name: TrainBlock
   m_TagString: Untagged
@@ -915,6 +930,18 @@ MonoBehaviour:
   _rideHeight: 2
   _startDistance: 0
   _loopAtEnd: 1
+--- !u!114 &1500005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3203e4e1355a56e4687ba8521c1f2ba2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkTrainClock
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
