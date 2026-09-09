@@ -3,11 +3,6 @@ using UnityEngine.InputSystem;
 
 namespace ProjectSixSeven.Client
 {
-    /// Follows the train, either from behind or from inside it. Press C to swap.
-    ///
-    /// The chase view lags and eases deliberately, so curves read as the train swinging through
-    /// them. The cab view is rigid to the carriage, which is what the real game looks like: the
-    /// interior is still and the world swings past outside.
     public sealed class TrainCamera : MonoBehaviour
     {
         public enum ViewMode

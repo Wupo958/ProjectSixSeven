@@ -3,16 +3,6 @@ using ProjectSixSeven.Shared;
 using Unity.Netcode;
 using UnityEngine;
 
-/// Ties the player to the carriage, for both physics and networking.
-///
-/// Physics (owner): the carriage moves deterministically every frame; this re-applies that rigid
-/// motion to the player's CharacterController so the floor never slides out from under them.
-///
-/// Networking: the pose sent over the wire is the player's position *relative to the carriage*, not
-/// in world space. Because the carriage moves the same way on every client, that relative pose is
-/// small and slow and survives latency, whereas a world-space position on a train doing tens of
-/// metres per second rubber-bands and slides remote players out of the car. Remote copies are
-/// rebuilt from that relative pose against their own local carriage.
 [RequireComponent(typeof(CharacterController))]
 public sealed class PlayerCarriageAttachment : NetworkBehaviour
 {
@@ -59,7 +49,7 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
         Transform anchor = Carriage.Main.GetSpawnAnchor(OwnerClientId);
 
         bool wasEnabled = _controller.enabled;
-        _controller.enabled = false; // CharacterController overrides direct transform writes.
+        _controller.enabled = false;
         transform.SetPositionAndRotation(anchor.position, anchor.rotation);
         _controller.enabled = wasEnabled;
 
@@ -94,8 +84,6 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
         }
     }
 
-    /// Carry the player by the carriage's rigid motion since last frame (translation plus turn),
-    /// applied on top of whatever the player's own input already moved them this frame.
     private void CarryWithCarriage()
     {
         Vector3 posNow = _carriage.position;
@@ -114,7 +102,6 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
             transform.position = target;
         }
 
-        // Keep the player facing the same way down the aisle, taking only yaw so they stay upright.
         float yawDelta = Vector3.SignedAngle(Flatten(_lastCarriageRot * Vector3.forward),
             Flatten(rotNow * Vector3.forward), Vector3.up);
         transform.Rotate(0f, yawDelta, 0f, Space.World);
@@ -123,7 +110,6 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
         _lastCarriageRot = rotNow;
     }
 
-    /// Owner: publish where we stand inside the carriage so remotes can rebuild it.
     private void PublishLocalPose()
     {
         _localPosition.Value = _carriage.InverseTransformPoint(transform.position);
@@ -131,8 +117,6 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
             Flatten(_carriage.forward), Flatten(transform.forward), Vector3.up);
     }
 
-    /// Remote copy: place the player at its carriage-relative pose against the local carriage, eased
-    /// so tick-rate updates read smoothly. The carriage itself supplies all the fast motion.
     private void ApplyRemotePose()
     {
         Vector3 worldTarget = _carriage.TransformPoint(_localPosition.Value);
