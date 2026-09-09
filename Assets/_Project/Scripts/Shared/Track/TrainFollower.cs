@@ -2,9 +2,6 @@ using UnityEngine;
 
 namespace ProjectSixSeven.Shared.Track
 {
-    /// Drives a carriage along the track by arc length. The body is placed from two bogie samples
-    /// rather than one point on the centreline, so it sits across a curve like a real rigid carriage
-    /// instead of bending along it.
     [ExecuteAlways]
     public sealed class TrainFollower : MonoBehaviour
     {
@@ -62,15 +59,11 @@ namespace ProjectSixSeven.Shared.Track
             PlaceOnTrack();
         }
 
-        /// A circuit: keep advancing and wrap back to the start at the end.
         private float LoopDistance(float moving, float length)
         {
             return Mathf.Repeat(_startDistance + _speed * moving, length);
         }
 
-        /// An open run between two spots: ease from one end to the other and back for good, the train
-        /// slowing to a stop and reversing at each end so riders aren't jolted. Distance follows a
-        /// cosine, so speed is exactly zero at the endpoints and peaks at _speed mid-run.
         private float ShuttleDistance(float moving, float length)
         {
             if (length < 0.01f)

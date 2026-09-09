@@ -1,56 +1,143 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace ProjectSixSeven.Shared
+public class Carriage : NetworkBehaviour
 {
-    /// A single walkable train carriage. Players are parented to this object so they ride along in
-    /// its local space: in the carriage's frame the floor is still, so walking is ordinary movement
-    /// even while the train sweeps through curves at speed.
-    ///
-    /// The carriage carries a NetworkObject purely so it can be a parent for player NetworkObjects.
-    /// It deliberately has no NetworkTransform: its pose is driven by TrainFollower from network time
-    /// and is therefore already identical on every client, so there is nothing to replicate.
-    [RequireComponent(typeof(NetworkObject))]
-    public sealed class Carriage : MonoBehaviour
+    public static Carriage Main { get; private set; }
+
+    [SerializeField] private Transform[] _spawnAnchors;
+    [SerializeField] private GameObject[] _damagePoints;
+    [SerializeField] private int _trainHpPerPoint;
+
+    [SerializeField] private Material _workingMat;
+    [SerializeField] private Material _brokenMat;
+
+    private int _maxHp;
+    private int _currentHp;
+    private int _nextBreakHp;
+
+    // one bit per damage point, the server owns it so every client shows the same damage
+    private readonly NetworkVariable<int> _brokenPoints =
+        new NetworkVariable<int>(0,
+            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    private void Awake()
     {
-        public static Carriage Main { get; private set; }
+        _maxHp = _damagePoints.Length * _trainHpPerPoint;
+        _currentHp = _maxHp;
+        Debug.Log(_maxHp);
+        _nextBreakHp = _maxHp - (_maxHp / _damagePoints.Length);
+        Debug.Log(_nextBreakHp);
+    }
 
-        [Tooltip("Direct children of the carriage where players are placed when they board. " +
-                 "Cycled by client id so players don't stack on one spot.")]
-        [SerializeField] private Transform[] _spawnAnchors;
+    public override void OnNetworkSpawn()
+    {
+        _brokenPoints.OnValueChanged += OnBrokenPointsChanged;
+        // late joiners have to catch up on the damage that happened before they connected
+        ApplyBrokenPoints(_brokenPoints.Value);
+    }
 
-        private NetworkObject _networkObject;
+    public override void OnNetworkDespawn()
+    {
+        _brokenPoints.OnValueChanged -= OnBrokenPointsChanged;
+    }
 
-        public NetworkObject NetworkObject =>
-            _networkObject != null ? _networkObject : _networkObject = GetComponent<NetworkObject>();
-
-        private void OnEnable()
+    private void OnEnable()
+    {
+        if (Main == null)
         {
-            if (Main == null)
+            Main = this;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (Main == this)
+        {
+            Main = null;
+        }
+    }
+
+    public Transform GetSpawnAnchor(ulong clientId)
+    {
+        if (_spawnAnchors == null || _spawnAnchors.Length == 0)
+        {
+            return transform;
+        }
+
+        int index = (int)(clientId % (ulong)_spawnAnchors.Length);
+        return _spawnAnchors[index] != null ? _spawnAnchors[index] : transform;
+    }
+
+    public void TakeDamage(int damageAmount, Vector3 hitPos)
+    {
+        // only the server keeps score, clients just get told what broke
+        if (!IsServer)
+        {
+            return;
+        }
+
+        _currentHp -= damageAmount;
+        if (_currentHp < _maxHp / 4)
+        {
+            //kill train
+            Debug.Log("Train Dead");
+        }
+        else if (_currentHp < _nextBreakHp)
+        {
+            DamageClosestPoint(hitPos);
+            _nextBreakHp = _nextBreakHp - (_maxHp / _damagePoints.Length);
+            Debug.Log("Broke Object");
+        }
+    }
+
+
+    public void DamageClosestPoint(Vector3 hitPos)
+    {
+        int closest = -1;
+        float closestDistance = float.MaxValue;
+
+        for (int i = 0; i < _damagePoints.Length; i++)
+        {
+            if (IsBroken(_brokenPoints.Value, i))
             {
-                Main = this;
+                continue;
+            }
+
+            float distance = Vector3.Distance(_damagePoints[i].transform.position, hitPos);
+            if (distance < closestDistance)
+            {
+                closest = i;
+                closestDistance = distance;
             }
         }
 
-        private void OnDisable()
+        // everything is broken already
+        if (closest < 0)
         {
-            if (Main == this)
-            {
-                Main = null;
-            }
+            return;
         }
 
-        /// Picks a boarding spot for a client. Deterministic in client id, so the owning client and
-        /// the server agree on where a given player starts without an extra message.
-        public Transform GetSpawnAnchor(ulong clientId)
-        {
-            if (_spawnAnchors == null || _spawnAnchors.Length == 0)
-            {
-                return transform;
-            }
+        _brokenPoints.Value = _brokenPoints.Value | (1 << closest);
+    }
 
-            int index = (int)(clientId % (ulong)_spawnAnchors.Length);
-            return _spawnAnchors[index] != null ? _spawnAnchors[index] : transform;
+    private void OnBrokenPointsChanged(int oldValue, int newValue)
+    {
+        ApplyBrokenPoints(newValue);
+    }
+
+    private void ApplyBrokenPoints(int mask)
+    {
+        for (int i = 0; i < _damagePoints.Length; i++)
+        {
+            _damagePoints[i].GetComponent<MeshRenderer>().sharedMaterial =
+                IsBroken(mask, i) ? _brokenMat : _workingMat;
         }
+    }
+
+    private static bool IsBroken(int mask, int index)
+    {
+        return (mask & (1 << index)) != 0;
     }
 }
