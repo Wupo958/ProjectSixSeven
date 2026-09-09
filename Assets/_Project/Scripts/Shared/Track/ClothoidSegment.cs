@@ -2,12 +2,6 @@ using UnityEngine;
 
 namespace ProjectSixSeven.Shared.Track
 {
-    /// A transition spiral: curvature ramps linearly from one value to another across its length,
-    /// so lateral acceleration builds up gradually instead of appearing the instant a curve starts.
-    ///
-    /// Heading has a closed form (integrating a linear curvature gives a quadratic), but position
-    /// does not - it is a Fresnel integral - so positions are integrated once at build time with the
-    /// midpoint rule and cached. Sampling then interpolates the cache.
     public sealed class ClothoidSegment : TrackSegment
     {
         private const float TargetSampleSpacing = 1f;

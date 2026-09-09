@@ -2,8 +2,6 @@ using UnityEngine;
 
 namespace ProjectSixSeven.Shared.Track
 {
-    /// Planar helpers. Track is solved in the XZ plane with headings measured as
-    /// atan2(z, x), so a positive rotation turns left.
     public static class TrackMath
     {
         public static Vector3 Flatten(Vector3 v)
@@ -34,7 +32,6 @@ namespace ProjectSixSeven.Shared.Track
             return new Vector3(Mathf.Cos(heading), 0f, Mathf.Sin(heading));
         }
 
-        /// Signed angle from a to b in radians, positive when b is to the left of a.
         public static float SignedAngle(Vector3 from, Vector3 to)
         {
             float cross = from.x * to.z - from.z * to.x;

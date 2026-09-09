@@ -4,8 +4,6 @@ using ProjectSixSeven.Shared.Track;
 
 namespace ProjectSixSeven.Shared.Track.Editor
 {
-    /// Spawns a throwaway demo track with a block train, so the rail system can be inspected
-    /// without hand-wiring a scene.
     public static class TrackDemoBuilder
     {
         [MenuItem("Tools/ProjectSixSeven/Create Demo Track")]
