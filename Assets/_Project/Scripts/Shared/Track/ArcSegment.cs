@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace ProjectSixSeven.Shared.Track
 {
-    /// Circular arc of fixed radius. A positive turn angle curves left, negative curves right.
     public sealed class ArcSegment : TrackSegment
     {
         private readonly Vector3 _start;

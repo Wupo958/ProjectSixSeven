@@ -2,8 +2,6 @@ using UnityEngine;
 
 namespace ProjectSixSeven.Shared.Track
 {
-    /// A control point placed by a designer. Position and rotation come straight from the
-    /// transform, so nodes are moved and aimed with the normal scene view handles.
     public sealed class TrackNode : MonoBehaviour
     {
         [SerializeField] private float _gizmoSize = 8f;

@@ -4,12 +4,6 @@ using UnityEngine.Rendering;
 
 namespace ProjectSixSeven.Shared.Track
 {
-    /// Generates the visible track: two rails, sleepers and a ballast bed swept along the solved
-    /// centreline. The centreline is taken to be the running surface of the rails, so everything
-    /// here hangs below it.
-    ///
-    /// Output is split into chunks so a long line still culls per-section instead of drawing the
-    /// whole route whenever any of it is on screen.
     [ExecuteAlways]
     public sealed class TrackMeshBuilder : MonoBehaviour
     {
@@ -43,8 +37,6 @@ namespace ProjectSixSeven.Shared.Track
         [Header("Chunking")]
         [SerializeField] private float _chunkLength = 200f;
 
-        // Rail cross-section, in metres, relative to the centre of that rail's head.
-        // x is across the track, y is up, with the running surface at y = 0.
         private static readonly Vector2[] RailProfile =
         {
             new Vector2(-0.070f, -0.170f),
@@ -138,7 +130,6 @@ namespace ProjectSixSeven.Shared.Track
             renderer.sharedMaterials = new[] { _ballastMaterial, _sleeperMaterial, _railMaterial };
         }
 
-        /// Sweeps a set of closed cross-section loops along the path and stitches them into tubes.
         private void AddSweep(
             MeshData data,
             TrackPath path,
@@ -171,7 +162,6 @@ namespace ProjectSixSeven.Shared.Track
             }
         }
 
-        /// Joins two rings of equal length with quads, so the loop becomes a closed tube wall.
         private static void StitchLoop(MeshData data, List<int> triangles, Vector3[] back, Vector3[] front)
         {
             int count = back.Length;
@@ -248,8 +238,6 @@ namespace ProjectSixSeven.Shared.Track
         {
             float spacing = Mathf.Max(0.2f, _sleeperSpacing);
 
-            // Step off a global grid rather than from the chunk start, so sleepers stay evenly
-            // spaced across chunk seams instead of bunching up at every boundary.
             float first = Mathf.Ceil(from / spacing) * spacing;
 
             for (float distance = first; distance < to; distance += spacing)

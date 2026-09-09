@@ -3,17 +3,13 @@ using UnityEngine;
 
 namespace ProjectSixSeven.Shared.Track
 {
-    /// Solves a run of track through the placed nodes and exposes it as a single distance-addressable path.
     [ExecuteAlways]
     public sealed class TrackBuilder : MonoBehaviour
     {
         public enum TrackMode
         {
-            /// Connects the last node back to the first: one continuous circuit the train laps.
             Loop,
 
-            /// Connects the nodes in a line and leaves the ends open: a run between two spots that
-            /// the train travels A-to-B rather than looping.
             PointToPoint
         }
 
@@ -55,8 +51,6 @@ namespace ProjectSixSeven.Shared.Track
         public float MaxGrade => _maxGrade;
         public bool IsLoop => _mode == TrackMode.Loop;
 
-        /// The clothoid easement length, in metres. Procedural generation sets this from node spacing
-        /// so the easements never overlap (which forces the solver into min-radius loops).
         public float TransitionLength
         {
             get => _transitionLength;
@@ -77,8 +71,6 @@ namespace ProjectSixSeven.Shared.Track
             _path = null;
         }
 
-        /// Replaces the node set and mode wholesale, then re-solves. Used by procedural generation to
-        /// drive the same track system a designer uses by hand.
         public void Configure(List<TrackNode> nodes, TrackMode mode)
         {
             _nodes = nodes ?? new List<TrackNode>();
