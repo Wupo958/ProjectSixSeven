@@ -5,8 +5,6 @@ using ProjectSixSeven.Shared.Track;
 
 namespace ProjectSixSeven.Client.Editor
 {
-    /// Wires the main camera to the train in the currently open scene. Doing this from a menu item
-    /// rather than by editing the scene file keeps Unity as the only writer of the scene.
     public static class TrainCameraSetup
     {
         [MenuItem("Tools/ProjectSixSeven/Attach Camera To Train")]
@@ -15,10 +13,10 @@ namespace ProjectSixSeven.Client.Editor
             Camera camera = Camera.main;
             if (camera == null)
             {
-                camera = Object.FindFirstObjectByType<Camera>();
+                camera = Object.FindAnyObjectByType<Camera>();
             }
 
-            TrainFollower train = Object.FindFirstObjectByType<TrainFollower>();
+            TrainFollower train = Object.FindAnyObjectByType<TrainFollower>();
 
             if (camera == null || train == null)
             {

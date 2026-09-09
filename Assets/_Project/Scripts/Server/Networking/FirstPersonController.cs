@@ -14,6 +14,8 @@ public class FirstPersonController : NetworkBehaviour
     [Tooltip("Downward speed applied while grounded to keep the player pinned to the moving floor.")]
     public float groundStick = -4f;
 
+    public float groundCheckDistance = 0.25f;
+
     [Header("Look")]
     public float lookSensitivity = 0.1f;
     public float maxPitch = 90f;
@@ -108,15 +110,24 @@ public class FirstPersonController : NetworkBehaviour
         Vector2 input = moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
         Vector3 move = transform.right * input.x + transform.forward * input.y;
 
-        if (controller.isGrounded && verticalVelocity < 0f)
+        bool grounded = IsGrounded();
+
+        if (grounded && verticalVelocity < 0f)
             verticalVelocity = groundStick;
 
-        if (jumpAction != null && jumpAction.WasPressedThisFrame() && controller.isGrounded)
+        if (jumpAction != null && jumpAction.WasPressedThisFrame() && grounded)
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
 
         verticalVelocity += gravity * Time.deltaTime;
 
         Vector3 velocity = move * moveSpeed + Vector3.up * verticalVelocity;
         controller.Move(velocity * Time.deltaTime);
+    }
+
+    bool IsGrounded()
+    {
+        Vector3 origin = transform.position + controller.center;
+        float distance = controller.height * 0.5f + groundCheckDistance;
+        return Physics.Raycast(origin, Vector3.down, distance, ~0, QueryTriggerInteraction.Ignore);
     }
 }
