@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace ProjectSixSeven.Shared.Track
 {
-    /// Solves the shortest path between two poses that never curves tighter than a given radius.
-    /// The result is always a sequence of three pieces (arc/straight), which is why the minimum
-    /// radius is guaranteed by construction rather than checked afterwards.
     public static class DubinsSolver
     {
         private const float TwoPi = Mathf.PI * 2f;
@@ -27,7 +24,6 @@ namespace ProjectSixSeven.Shared.Track
             new[] { Turn.Left, Turn.Right, Turn.Left }
         };
 
-        /// Returns null when no path exists for the given radius.
         public static List<TrackSegment> Solve(
             Vector3 startPosition,
             Vector3 startForward,
