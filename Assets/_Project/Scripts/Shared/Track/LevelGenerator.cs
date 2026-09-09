@@ -3,15 +3,6 @@ using UnityEngine;
 
 namespace ProjectSixSeven.Shared.Track
 {
-    /// Builds a whole level from a seed: a wobbly point-to-point track of roughly a target length, a
-    /// goal marker at the far end, and primitive decor (trees, rocks, hills) scattered in a corridor
-    /// either side of the line.
-    ///
-    /// Nothing here is networked. Every client runs the same seed and gets a byte-identical layout,
-    /// and the train rides the deterministic track exactly as it does for a hand-placed one — so the
-    /// level "just works" in multiplayer without any extra syncing.
-    ///
-    /// Placeholder art only: everything is a coloured Unity primitive, so it drops in with no assets.
     [RequireComponent(typeof(TrackBuilder))]
     public sealed class LevelGenerator : MonoBehaviour
     {
@@ -61,20 +52,14 @@ namespace ProjectSixSeven.Shared.Track
 
             TrackBuilder track = GetComponent<TrackBuilder>();
 
-            // Each node gets a straight easement lead-in and lead-out; if two of those overlap (node
-            // spacing < 2x easement) the solver connects them with a min-radius loop. Keep the easement
-            // a fifth of the spacing so the arc between them always has room.
             track.TransitionLength = _nodeSpacing * 0.2f;
 
-            // The arc between the easements only spans ~60% of the spacing, so clamp the per-node turn
-            // to what that length can bend at the min radius, with margin, to guarantee no loops.
             float coreLength = _nodeSpacing * 0.6f;
             float maxTurn = 2f * Mathf.Asin(Mathf.Clamp01(coreLength / (2f * track.MinRadius))) * Mathf.Rad2Deg;
             float wobble = Mathf.Min(_wobble, maxTurn * 0.85f);
 
             track.Configure(BuildTrackNodes(wobble), TrackBuilder.TrackMode.PointToPoint);
 
-            // The visible rails are a separate mesh; rebuild it against the new path.
             TrackMeshBuilder mesh = GetComponent<TrackMeshBuilder>();
             if (mesh != null)
             {
@@ -92,23 +77,20 @@ namespace ProjectSixSeven.Shared.Track
             ScatterDecor(path);
         }
 
-        // --- Track ---------------------------------------------------------------------------------
 
         private List<TrackNode> BuildTrackNodes(float maxWobble)
         {
             List<Vector3> points = new List<Vector3>();
 
             Vector3 position = transform.position;
-            float heading = 0f;   // degrees around Y; 0 points along +Z
-            float level = position.y;   // the track stays flat at the generator's height
+            float heading = 0f;
+            float level = position.y;
             points.Add(position);
 
             float travelled = 0f;
             int guard = 0;
             while (travelled < _trackLength && guard++ < 10000)
             {
-                // Wobble the heading but keep it within a forward cone, so the line snakes without ever
-                // doubling back on itself. Clamping only ever reduces the turn, so it stays loop-safe.
                 heading = Mathf.Clamp(heading + Range(-maxWobble, maxWobble), -50f, 50f);
 
                 Vector3 step = Quaternion.Euler(0f, heading, 0f) * Vector3.forward * _nodeSpacing;
@@ -120,7 +102,6 @@ namespace ProjectSixSeven.Shared.Track
             List<TrackNode> nodes = new List<TrackNode>(points.Count);
             for (int i = 0; i < points.Count; i++)
             {
-                // Tangent from a central difference so the solver curves smoothly through each node.
                 Vector3 forward;
                 if (i == 0)
                 {
@@ -151,7 +132,6 @@ namespace ProjectSixSeven.Shared.Track
             return nodes;
         }
 
-        // --- Goal ----------------------------------------------------------------------------------
 
         private void PlaceGoal(TrackPath path)
         {
@@ -162,7 +142,6 @@ namespace ProjectSixSeven.Shared.Track
             goal.name = "Goal";
         }
 
-        // --- Decor ---------------------------------------------------------------------------------
 
         private void ScatterDecor(TrackPath path)
         {
@@ -188,8 +167,6 @@ namespace ProjectSixSeven.Shared.Track
             }
         }
 
-        /// A random point out in the corridor beside the track, with its height taken from the track
-        /// so decor roughly follows the terrain the line runs through.
         private Vector3 CorridorPoint(TrackPath path, out TrackSample sample)
         {
             sample = path.Sample(Range(0f, path.Length));
@@ -204,7 +181,6 @@ namespace ProjectSixSeven.Shared.Track
             return sample.Position + right * (side * offset);
         }
 
-        // --- Helpers -------------------------------------------------------------------------------
 
         private GameObject Spawn(PrimitiveType type, Vector3 position, Vector3 scale, Quaternion rotation, Color color)
         {
@@ -213,15 +189,14 @@ namespace ProjectSixSeven.Shared.Track
             go.transform.SetPositionAndRotation(position, rotation);
             go.transform.localScale = scale;
 
-            // Decor is scenery only; colliders would just cost physics on hundreds of objects.
             DestroySafe(go.GetComponent<Collider>());
 
             MeshRenderer renderer = go.GetComponent<MeshRenderer>();
             renderer.sharedMaterial = _material;
 
             MaterialPropertyBlock block = new MaterialPropertyBlock();
-            block.SetColor("_BaseColor", color); // URP Lit
-            block.SetColor("_Color", color);      // Built-in fallback
+            block.SetColor("_BaseColor", color);
+            block.SetColor("_Color", color);
             renderer.SetPropertyBlock(block);
 
             return go;

@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace ProjectSixSeven.Shared.Track.Editor
 {
-    /// Adds the mesh builder to the track in the open scene, hooks up the materials and builds once.
     public static class TrackMeshSetup
     {
         private const string MaterialFolder = "Assets/_Project/Materials";
@@ -12,7 +11,7 @@ namespace ProjectSixSeven.Shared.Track.Editor
         [MenuItem("Tools/ProjectSixSeven/Build Track Mesh")]
         private static void BuildTrackMesh()
         {
-            TrackBuilder track = Object.FindFirstObjectByType<TrackBuilder>();
+            TrackBuilder track = Object.FindAnyObjectByType<TrackBuilder>();
             if (track == null)
             {
                 Debug.LogError("Build Track Mesh: no TrackBuilder in the open scene.");
