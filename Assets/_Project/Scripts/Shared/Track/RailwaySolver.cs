@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace ProjectSixSeven.Shared.Track
 {
-    /// Connects two nodes with track a real railway could actually be built from: minimum radius
-    /// honoured, clothoid easements into and out of every curve, and straight track through the
-    /// nodes themselves.
     public static class RailwaySolver
     {
         private const int MaxCorrectionPasses = 12;
@@ -26,10 +23,6 @@ namespace ProjectSixSeven.Shared.Track
             Vector3 startDirection = TrackMath.FlattenDirection(startForward);
             Vector3 endDirection = TrackMath.FlattenDirection(endForward);
 
-            // Nodes packed closer together than the easements need leave the curvature ramps no room,
-            // and the correction below stops converging. Shortening the easement is the honest answer:
-            // cramped geometry gets gentler easing, and at zero it degrades to plain arcs, which are
-            // always exact. Hitting the node is not negotiable; the easement length is.
             float attemptLength = Mathf.Max(0f, transitionLength);
 
             for (int attempt = 0; attempt <= MaxBackoffAttempts; attempt++)
@@ -64,8 +57,6 @@ namespace ProjectSixSeven.Shared.Track
         {
             converged = false;
 
-            // Easing the curvature shifts the track slightly off the pose it was solved for, so we
-            // solve against a target that we nudge until the eased result lands on the real one.
             Vector3 targetPosition = end;
             Vector3 targetDirection = endDirection;
 
@@ -114,8 +105,6 @@ namespace ProjectSixSeven.Shared.Track
             float minRadius,
             float transitionLength)
         {
-            // Straight lead-ins give the first and last easement somewhere to live, which is also
-            // why track through a node is dead straight - the same as a real station or junction.
             float lead = Mathf.Max(transitionLength, 1f);
 
             Vector3 afterLeadIn = start + startDirection * lead;

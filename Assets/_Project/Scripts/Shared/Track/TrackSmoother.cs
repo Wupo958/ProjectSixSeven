@@ -3,12 +3,6 @@ using UnityEngine;
 
 namespace ProjectSixSeven.Shared.Track
 {
-    /// Replaces the instant curvature steps in a solved path with linear ramps, turning
-    /// straight-into-arc corners into straight-clothoid-arc easements.
-    ///
-    /// A ramp eats half its length from the piece on either side of the join, so the track keeps
-    /// the same overall shape. Because a ramp only ever moves between two existing curvatures, it
-    /// can never exceed either of them, and the minimum radius survives untouched.
     public static class TrackSmoother
     {
         private const float MinPieceLength = 0.01f;
@@ -41,8 +35,6 @@ namespace ProjectSixSeven.Shared.Track
             return Integrate(curvature, length, halfRamp, startPosition, startForward);
         }
 
-        /// Half-length of the ramp straddling each internal join, shrunk until the ramps on both
-        /// ends of a piece fit inside it.
         private static float[] BuildRamps(
             float[] curvature,
             float[] length,
@@ -60,8 +52,6 @@ namespace ProjectSixSeven.Shared.Track
                     continue;
                 }
 
-                // Ramp length scales with how much curvature has to change, so the rate of change
-                // - the jerk a passenger feels - stays constant across every transition.
                 halfRamp[i] = transitionLength * (change / maxCurvature) * 0.5f;
             }
 
