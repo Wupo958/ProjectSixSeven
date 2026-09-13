@@ -31,6 +31,6 @@ public class EnemySpawner : NetworkBehaviour
         Vector3 trainPos = train.transform.position;
         Vector3 spawnPoint = new Vector3(trainPos.x + Random.Range(-100f, 100f), height, trainPos.z + Random.Range(-100f, -250f));
         NetworkObject enemy = Instantiate(prefab, spawnPoint, Quaternion.identity);
-        enemy.Spawn();
+        enemy.Spawn(true);
     }
 }
