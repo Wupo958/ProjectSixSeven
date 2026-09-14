@@ -26,6 +26,7 @@ public class PlayerLifecycle : MonoBehaviour
     private void Start()
     {
         NetworkManager.Singleton.OnServerStarted += SubscribeToLoadEvents;
+        NetworkManager.Singleton.OnClientStarted += SubscribeToLoadEvents;
         NetworkManager.Singleton.OnClientStopped += OnClientStopped;
     }
 
@@ -35,6 +36,7 @@ public class PlayerLifecycle : MonoBehaviour
         if (networkManager != null)
         {
             networkManager.OnServerStarted -= SubscribeToLoadEvents;
+            networkManager.OnClientStarted -= SubscribeToLoadEvents;
             networkManager.OnClientStopped -= OnClientStopped;
             if (isSubscribedToLoadEvents)
             {
@@ -99,6 +101,8 @@ public class PlayerLifecycle : MonoBehaviour
 
     private void OnClientStopped(bool wasHost)
     {
+        isSubscribedToLoadEvents = false;
+
         if (VoiceChatManager.Instance != null)
         {
             _ = VoiceChatManager.Instance.LeaveActiveChannelAsync();
@@ -109,6 +113,11 @@ public class PlayerLifecycle : MonoBehaviour
 
     private void SubscribeToLoadEvents()
     {
+        if (isSubscribedToLoadEvents)
+        {
+            return;
+        }
+
         NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnSceneLoadCompleted;
         isSubscribedToLoadEvents = true;
     }
