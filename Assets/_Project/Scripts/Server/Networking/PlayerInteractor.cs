@@ -34,7 +34,7 @@ public sealed class PlayerInteractor : NetworkBehaviour
         if (_promptLabel == null) _promptLabel = PromptLabel.Instance;
     }
  
-    private void Update()
+    private void LateUpdate()
     {
         if (!IsOwner) return;
  
@@ -65,17 +65,18 @@ public sealed class PlayerInteractor : NetworkBehaviour
     {
         if (_rayOrigin == null) return null;
  
-        return Physics.Raycast(_rayOrigin.position, _rayOrigin.forward,
-                   out RaycastHit hit, _range, _mask, QueryTriggerInteraction.Collide)
-            ? hit.collider.GetComponentInParent<Interactable>()
-            : null;
+        if (Physics.Raycast(_rayOrigin.position, _rayOrigin.forward, out RaycastHit hit, _range, _mask, QueryTriggerInteraction.Collide))
+        {
+            return hit.collider.GetComponentInParent<Interactable>();
+        }
+        return null;
     }
  
     private void UpdatePrompt()
     {
         string text = _current != null ? _current.GetPrompt(this) : string.Empty;
  
-        if (string.IsNullOrEmpty(text) && _inventory != null && _inventory.HasItem)
+        if (_current == null && _inventory != null && _inventory.HasItem)
             text = $"[{_dropKey}] Drop {_inventory.Held.DisplayName}";
  
         SetPrompt(text);
