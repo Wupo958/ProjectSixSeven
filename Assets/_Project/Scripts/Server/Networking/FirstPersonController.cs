@@ -1,4 +1,3 @@
-using ProjectSixSeven.Shared;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -22,6 +21,8 @@ public class FirstPersonController : NetworkBehaviour
 
     [Tooltip("Drag the child Camera here.")]
     public Transform cameraTransform;
+
+    public bool ControlSuspended { get; set; }
 
     CharacterController controller;
     InputAction moveAction;
@@ -62,7 +63,7 @@ public class FirstPersonController : NetworkBehaviour
 
     void TryEnableControl()
     {
-        if (controlEnabled || !IsOwner || Carriage.Main == null)
+        if (controlEnabled || !IsOwner || TrainHealth.Instance == null)
             return;
 
         controlEnabled = true;
@@ -81,6 +82,8 @@ public class FirstPersonController : NetworkBehaviour
         {
             return;
         }
+
+        if (ControlSuspended) return;
 
         if (!controlEnabled)
         {
