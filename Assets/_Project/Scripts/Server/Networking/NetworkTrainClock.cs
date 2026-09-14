@@ -2,22 +2,37 @@ using Unity.Netcode;
 using UnityEngine;
 using ProjectSixSeven.Shared.Track;
 
-public sealed class NetworkTrainClock : MonoBehaviour {
-    private void OnEnable() {
-        TrainFollower.TimeSource = GetNetworkSeconds;
+public class NetworkTrainClock : NetworkBehaviour
+{
+    private readonly NetworkVariable<double> levelStartTime =
+        new NetworkVariable<double>(0d,
+            NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsServer)
+        {
+            levelStartTime.Value = NetworkManager.ServerTime.Time;
+        }
+
+        TrainFollower.TimeSource = GetLevelSeconds;
     }
 
-    private void OnDisable() {
-        if (TrainFollower.TimeSource == GetNetworkSeconds) {
+    public override void OnNetworkDespawn()
+    {
+        if (TrainFollower.TimeSource == GetLevelSeconds)
+        {
             TrainFollower.TimeSource = null;
         }
     }
 
-    private static float GetNetworkSeconds() {
-        NetworkManager nm = NetworkManager.Singleton;
+    private float GetLevelSeconds()
+    {
+        NetworkManager networkManager = NetworkManager.Singleton;
 
-        if (nm != null && nm.IsListening) {
-            return (float)nm.ServerTime.Time;
+        if (networkManager != null && networkManager.IsListening)
+        {
+            return (float)(networkManager.ServerTime.Time - levelStartTime.Value);
         }
 
         return Time.timeSinceLevelLoad;

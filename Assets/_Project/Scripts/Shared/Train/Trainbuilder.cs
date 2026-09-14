@@ -56,6 +56,36 @@ public sealed class Trainbuilder : MonoBehaviour
     [SerializeField, HideInInspector] private List<PlacedCar> _placed = new List<PlacedCar>();
     [SerializeField, HideInInspector] private float _trainLength;
 
+    private float noseDistance;
+
+    public float NoseDistance => noseDistance;
+
+    public float TrackLength
+    {
+        get
+        {
+            if (_track == null || _track.Path == null)
+            {
+                return 0f;
+            }
+
+            return _track.Path.Length;
+        }
+    }
+
+    public bool IsLoopTrack
+    {
+        get
+        {
+            if (_track == null)
+            {
+                return false;
+            }
+
+            return _track.IsLoop;
+        }
+    }
+
     private const string ContainerName = "Generated";
 
     //ASSEMBLY
@@ -145,7 +175,16 @@ public sealed class Trainbuilder : MonoBehaviour
         if (_track == null || _track.Path == null || !_track.Path.IsValid || _placed == null)
             return;
  
-        PlaceAll(Application.isPlaying ? PlayDistance() : EditDistance());
+        if (Application.isPlaying)
+        {
+            noseDistance = PlayDistance();
+        }
+        else
+        {
+            noseDistance = EditDistance();
+        }
+
+        PlaceAll(noseDistance);
     }
 
     private float EditDistance() {
