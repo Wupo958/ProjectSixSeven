@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(NetworkObject))]
 public sealed class TrainHealth : NetworkBehaviour
@@ -21,6 +22,8 @@ public sealed class TrainHealth : NetworkBehaviour
     [Tooltip("Train is destroyed when total current HP drops below this fraction of max")]
     [Range(0f, 1f)]
     [SerializeField] private float _explodeBelowFraction = 0.25f;
+
+    [SerializeField] private string loseScene = "GameLostScreen";
 
     [Tooltip("What enemies aim at. Defaults to the Lok, else the train root")]
     public Transform AimTarget;
@@ -253,6 +256,22 @@ public sealed class TrainHealth : NetworkBehaviour
         Debug.Log("TRAIN DESTROYED - GAME OVER");
         OnTrainDestroyed?.Invoke();
         GameOverClientRpc();
+        LoadLoseScene();
+    }
+
+    private void LoadLoseScene()
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+
+        if (PlayerLifecycle.Main != null)
+        {
+            PlayerLifecycle.Main.DespawnAllPlayers();
+        }
+
+        NetworkManager.Singleton.SceneManager.LoadScene(loseScene, LoadSceneMode.Single);
     }
 
     [ClientRpc]
@@ -266,6 +285,7 @@ public sealed class TrainHealth : NetworkBehaviour
 
     //STATUS QUERIES
 
+    public bool IsDead => _dead;
     public int WagonCount => _wagons != null ? _wagons.Length : 0;
     public int DefectsOf(int wagon) => InRange(wagon) ? _wagons[wagon].Defects : 0;
     public bool IsDefectBroken(int wagon, int point) => InRange(wagon) && IsBit(_masks[wagon], point);

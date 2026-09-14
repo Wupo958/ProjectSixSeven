@@ -1967,7 +1967,7 @@ Transform:
   m_GameObject: {fileID: 376073139}
   serializedVersion: 2
   m_LocalRotation: {x: -0.00013566262, y: 0.000037870097, z: 0.0000000051375566, w: 1}
-  m_LocalPosition: {x: -0.00048828125, y: 8.001859, z: -10.500259}
+  m_LocalPosition: {x: -0.00048828125, y: 6.0018587, z: -10.49971}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4785,12 +4785,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MashMinigame
   _type: 0
-  _mashKey: 38
-  _cancelKey: 60
+  _mashKey: 19
+  _cancelKey: 20
   _label: {fileID: 559983953}
   _progressBar: {fileID: 916229444}
   _timeLimit: 0
-  _decayPerSecond: 0
+  _decayPerSecond: 1
 --- !u!114 &1052654519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5811,8 +5811,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 6603751566658309077, guid: 9b7184afd6a445d43adb7b54791a959d, type: 3}
     - target: {fileID: 2001273552815994070, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
+      propertyPath: _rideHeight
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2001273552815994070, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
+      propertyPath: _hpPerDefect
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2001273552815994070, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
       propertyPath: _wagonLength
       value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 2001273552815994070, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
+      propertyPath: _startDistance
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2001273552815994070, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
       propertyPath: _placed.Array.size
@@ -5886,6 +5898,10 @@ PrefabInstance:
       propertyPath: AimTarget
       value: 
       objectReference: {fileID: 1864503183}
+    - target: {fileID: 8056750963570279866, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
+      propertyPath: _lokMaxHp
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 8056750963570279866, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
       propertyPath: _brokenMat
       value: 
@@ -6294,7 +6310,7 @@ Transform:
   m_GameObject: {fileID: 1593014587}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.0010986328, y: 8, z: -36.49933}
+  m_LocalPosition: {x: -0.0010986328, y: 6, z: -36.49933}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7754,7 +7770,7 @@ Transform:
   m_GameObject: {fileID: 1864503182}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.0010986328, y: 8, z: -23.499329}
+  m_LocalPosition: {x: -0.0010986328, y: 6, z: -23.499329}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

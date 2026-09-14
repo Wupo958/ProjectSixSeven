@@ -168,7 +168,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   muzzle: {fileID: 5202059296398536232}
   projectilePrefab: {fileID: 8499486844344490790, guid: a20e0f1642f235c40bb893cdb4b6f370, type: 3}
-  maxHealth: 2
+  maxHealth: 25
   maxRange: 250
   attackInterval: 0.75
   firstAttackDelay: 3
