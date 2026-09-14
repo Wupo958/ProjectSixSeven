@@ -176,7 +176,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 0.7
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &3879404505571753696
 GameObject:
@@ -319,7 +319,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 0.7
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &5953649606091247334
 GameObject:
@@ -462,7 +462,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 0.7
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7997845042607251617
 GameObject:
@@ -574,7 +574,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.5
+  m_Radius: 0.7
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &8217517768857624498
 PrefabInstance:
@@ -1066,9 +1066,10 @@ MonoBehaviour:
   _muzzle: {fileID: 399680587416633800}
   _cameraAnchor: {fileID: 4959159571746989863}
   _projectilePrefab: {fileID: 6368186506939396444, guid: 7a2a2522329bdc14982433d7cc0f80cd, type: 3}
+  _pitchPivotIsSibling: 1
+  _pitchPivotPoint: {fileID: 0}
   _aimSendRate: 20
   _remoteAimSmoothing: 12
-  _pitchPivotIsSibling: 1
   _pitchUpKey: 37
   _pitchDownKey: 33
   _yawLeftKey: 15
