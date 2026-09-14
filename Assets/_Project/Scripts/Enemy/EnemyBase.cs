@@ -1,12 +1,12 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public abstract class EnemyBase : NetworkBehaviour
+public abstract class EnemyBase : NetworkBehaviour, IDamageable
 {
     [SerializeField] protected Transform muzzle;
     [SerializeField] private GameObject projectilePrefab;
 
-    [SerializeField] protected int maxHealth = 3;
+    [SerializeField] protected float maxHealth = 3f;
 
     [SerializeField] protected float maxRange = 200f;
     [SerializeField] protected float attackInterval = 1f;
@@ -17,7 +17,7 @@ public abstract class EnemyBase : NetworkBehaviour
     [SerializeField] protected float maxSpeed = 60f;
     [SerializeField] protected float stationGain = 1f;
 
-    private int health;
+    private float health;
     private Vector3 lastTrainPos;
     private Vector3 trainVelocity;
     private bool hasLastTrainPos;
@@ -55,7 +55,7 @@ public abstract class EnemyBase : NetworkBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    public void TakeDamage(int amount)
+    public void ApplyDamage(float amount, Vector3 hitPoint)
     {
         if (!IsServer)
         {
@@ -63,7 +63,7 @@ public abstract class EnemyBase : NetworkBehaviour
         }
 
         health -= amount;
-        if (health <= 0)
+        if (health <= 0f)
         {
             Die();
         }
