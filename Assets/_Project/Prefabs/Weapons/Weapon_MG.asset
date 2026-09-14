@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1466f0d9ac0fb64eae078ca0e0803be, type: 3}
+  m_Name: Weapon_MG
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinition
+  DisplayName: Cannon
+  AcceptedAmmoTag: LightAmmo
+  Damage: 2
+  FireMode: 1
+  RoundsPerMinute: 240
+  MagazineCapacity: 100
+  BulletSpread: 15
+  Recoil: 1
+  RoundsPerAmmoItem: 100
+  ProjectileSpeed: 100
+  Range: 50
+  MaxZoomPercent: 100
+  PitchSpeed: 15
+  PitchMin: -30
+  PitchMax: 75
+  YawSpeed: 15
+  LimitYaw: 0
+  YawMin: -180
+  YawMax: 180
