@@ -65,6 +65,8 @@ public sealed class TrainHealth : NetworkBehaviour
     private float _maxTotalHp;
     private bool _dead;
 
+
+
     [Header("Player spawns")]
     [SerializeField] private Transform[] _spawnAnchors;
 
@@ -73,6 +75,20 @@ public sealed class TrainHealth : NetworkBehaviour
         if (_spawnAnchors == null || _spawnAnchors.Length == 0) return transform;
         int i = (int)(clientId % (ulong)_spawnAnchors.Length);
         return _spawnAnchors[i] != null ? _spawnAnchors[i] : transform;
+    }
+
+    public Vector3 Velocity { get; private set; }
+    private Vector3 _lastCarryPos;
+    private bool _hasLastCarryPos;
+
+    private void LateUpdate()
+    {
+        if (CarryReference == null || Time.deltaTime <= 0f) return;
+
+        Vector3 pos = CarryReference.position;
+        if (_hasLastCarryPos) Velocity = (pos - _lastCarryPos) / Time.deltaTime;
+        _lastCarryPos = pos;
+        _hasLastCarryPos = true;
     }
 
     private void Awake()
