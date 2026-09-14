@@ -17,7 +17,7 @@ public class GroundJeepEnemy : EnemyBase
             return;
         }
 
-        Vector3 toJeep = transform.position - Train.transform.position;
+        Vector3 toJeep = transform.position - Train.CarryReference.position;
         side = 1f;
         if (Vector3.Dot(toJeep, TrainRight) < 0f)
         {
@@ -40,6 +40,6 @@ public class GroundJeepEnemy : EnemyBase
 
     private Vector3 StationPoint()
     {
-        return Train.transform.position + TrainRight * side * sideOffset + TrainHeading * forwardOffset;
+        return Train.CarryReference.position + TrainRight * side * sideOffset + TrainHeading * forwardOffset;
     }
 }

@@ -23,7 +23,7 @@ public abstract class EnemyBase : NetworkBehaviour
     private bool hasLastTrainPos;
     protected Rigidbody rb;
 
-    protected Carriage Train => Carriage.Main;
+    protected TrainHealth Train => TrainHealth.Instance;
     protected Vector3 TrainVelocity => trainVelocity;
 
     protected Vector3 TrainHeading
@@ -35,7 +35,7 @@ public abstract class EnemyBase : NetworkBehaviour
                 return trainVelocity.normalized;
             }
 
-            return Carriage.Main.transform.forward;
+            return Train.transform.forward;
         }
     }
 
@@ -91,7 +91,7 @@ public abstract class EnemyBase : NetworkBehaviour
             return;
         }
 
-        Vector3 pos = Carriage.Main.transform.position;
+        Vector3 pos = Train.CarryReference.transform.position;
         if (hasLastTrainPos)
         {
             trainVelocity = (pos - lastTrainPos) / Time.deltaTime;
@@ -126,7 +126,7 @@ public abstract class EnemyBase : NetworkBehaviour
 
     protected virtual bool CanAttack()
     {
-        return Vector3.Distance(muzzle.position, Carriage.Main.transform.position) <= maxRange;
+        return Vector3.Distance(muzzle.position, Train.AimTarget.transform.position) <= maxRange;
     }
 
     protected Vector3 DesiredVelocity(Vector3 stationPoint)
@@ -143,7 +143,7 @@ public abstract class EnemyBase : NetworkBehaviour
 
     protected Vector3 PredictAimPoint(Vector3 from, float projectileSpeed)
     {
-        Vector3 trainPos = Carriage.Main.transform.position;
+        Vector3 trainPos = Train.AimTarget.transform.position;
         Vector3 aimPoint = trainPos;
 
         for (int i = 0; i < 2; i++)
