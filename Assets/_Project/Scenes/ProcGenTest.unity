@@ -5883,6 +5883,10 @@ PrefabInstance:
       value: 1516531431
       objectReference: {fileID: 0}
     - target: {fileID: 8056750963570279866, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
+      propertyPath: AimTarget
+      value: 
+      objectReference: {fileID: 1864503183}
+    - target: {fileID: 8056750963570279866, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
       propertyPath: _brokenMat
       value: 
       objectReference: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
