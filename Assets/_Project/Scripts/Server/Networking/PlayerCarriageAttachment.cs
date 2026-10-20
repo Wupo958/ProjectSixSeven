@@ -23,6 +23,8 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
     private Quaternion _lastCarriageRot;
     private bool _riding;
 
+    public Transform Seat { get; set; }
+
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
@@ -38,15 +40,15 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
 
     private IEnumerator BoardWhenReady()
     {
-        while (Carriage.Main == null)
+        while (TrainHealth.Instance == null)
         {
             yield return null;
         }
 
-        _carriage = Carriage.Main.transform;
+        _carriage = TrainHealth.Instance.CarryReference;
         yield return null;
 
-        Transform anchor = Carriage.Main.GetSpawnAnchor(OwnerClientId);
+        Transform anchor = TrainHealth.Instance.GetSpawnAnchor(OwnerClientId);
 
         bool wasEnabled = _controller.enabled;
         _controller.enabled = false;
@@ -62,7 +64,7 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
     {
         if (_carriage == null)
         {
-            _carriage = Carriage.Main != null ? Carriage.Main.transform : null;
+            _carriage = TrainHealth.Instance != null ? TrainHealth.Instance.CarryReference : null;
             if (_carriage == null)
             {
                 return;
@@ -71,8 +73,15 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
 
         if (IsOwner)
         {
-            if (_riding)
+            if (Seat != null)
             {
+                bool wasEnabled = _controller.enabled;
+                _controller.enabled = false;
+                transform.SetPositionAndRotation(Seat.position, Seat.rotation);
+                _controller.enabled = wasEnabled;
+                _lastCarriagePos = _carriage.position;
+                _lastCarriageRot = _carriage.rotation;
+            } else if (_riding) {
                 CarryWithCarriage();
             }
 

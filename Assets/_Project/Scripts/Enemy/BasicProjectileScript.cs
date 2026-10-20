@@ -47,10 +47,10 @@ public class BasicProjectileScript : NetworkBehaviour
 
     private void Hit(Collider other, Vector3 hitPos)
     {
-        Carriage carriage = other.GetComponentInParent<Carriage>();
-        if (carriage != null)
+        TrainHealth train = other.GetComponentInParent<TrainHealth>();
+        if (train != null)
         {
-            carriage.TakeDamage(_damage, hitPos);
+            train.ReportHit(other, hitPos, _damage);
         }
 
         NetworkObject.Despawn();
