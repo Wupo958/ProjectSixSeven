@@ -19,7 +19,7 @@ public class AirPlaneEnemy : EnemyBase
             return;
         }
 
-        Vector3 offset = transform.position - Train.transform.position;
+        Vector3 offset = transform.position - Train.CarryReference.position;
         offset.y = 0f;
         orbitAngle = Mathf.Atan2(offset.z, offset.x) * Mathf.Rad2Deg;
         orbitDirection = 1f;
@@ -35,7 +35,7 @@ public class AirPlaneEnemy : EnemyBase
 
         float radians = orbitAngle * Mathf.Deg2Rad;
         Vector3 ring = new Vector3(Mathf.Cos(radians), 0f, Mathf.Sin(radians)) * orbitRadius;
-        Vector3 station = Train.transform.position + Vector3.up * orbitHeight + ring;
+        Vector3 station = Train.CarryReference.position + Vector3.up * orbitHeight + ring;
 
         ApplySteering(DesiredVelocity(station));
 
