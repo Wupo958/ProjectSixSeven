@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94773153e3ec7f4459becbffd240dcad, type: 3}
+  m_Name: WagonHalfRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::WagonHalfRegistry
+  Halves:
+  - {fileID: 6633217274484355636, guid: ea363810f296c0042a5988581c143b24, type: 3}
+  - {fileID: 3046197862757021859, guid: 5038e2d5318e97347b566772c291aba0, type: 3}
+  - {fileID: 1845993471547928519, guid: 07824f24e05263a47ab2a5756eba78e5, type: 3}
+  - {fileID: -8646690698777742032, guid: 1a809867d538f91419fb2394fe6a53a9, type: 3}

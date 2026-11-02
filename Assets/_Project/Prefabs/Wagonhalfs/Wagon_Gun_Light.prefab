@@ -850,6 +850,8 @@ MonoBehaviour:
   - {fileID: 912180736597182804}
   - {fileID: 303930300600677344}
   - {fileID: 8581266556720040806}
+  _spawnAnchors: []
+  _displayName: Light Gun Wagon
 --- !u!65 &8181683825133361114
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1051,15 +1053,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 662d707a12a4b484b89a744eda34f8d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MachineGunWeapon
-  ShowTopMostFoldoutHeaderGroup: 1
   _definition: {fileID: 11400000, guid: 92b6c623eca66804fbecb61a2d8aee29, type: 2}
   _yawPivot: {fileID: 4568994400314155446}
   _pitchPivot: {fileID: 2445582116571934144}
+  _pitchPivotIsSibling: 1
+  _pitchPivotPoint: {fileID: 8345318384539964006}
   _muzzle: {fileID: 2811216157743122708}
   _cameraAnchor: {fileID: 3706412084128647995}
   _projectilePrefab: {fileID: 6368186506939396444, guid: 7a2a2522329bdc14982433d7cc0f80cd, type: 3}
-  _pitchPivotIsSibling: 1
-  _pitchPivotPoint: {fileID: 8345318384539964006}
   _aimSendRate: 20
   _remoteAimSmoothing: 12
   _mouseSensitivity: 0.05

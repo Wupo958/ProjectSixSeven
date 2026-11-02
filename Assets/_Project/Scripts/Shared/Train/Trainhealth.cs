@@ -64,52 +64,28 @@ public sealed class TrainHealth : NetworkBehaviour
     private int _lokHp;
     private float _maxTotalHp;
     private bool _dead;
+    public bool IsBuilt { get; private set; }
 
+<<<<<<< Updated upstream
     [Header("Player spawns")]
     [SerializeField] private Transform[] _spawnAnchors;
+=======
+    private readonly List<Transform> _spawnAnchors = new List<Transform>();
+>>>>>>> Stashed changes
 
     public Transform GetSpawnAnchor(ulong clientId)
     {
-        if (_spawnAnchors == null || _spawnAnchors.Length == 0) return transform;
-        int i = (int)(clientId % (ulong)_spawnAnchors.Length);
+        if (_spawnAnchors.Count == 0) return CarryReference != null ? CarryReference : transform;
+        int i = (int)(clientId % (ulong)_spawnAnchors.Count);
         return _spawnAnchors[i] != null ? _spawnAnchors[i] : transform;
     }
 
     private void Awake()
     {
-        _wagons = GetComponentsInChildren<Wagon>(true);
-        int n = _wagons.Length;
-
-        _currentHp = new int[n];
-        _nextBreak = new int[n];
-        _frontCount = new int[n];
-        _maxTotalHp = _lokMaxHp;
-
-        for (int i = 0; i < n; i++)
-        {
-            Wagon w = _wagons[i];
-            int y = w.Defects > 0 ? w.MaxHP / w.Defects : 0;
-            _currentHp[i] = w.MaxHP;
-            _nextBreak[i] = w.MaxHP - y;
-            _frontCount[i] = (w.Front != null && w.Front.DamagePoints != null) ? w.Front.DamagePoints.Length : 0;
-            _maxTotalHp += w.MaxHP;
-        }
-
-        _lokHp = _lokMaxHp;
         if (AimTarget == null) AimTarget = _lok != null ? _lok : transform;
+        Rebind();
 
         if (CarryReference == null) CarryReference = _lok != null ? _lok : transform;
-
-        for (int i = 0; i < _wagons.Length; i++)
-        {
-            var pts = _wagons[i].DamagePoints;
-            for (int p = 0; p < pts.Count; p++)
-            {
-                if (pts[p] == null) continue;
-                RepairPoint rp = pts[p].GetComponent<RepairPoint>() ?? pts[p].AddComponent<RepairPoint>();
-                rp.Setup(this, i, p);
-            }
-        }
     }
 
     public override void OnNetworkSpawn()
@@ -117,14 +93,7 @@ public sealed class TrainHealth : NetworkBehaviour
         Instance = this;
         _masks.OnListChanged += OnMaskChanged;
 
-        if (IsServer)
-        {
-            for (int i = 0; i < _wagons.Length; i++) _masks.Add(0);
-        }
-
-        //refresh visuals from whatever state exists
-        int count = Mathf.Min(_wagons.Length, _masks.Count);
-        for (int i = 0; i < count; i++) ApplyMask(i, _masks[i]);
+        Rebind();
     }
 
     public override void OnNetworkDespawn()
@@ -198,6 +167,60 @@ public sealed class TrainHealth : NetworkBehaviour
             return half != null ? half.ExplosiveDamage : 0;
         }
         return 0;
+    }
+
+    public void Rebind()
+    {
+        _wagons = GetComponentsInChildren<Wagon>(true);
+        int n = _wagons.Length;
+
+        _currentHp  = new int[n];
+        _nextBreak  = new int[n];
+        _frontCount = new int[n];
+        _maxTotalHp = _lokMaxHp;
+
+        for (int i = 0; i < n; i++)
+        {
+            Wagon w = _wagons[i];
+            int y = w.Defects > 0 ? w.MaxHP / w.Defects : 0;
+            _currentHp[i]  = w.MaxHP;
+            _nextBreak[i]  = w.MaxHP - y;
+            _frontCount[i] = (w.Front != null && w.Front.DamagePoints != null) ? w.Front.DamagePoints.Length : 0;
+            _maxTotalHp += w.MaxHP;
+        }
+
+        _lokHp = _lokMaxHp;
+
+        if (AimTarget == null) AimTarget = _lok != null ? _lok : transform;
+
+        // Resize the synced damage masks to match the new wagon count.
+        if (IsSpawned && IsServer)
+        {
+            while (_masks.Count > n) _masks.RemoveAt(_masks.Count - 1);
+            while (_masks.Count < n) _masks.Add(0);
+        }
+
+        // Repair points wire themselves up; designers never touch them.
+        for (int i = 0; i < n; i++)
+        {
+            var pts = _wagons[i].DamagePoints;
+            for (int p = 0; p < pts.Count; p++)
+            {
+                if (pts[p] == null) continue;
+                RepairPoint rp = pts[p].GetComponent<RepairPoint>() ?? pts[p].AddComponent<RepairPoint>();
+                rp.Setup(this, i, p);
+            }
+        }
+
+        int count = Mathf.Min(n, _masks.Count);
+        for (int i = 0; i < count; i++) ApplyMask(i, _masks[i]);
+    }
+
+    public void SetSpawnAnchors(List<Transform> anchors)
+    {
+        _spawnAnchors.Clear();
+        if (anchors != null) _spawnAnchors.AddRange(anchors);
+        IsBuilt = true;
     }
 
     //REPAIR

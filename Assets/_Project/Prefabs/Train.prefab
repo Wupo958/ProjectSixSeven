@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 9184269027183957139}
   - component: {fileID: 5542184989258879744}
+  - component: {fileID: -3431873040174976675}
+  - component: {fileID: 1555760082608065114}
   - component: {fileID: 2001273552815994070}
   - component: {fileID: 8056750963570279866}
   - component: {fileID: 3389157851927771567}
@@ -47,7 +49,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4085930856
+  GlobalObjectIdHash: 1516531431
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -61,6 +63,31 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &-3431873040174976675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 669473586591985552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d99314255faa0e341914c6b7cc5490e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrainConfigApplier
+--- !u!114 &1555760082608065114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 669473586591985552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e560d464df00f284fa3a8f13ce1d9227, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrainWeapons
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &2001273552815994070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74,17 +101,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Trainbuilder
   _track: {fileID: 0}
-  _lokPrefab: {fileID: 0}
+  _lokPrefab: {fileID: 6603751566658309077, guid: 9b7184afd6a445d43adb7b54791a959d, type: 3}
   _wagons: []
   _lokLength: 12
+  _halfOffset: 0
   _wagonLength: 12
   _bogieFraction: 0.7
   _rideHeight: 2
+  _flipBackHalf: 1
   _hpPerDefect: 10
+  _spawnAnchorHeight: 1.1
   _speed: 30
   _startDistance: 0
   _startDelay: 5
   _placed: []
+  _trainLength: 0
 --- !u!114 &8056750963570279866
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98,12 +129,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TrainHealth
   ShowTopMostFoldoutHeaderGroup: 1
-  _workingMat: {fileID: 0}
-  _brokenMat: {fileID: 0}
-  _lok: {fileID: 0}
+  _workingMat: {fileID: 2100000, guid: 2b63af79cdab87641a03126bfcf2d164, type: 2}
+  _brokenMat: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
+  _lok: {fileID: 854112223567147420, guid: 9b7184afd6a445d43adb7b54791a959d, type: 3}
   _lokMaxHp: 100
   _explodeBelowFraction: 0.25
+  loseScene: GameLostScreen
   AimTarget: {fileID: 0}
+  CarryReference: {fileID: 0}
+  _repairMinigame: 0
+  _repairDifficulty: 10
 --- !u!114 &3389157851927771567
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -116,3 +151,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3203e4e1355a56e4687ba8521c1f2ba2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkTrainClock
+<<<<<<< Updated upstream
+=======
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &4471903628815550241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 669473586591985552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a8f5c3e7b1d4e6a9c0b8d2f4e6a1c93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrackEndVictory
+  ShowTopMostFoldoutHeaderGroup: 1
+  trainBuilder: {fileID: 2001273552815994070}
+  winDistanceFromEnd: 1
+  winScene: GameWonScreen
+>>>>>>> Stashed changes

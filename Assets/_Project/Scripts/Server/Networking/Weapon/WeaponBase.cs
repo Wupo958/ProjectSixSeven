@@ -1,90 +1,100 @@
 using Unity.Netcode;
 using UnityEngine;
-
-public abstract class WeaponBase : NetworkBehaviour
+ 
+public abstract class WeaponBase : MonoBehaviour
 {
     public const ulong NoOccupant = ulong.MaxValue;
  
     [Header("Setup")]
     [SerializeField] protected WeaponDefinition _definition;
  
-    [Tooltip("Rotates left/right (yaw). Usually the turret base")]
+    [Tooltip("Rotates left/right (yaw). Usually the turret base.")]
     [SerializeField] protected Transform _yawPivot;
  
-    [Tooltip("Rotates up/down (pitch). Usually the barrel")]
+    [Tooltip("Rotates up/down (pitch). Usually the barrel.")]
     [SerializeField] protected Transform _pitchPivot;
  
-    [Tooltip("Where projectiles leave the barrel")]
+    [Tooltip("Tick if the pitch pivot is a SIBLING of the yaw pivot instead of a child.")]
+    [SerializeField] private bool _pitchPivotIsSibling = false;
+ 
+    [Tooltip("Empty placed at the barrel's real pivot point. Leave null to rotate " +
+             "around the mesh's own origin.")]
+    [SerializeField] private Transform _pitchPivotPoint;
+ 
+    [Tooltip("Where projectiles leave the barrel.")]
     [SerializeField] protected Transform _muzzle;
  
-    [Tooltip("Where the gunners camera sits while seated")]
+    [Tooltip("Where the gunner's camera sits while seated.")]
     [SerializeField] protected Transform _cameraAnchor;
  
-    [Tooltip("Projectile prefab. Needs NetworkObject + WeaponProjectile")]
+    [Tooltip("Projectile prefab. Needs NetworkObject + WeaponProjectile.")]
     [SerializeField] protected GameObject _projectilePrefab;
-
-    [Tooltip("Tick if the pitch pivot is a SIBLING of the yaw pivot instead of a child")]
-    [SerializeField] private bool _pitchPivotIsSibling = false;
-
-    [Tooltip("Empty placed at the barrel's real pivot point. Leave null to rotate around the mesh's own origin.")]
-    [SerializeField] private Transform _pitchPivotPoint;
+ 
     [Header("Networking")]
-    [Tooltip("How many times per second the gunners aim is sent to the server")]
+    [Tooltip("How many times per second the gunner's aim is sent to the server.")]
     [SerializeField] private float _aimSendRate = 20f;
  
     [SerializeField] private float _remoteAimSmoothing = 12f;
  
-    //SYNCED STATE
-    private readonly NetworkVariable<ulong> _occupant = new NetworkVariable<ulong>(NoOccupant);
-    private readonly NetworkVariable<Vector2> _aim = new NetworkVariable<Vector2>(Vector2.zero);
-    private readonly NetworkVariable<int> _loaded = new NetworkVariable<int>(0);
-    private readonly NetworkVariable<float> _ammoMultiplier = new NetworkVariable<float>(1f);
+    private TrainWeapons _hub;
+    private int _index = -1;
+    private Vector3 _pitchPivotRestPos;
  
-    //LOCAL GUNNER STATE
     protected float Pitch;
     protected float Yaw;
     private float _nextAimSend;
     private float _nextShotTime;
  
+    // ----- binding ---------------------------------------------------------
+ 
+    public void Bind(TrainWeapons hub, int index)
+    {
+        _hub = hub;
+        _index = index;
+    }
+ 
+    public bool IsSpawned => _hub != null && _hub.IsSpawned && _hub.HasState(_index);
+ 
+    private WeaponState State => IsSpawned ? _hub.Get(_index) : WeaponState.Empty;
+ 
+    // ----- public API (unchanged) ---------------------------------------------
+ 
     public WeaponDefinition Definition => _definition;
     public Transform CameraAnchor => _cameraAnchor;
-    public ulong Occupant => _occupant.Value;
-    public bool IsOccupied => _occupant.Value != NoOccupant;
-    public int Loaded => _loaded.Value;
-    public bool NeedsAmmo => _loaded.Value < (_definition != null ? _definition.MagazineCapacity : 1);
+    public ulong Occupant => State.Occupant;
+    public bool IsOccupied => State.Occupant != NoOccupant;
+    public int Loaded => State.Loaded;
+    public bool NeedsAmmo => Loaded < Capacity;
  
-    //player is currently driving this weapon on this machine
+    public int Capacity => _definition != null ? _definition.MagazineCapacity : 1;
+    public int RoundsPerLoad => _definition != null ? Mathf.Max(1, _definition.RoundsPerAmmoItem) : 1;
+ 
     public PlayerInteractor LocalGunner { get; private set; }
     public bool IsLocalGunner => LocalGunner != null;
  
-    //SEAT
- 
-    [ServerRpc(RequireOwnership = false)]
-    public void RequestMountServerRpc(ulong clientId)
-    {
-        if (IsOccupied) return;
-        _occupant.Value = clientId;
-    }
- 
-    [ServerRpc(RequireOwnership = false)]
-    public void RequestDismountServerRpc(ulong clientId)
-    {
-        if (_occupant.Value == clientId) _occupant.Value = NoOccupant;
-    }
-
-    private Vector3 _pitchPivotRestPos;
-
     protected virtual void Awake()
     {
         if (_pitchPivot != null) _pitchPivotRestPos = _pitchPivot.localPosition;
     }
  
-    //weaponstation calls this on the mounting client
+    // ----- seat -----------------------------------------------------------
+ 
+    public void RequestMountServerRpc(ulong clientId)
+    {
+        if (IsSpawned) _hub.MountServerRpc(_index);
+    }
+ 
+    public void RequestDismountServerRpc(ulong clientId)
+    {
+        if (IsSpawned) _hub.DismountServerRpc(_index);
+    }
+ 
     public void BeginLocalControl(PlayerInteractor player)
     {
         LocalGunner = player;
-        Pitch = _aim.Value.x;
-        Yaw = _aim.Value.y;
+        WeaponState s = State;
+        Pitch = s.Pitch;
+        Yaw = s.Yaw;
     }
  
     public void EndLocalControl()
@@ -92,7 +102,7 @@ public abstract class WeaponBase : NetworkBehaviour
         LocalGunner = null;
     }
  
-    //AMMO
+    // ----- ammo -----------------------------------------------------------
  
     public bool AcceptsAmmo(ItemDefinition item)
     {
@@ -101,44 +111,35 @@ public abstract class WeaponBase : NetworkBehaviour
         return item.AmmoTag == _definition.AcceptedAmmoTag;
     }
  
-    [ServerRpc(RequireOwnership = false)]
     public void LoadAmmoServerRpc(float damageMultiplier)
     {
-        if (_definition == null || _loaded.Value >= _definition.MagazineCapacity) return;
- 
-        _loaded.Value = Mathf.Min(_definition.MagazineCapacity, _loaded.Value + Mathf.Max(1, _definition.RoundsPerAmmoItem));
-        _ammoMultiplier.Value = Mathf.Max(0.01f, damageMultiplier);
+        if (IsSpawned) _hub.LoadAmmoServerRpc(_index, damageMultiplier);
     }
  
-    //FIRING
+    // ----- firing ---------------------------------------------------------
  
     protected bool CanFireNow()
     {
-        if (_definition == null || _loaded.Value <= 0) return false;
+        if (_definition == null || Loaded <= 0) return false;
         return Time.time >= _nextShotTime;
     }
  
     protected void TryFire()
     {
-        if (!CanFireNow()) return;
+        if (!IsSpawned || !CanFireNow()) return;
  
         _nextShotTime = _definition.FireMode == FireMode.Automatic
             ? Time.time + 60f / Mathf.Max(1f, _definition.RoundsPerMinute)
-            : Time.time + 0.25f;   //small guard against double-taps
+            : Time.time + 0.25f;
  
-        FireServerRpc();
+        _hub.FireServerRpc(_index);
  
-        //local recoil kick so it feels immediate for the gunner
-        Pitch = Mathf.Clamp(Pitch + _definition.Recoil, _definition.PitchMin, _definition.PitchMax);
+        Pitch = ClampPitch(Pitch + _definition.Recoil);
     }
  
-    [ServerRpc(RequireOwnership = false)]
-    private void FireServerRpc()
+    public void SpawnProjectile(float ammoMultiplier)
     {
         if (_definition == null || _projectilePrefab == null || _muzzle == null) return;
-        if (_loaded.Value <= 0) return;
- 
-        _loaded.Value -= 1;
  
         Vector3 dir = ApplySpread(_muzzle.forward, _definition.BulletSpread);
  
@@ -148,7 +149,12 @@ public abstract class WeaponBase : NetworkBehaviour
             dir,
             _definition.ProjectileSpeed,
             _definition.Range,
+<<<<<<< Updated upstream
             _definition.Damage * _ammoMultiplier.Value);
+=======
+            _definition.Damage * ammoMultiplier,
+            TrainHealth.Instance != null ? TrainHealth.Instance.Velocity : Vector3.zero);
+>>>>>>> Stashed changes
     }
  
     private static Vector3 ApplySpread(Vector3 forward, float degrees)
@@ -159,11 +165,11 @@ public abstract class WeaponBase : NetworkBehaviour
         return offset * forward;
     }
  
-    //PER-FRAME
+    // ----- per-frame -------------------------------------------------------
  
     protected virtual void Update()
     {
-        if (_definition == null) return;
+        if (_definition == null || !IsSpawned) return;
  
         if (IsLocalGunner)
         {
@@ -173,37 +179,34 @@ public abstract class WeaponBase : NetworkBehaviour
         }
         else
         {
-            Vector2 target = _aim.Value;
+            WeaponState s = State;
             float t = 1f - Mathf.Exp(-_remoteAimSmoothing * Time.deltaTime);
-            Pitch = Mathf.LerpAngle(Pitch, target.x, t);
-            Yaw = Mathf.LerpAngle(Yaw, target.y, t);
+            Pitch = Mathf.LerpAngle(Pitch, s.Pitch, t);
+            Yaw = Mathf.LerpAngle(Yaw, s.Yaw, t);
             ApplyAim(Pitch, Yaw);
         }
     }
  
-    //weapon-specific controls. Set Pitch/Yaw and call TryFire()
     protected abstract void HandleGunnerInput(float dt);
  
     protected void ApplyAim(float pitch, float yaw)
     {
         if (_yawPivot != null) _yawPivot.localRotation = Quaternion.Euler(0f, yaw, 0f);
-        if (_pitchPivot != null)
+        if (_pitchPivot == null) return;
+ 
+        Quaternion rot = _pitchPivotIsSibling
+            ? Quaternion.Euler(0f, yaw, 0f) * Quaternion.Euler(-pitch, 0f, 0f)
+            : Quaternion.Euler(-pitch, 0f, 0f);
+ 
+        _pitchPivot.localRotation = rot;
+ 
+        if (_pitchPivotPoint != null)
         {
-            Quaternion rot = _pitchPivotIsSibling
-                ? Quaternion.Euler(0f, yaw, 0f) * Quaternion.Euler(-pitch, 0f, 0f)
-                : Quaternion.Euler(-pitch, 0f, 0f);
-
-            _pitchPivot.localRotation = rot;
-
-            if (_pitchPivotPoint != null)
-            {
-                Vector3 p = _pitchPivot.parent != null
-                    ? _pitchPivot.parent.InverseTransformPoint(_pitchPivotPoint.position)
-                    : _pitchPivotPoint.position;
-
-                Vector3 origin = _pitchPivotRestPos;
-                _pitchPivot.localPosition = p + rot * (origin - p);
-            }
+            Vector3 p = _pitchPivot.parent != null
+                ? _pitchPivot.parent.InverseTransformPoint(_pitchPivotPoint.position)
+                : _pitchPivotPoint.position;
+ 
+            _pitchPivot.localPosition = p + rot * (_pitchPivotRestPos - p);
         }
     }
  
@@ -211,13 +214,9 @@ public abstract class WeaponBase : NetworkBehaviour
     {
         if (Time.time < _nextAimSend) return;
         _nextAimSend = Time.time + 1f / Mathf.Max(1f, _aimSendRate);
-        SetAimServerRpc(new Vector2(Pitch, Yaw));
+        _hub.SetAimServerRpc(_index, new Vector2(Pitch, Yaw));
     }
  
-    [ServerRpc(RequireOwnership = false)]
-    private void SetAimServerRpc(Vector2 aim) => _aim.Value = aim;
- 
-    //clamps helper for subclasses.
     protected float ClampPitch(float value) =>
         Mathf.Clamp(value, _definition.PitchMin, _definition.PitchMax);
  
