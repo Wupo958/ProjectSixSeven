@@ -196,6 +196,12 @@ public class ConnectUI : MonoBehaviour
             await VoiceChatManager.Instance.SwitchToLobbyAsync();
         }
 
+        if (GameSession.Instance != null)
+        {
+            GameSession.Instance.LoadGameplay();
+            return;
+        }
+
         nm.SceneManager.LoadScene(gameplayScene, LoadSceneMode.Single);
     }
 

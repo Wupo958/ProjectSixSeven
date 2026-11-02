@@ -14,6 +14,8 @@ namespace ProjectSixSeven.Shared.Track
         [Header("Track shape")]
         [Tooltip("Roughly how long the track should be, in metres.")]
         [SerializeField] private float _trackLength = 2400f;
+        [Tooltip("Extra track length added per level, in metres.")]
+        [SerializeField] private float _lengthPerLevel = 400f;
         [Tooltip("Spacing between control nodes, in metres. Keep it well above the track's transition length.")]
         [SerializeField] private float _nodeSpacing = 200f;
         [Tooltip("How far the track may swing left/right at each node, in degrees. Kept gentle so it stays above the min radius.")]
@@ -34,6 +36,9 @@ namespace ProjectSixSeven.Shared.Track
         private System.Random _rng;
         private Transform _container;
         private Material _material;
+        private float _levelLength;
+
+        private static int CurrentLevel => GameSession.Instance != null ? GameSession.Instance.LevelIndex : 0;
 
         private void Awake()
         {
@@ -46,7 +51,9 @@ namespace ProjectSixSeven.Shared.Track
         [ContextMenu("Generate")]
         public void Generate()
         {
-            _rng = new System.Random(_seed);
+            int level = CurrentLevel;
+            _rng = new System.Random(_seed + level * 7919);
+            _levelLength = _trackLength + level * _lengthPerLevel;
             ResetContainer();
             EnsureMaterial();
 
@@ -89,7 +96,7 @@ namespace ProjectSixSeven.Shared.Track
 
             float travelled = 0f;
             int guard = 0;
-            while (travelled < _trackLength && guard++ < 10000)
+            while (travelled < _levelLength && guard++ < 10000)
             {
                 heading = Mathf.Clamp(heading + Range(-maxWobble, maxWobble), -50f, 50f);
 
