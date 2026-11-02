@@ -10,9 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1500001}
   - component: {fileID: 1500004}
-  - component: {fileID: 1500005}
   - component: {fileID: 1500006}
+  - component: {fileID: 1500005}
   - component: {fileID: 1500007}
+  - component: {fileID: 4737362393276655563}
   m_Layer: 0
   m_Name: Carriage
   m_TagString: Untagged
@@ -57,18 +58,6 @@ MonoBehaviour:
   _rideHeight: 0
   _startDistance: 0
   _startDelay: 5
---- !u!114 &1500005
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1500000}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3203e4e1355a56e4687ba8521c1f2ba2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NetworkTrainClock
 --- !u!114 &1500006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -95,6 +84,19 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &1500005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3203e4e1355a56e4687ba8521c1f2ba2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkTrainClock
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &1500007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -107,6 +109,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 988b9166009a363409d8446b25fdc007, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectSixSeven.Shared.Carriage
+  ShowTopMostFoldoutHeaderGroup: 1
   _spawnAnchors:
   - {fileID: 1660001}
   - {fileID: 1670001}
@@ -122,6 +125,19 @@ MonoBehaviour:
   _trainHpPerPoint: 25
   _workingMat: {fileID: 2100000, guid: 2b63af79cdab87641a03126bfcf2d164, type: 2}
   _brokenMat: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
+--- !u!114 &4737362393276655563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3203e4e1355a56e4687ba8521c1f2ba2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkTrainClock
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &1600000
 GameObject:
   m_ObjectHideFlags: 0

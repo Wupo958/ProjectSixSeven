@@ -13,6 +13,11 @@ public class NetworkTrainClock : NetworkBehaviour
         if (IsServer)
         {
             levelStartTime.Value = NetworkManager.ServerTime.Time;
+
+            if (GameSession.Instance != null)
+            {
+                GameSession.Instance.BeginLevel();
+            }
         }
 
         TrainFollower.TimeSource = GetLevelSeconds;

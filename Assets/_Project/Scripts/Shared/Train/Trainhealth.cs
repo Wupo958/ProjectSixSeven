@@ -14,16 +14,15 @@ public sealed class TrainHealth : NetworkBehaviour
     [SerializeField] private Material _brokenMat;
 
     [Header("Locomotive")]
-    [Tooltip("Colliders under this transform route damage to the Lok. It has HP but no defects")]
+    [Tooltip("Hits on the Lok are passed on to the nearest wagon. It has no HP of its own")]
     [SerializeField] private Transform _lok;
-    [SerializeField] private int _lokMaxHp = 100;
 
     [Header("Game over")]
     [Tooltip("Train is destroyed when total current HP drops below this fraction of max")]
     [Range(0f, 1f)]
     [SerializeField] private float _explodeBelowFraction = 0.25f;
 
-    [SerializeField] private string loseScene = "GameLostScreen";
+    [SerializeField] private string loseScene = "LevelEndScreen";
 
     [Tooltip("What enemies aim at. Defaults to the Lok, else the train root")]
     public Transform AimTarget;
@@ -58,7 +57,6 @@ public sealed class TrainHealth : NetworkBehaviour
     private int[] _currentHp;
     private int[] _nextBreak;
     private int[] _frontCount;
-    private int _lokHp;
     private float _maxTotalHp;
     private bool _dead;
     public bool IsBuilt { get; private set; }
@@ -115,18 +113,26 @@ public sealed class TrainHealth : NetworkBehaviour
     {
         if (!IsServer || _dead) return;
 
+        if (GameSession.Instance != null) GameSession.Instance.AddDamage(damage);
+
         Wagon wagon = hitCollider != null ? hitCollider.GetComponentInParent<Wagon>() : null;
-        if (wagon != null)
-        {
-            int index = Array.IndexOf(_wagons, wagon);
-            if (index >= 0) DamageWagon(index, damage, hitPos);
-        }
-        else
-        {
-            DamageLok(damage);
-        }
+        int index = wagon != null ? Array.IndexOf(_wagons, wagon) : -1;
+        if (index < 0 || _wagons[index].Defects == 0 || _currentHp[index] <= 0) index = NearestWagon(hitPos);
+        if (index >= 0) DamageWagon(index, damage, hitPos);
 
         CheckTotal();
+    }
+
+    private int NearestWagon(Vector3 hitPos)
+    {
+        int best = -1; float bestD = float.MaxValue;
+        for (int i = 0; i < _wagons.Length; i++)
+        {
+            if (_wagons[i] == null || _wagons[i].Defects == 0 || _currentHp[i] <= 0) continue;
+            float d = (_wagons[i].transform.position - hitPos).sqrMagnitude;
+            if (d < bestD) { bestD = d; best = i; }
+        }
+        return best;
     }
 
     private void DamageWagon(int i, int amount, Vector3 hitPos)
@@ -145,12 +151,6 @@ public sealed class TrainHealth : NetworkBehaviour
             _nextBreak[i] -= y;
             if (explosive > 0) _currentHp[i] = Mathf.Max(0, _currentHp[i] - explosive);
         }
-    }
-
-    private void DamageLok(int amount)
-    {
-        _lokHp = Mathf.Max(0, _lokHp - amount);
-        if (_lokHp <= 0) TriggerGameOver(); //GAME OVER
     }
 
     //returns explosive damage if this defect finished off a half.
@@ -185,7 +185,7 @@ public sealed class TrainHealth : NetworkBehaviour
         _currentHp  = new int[n];
         _nextBreak  = new int[n];
         _frontCount = new int[n];
-        _maxTotalHp = _lokMaxHp;
+        _maxTotalHp = 0f;
 
         for (int i = 0; i < n; i++)
         {
@@ -196,8 +196,6 @@ public sealed class TrainHealth : NetworkBehaviour
             _frontCount[i] = (w.Front != null && w.Front.DamagePoints != null) ? w.Front.DamagePoints.Length : 0;
             _maxTotalHp += w.MaxHP;
         }
-
-        _lokHp = _lokMaxHp;
 
         if (AimTarget == null) AimTarget = _lok != null ? _lok : transform;
 
@@ -244,6 +242,8 @@ public sealed class TrainHealth : NetworkBehaviour
 
         _masks[wagonIndex] = mask & ~(1 << pointIndex);
 
+        if (GameSession.Instance != null) GameSession.Instance.AddRepair();
+
         Wagon w = _wagons[wagonIndex];
         int y = w.Defects > 0 ? w.MaxHP / w.Defects : 0;
         _currentHp[wagonIndex] = Mathf.Min(w.MaxHP, _currentHp[wagonIndex] + Mathf.Max(0, y - 1));
@@ -255,7 +255,7 @@ public sealed class TrainHealth : NetworkBehaviour
     private void CheckTotal()
     {
         if (_dead) return;
-        float total = _lokHp;
+        float total = 0f;
         for (int i = 0; i < _currentHp.Length; i++) total += _currentHp[i];
         if (total < _maxTotalHp * _explodeBelowFraction) TriggerGameOver();
     }
@@ -280,6 +280,13 @@ public sealed class TrainHealth : NetworkBehaviour
         if (PlayerLifecycle.Main != null)
         {
             PlayerLifecycle.Main.DespawnAllPlayers();
+        }
+
+        EnemyBase.DespawnAll();
+
+        if (GameSession.Instance != null)
+        {
+            GameSession.Instance.EndLevel(false);
         }
 
         NetworkManager.Singleton.SceneManager.LoadScene(loseScene, LoadSceneMode.Single);

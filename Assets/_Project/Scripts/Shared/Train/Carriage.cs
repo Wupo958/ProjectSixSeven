@@ -1,6 +1,8 @@
 using System;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem.UI;
+using UnityEngine.SceneManagement;
 
 public class Carriage : NetworkBehaviour
 {
@@ -16,6 +18,7 @@ public class Carriage : NetworkBehaviour
     private int _maxHp;
     private int _currentHp;
     private int _nextBreakHp;
+    private bool _isDead;
 
     // one bit per damage point, the server owns it so every client shows the same damage
     private readonly NetworkVariable<int> _brokenPoints =
@@ -79,9 +82,16 @@ public class Carriage : NetworkBehaviour
         }
 
         _currentHp -= damageAmount;
-        if (_currentHp < _maxHp / 4)
+        if(_currentHp < _maxHp / 4 && !_isDead)
         {
-            //kill train
+            _isDead = true;
+            PlayerLifecycle.Main.DespawnAllPlayers();
+            EnemyBase.DespawnAll();
+            if (GameSession.Instance != null)
+            {
+                GameSession.Instance.EndLevel(false);
+            }
+            NetworkManager.Singleton.SceneManager.LoadScene("LevelEndScreen", LoadSceneMode.Single);
             Debug.Log("Train Dead");
         }
         else if (_currentHp < _nextBreakHp)
