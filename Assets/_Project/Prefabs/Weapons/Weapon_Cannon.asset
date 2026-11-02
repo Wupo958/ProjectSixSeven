@@ -18,15 +18,16 @@ MonoBehaviour:
   FireMode: 0
   RoundsPerMinute: 300
   MagazineCapacity: 1
-  BulletSpread: 5
+  BulletSpread: 0
   Recoil: 2
+  RoundsPerAmmoItem: 1
   ProjectileSpeed: 100
   Range: 100
   MaxZoomPercent: 200
   PitchSpeed: 15
   PitchMin: 0
   PitchMax: 60
-  YawSpeed: 15
+  YawSpeed: 30
   LimitYaw: 0
   YawMin: -180
   YawMax: 180
