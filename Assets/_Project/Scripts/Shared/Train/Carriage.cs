@@ -86,7 +86,12 @@ public class Carriage : NetworkBehaviour
         {
             _isDead = true;
             PlayerLifecycle.Main.DespawnAllPlayers();
-            NetworkManager.Singleton.SceneManager.LoadScene("GameLostScreen", LoadSceneMode.Single);
+            EnemyBase.DespawnAll();
+            if (GameSession.Instance != null)
+            {
+                GameSession.Instance.EndLevel(false);
+            }
+            NetworkManager.Singleton.SceneManager.LoadScene("LevelEndScreen", LoadSceneMode.Single);
             Debug.Log("Train Dead");
         }
         else if (_currentHp < _nextBreakHp)

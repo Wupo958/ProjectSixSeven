@@ -15,15 +15,27 @@ public class EnemySpawner : NetworkBehaviour
             return;
         }
 
-        if (!FindAnyObjectByType<GroundJeepEnemy>())
+        int perType = EnemiesPerType();
+
+        for (int i = EnemyBase.CountOf<GroundJeepEnemy>(); i < perType; i++)
         {
             SpawnEnemy(jeepEnemy, -3);
         }
 
-        if (!FindAnyObjectByType<AirPlaneEnemy>())
+        for (int i = EnemyBase.CountOf<AirPlaneEnemy>(); i < perType; i++)
         {
             SpawnEnemy(planeEnemy, 25);
         }
+    }
+
+    private int EnemiesPerType()
+    {
+        if (GameSession.Instance == null)
+        {
+            return 1;
+        }
+
+        return GameSession.Instance.LevelIndex + 1;
     }
 
     private void SpawnEnemy(NetworkObject prefab, float height)

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -41,13 +42,51 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
 
     protected Vector3 TrainRight => Vector3.Cross(Vector3.up, TrainHeading);
 
+    private static readonly List<EnemyBase> active = new List<EnemyBase>();
+
     public override void OnNetworkSpawn()
     {
+        active.Add(this);
+
         if (IsServer)
         {
             health = maxHealth;
             InvokeRepeating(nameof(TryAttack), firstAttackDelay, attackInterval);
         }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        active.Remove(this);
+        CancelInvoke();
+    }
+
+    public static void DespawnAll()
+    {
+        for (int i = active.Count - 1; i >= 0; i--)
+        {
+            EnemyBase enemy = active[i];
+            if (enemy != null && enemy.IsSpawned)
+            {
+                enemy.NetworkObject.Despawn();
+            }
+        }
+
+        active.Clear();
+    }
+
+    public static int CountOf<T>() where T : EnemyBase
+    {
+        int count = 0;
+        foreach (EnemyBase enemy in active)
+        {
+            if (enemy is T)
+            {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     protected virtual void Awake()
@@ -57,7 +96,7 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
 
     public void ApplyDamage(float amount, Vector3 hitPoint)
     {
-        if (!IsServer)
+        if (!IsServer || !IsSpawned)
         {
             return;
         }
@@ -71,6 +110,12 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
 
     protected virtual void Die()
     {
+        if (GameSession.Instance != null)
+        {
+            GameSession.Instance.AddKill();
+        }
+
+
         NetworkObject.Despawn();
     }
 
@@ -118,7 +163,7 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
         direction = RandomizeInCone(direction, coneAngle);
 
         GameObject projectile = Instantiate(projectilePrefab, muzzle.position, Quaternion.LookRotation(direction));
-        projectile.GetComponent<NetworkObject>().Spawn();
+        projectile.GetComponent<NetworkObject>().Spawn(destroyWithScene: true);
         projectile.GetComponent<BasicProjectileScript>().Launch(direction, maxRange);
     }
 

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4373036078791903374}
   - component: {fileID: 5881541397474125052}
   - component: {fileID: 9013867637358463055}
+  - component: {fileID: 2468013579246801357}
   m_Layer: 0
   m_Name: TrainConfig
   m_TagString: Untagged
@@ -79,3 +80,17 @@ MonoBehaviour:
   - Front: 0
     Back: 2
   _maxWagons: 8
+--- !u!114 &2468013579246801357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5827208386098599199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecac313c39ee4c2bb8ee206dd6e4da98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameSession
+  ShowTopMostFoldoutHeaderGroup: 1
+  gameplayScene: ProcGenTest
