@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4362065682434459426}
   - component: {fileID: 6376539494450904311}
   - component: {fileID: 3701778175968644733}
+  - component: {fileID: 9185372802619990932}
   m_Layer: 3
   m_Name: Sphere (2)
   m_TagString: Untagged
@@ -112,6 +113,25 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.7
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &9185372802619990932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 303930300600677344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 588fc13d0269bd84d98f4ceee3ca0a97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SuperficialDefect
+  _displayName: Superficial Defect
+  _requiredItem: {fileID: 11400000, guid: 7da2f5dbdde984c4d80deea677654c57, type: 2}
+  _minigame: 0
+  _difficulty: 10
+  _activeVisual: {fileID: 0}
+  _renderers: []
+  _brokenMaterialOverride: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
 --- !u!1 &912180736597182804
 GameObject:
   m_ObjectHideFlags: 0
@@ -124,6 +144,7 @@ GameObject:
   - component: {fileID: 2568365562373589270}
   - component: {fileID: 782351344788146763}
   - component: {fileID: 3301472444832715879}
+  - component: {fileID: 6502305014222025696}
   m_Layer: 3
   m_Name: Sphere (1)
   m_TagString: Untagged
@@ -224,6 +245,25 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.7
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6502305014222025696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 912180736597182804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 588fc13d0269bd84d98f4ceee3ca0a97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SuperficialDefect
+  _displayName: Superficial Defect
+  _requiredItem: {fileID: 11400000, guid: 7da2f5dbdde984c4d80deea677654c57, type: 2}
+  _minigame: 0
+  _difficulty: 10
+  _activeVisual: {fileID: 0}
+  _renderers: []
+  _brokenMaterialOverride: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
 --- !u!1 &920605334298088660
 GameObject:
   m_ObjectHideFlags: 0
@@ -267,6 +307,7 @@ GameObject:
   - component: {fileID: 4870535950851136100}
   - component: {fileID: 1369257295870009541}
   - component: {fileID: 8785515793818159666}
+  - component: {fileID: 3255096916924373997}
   m_Layer: 3
   m_Name: Sphere
   m_TagString: Untagged
@@ -367,6 +408,25 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.7
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3255096916924373997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2898810354323712138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 588fc13d0269bd84d98f4ceee3ca0a97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SuperficialDefect
+  _displayName: Superficial Defect
+  _requiredItem: {fileID: 11400000, guid: 7da2f5dbdde984c4d80deea677654c57, type: 2}
+  _minigame: 0
+  _difficulty: 10
+  _activeVisual: {fileID: 0}
+  _renderers: []
+  _brokenMaterialOverride: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
 --- !u!1 &4230086755300058234
 GameObject:
   m_ObjectHideFlags: 0
@@ -472,6 +532,7 @@ GameObject:
   - component: {fileID: 3392557848726683676}
   - component: {fileID: 4036118813960792024}
   - component: {fileID: 6355110440584288764}
+  - component: {fileID: 7614779569047712138}
   m_Layer: 3
   m_Name: Sphere (3)
   m_TagString: Untagged
@@ -572,6 +633,25 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.7
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7614779569047712138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8581266556720040806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 588fc13d0269bd84d98f4ceee3ca0a97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SuperficialDefect
+  _displayName: Superficial Defect
+  _requiredItem: {fileID: 11400000, guid: 7da2f5dbdde984c4d80deea677654c57, type: 2}
+  _minigame: 0
+  _difficulty: 10
+  _activeVisual: {fileID: 0}
+  _renderers: []
+  _brokenMaterialOverride: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
 --- !u!1 &9082478601556306814
 GameObject:
   m_ObjectHideFlags: 0
