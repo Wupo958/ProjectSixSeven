@@ -31,6 +31,9 @@ public class ConnectUI : MonoBehaviour
     [Tooltip("Optional. Hidden once the game starts (the lobby scene unloads anyway on start).")]
     [SerializeField] private GameObject panelToHideOnConnect;
 
+    [Tooltip("Prefab with NetworkObject + TrainConfig. Spawned by the host when the lobby opens.")]
+    [SerializeField] private NetworkObject trainConfigPrefab;
+
     private ISession session;
     private bool subscribedToClients;
 
@@ -124,6 +127,13 @@ public class ConnectUI : MonoBehaviour
 
     private void EnterHostLobby()
     {
+        if (TrainConfig.Instance == null && trainConfigPrefab != null)
+        {
+            NetworkObject config = Instantiate(trainConfigPrefab);
+            DontDestroyOnLoad(config.gameObject);
+            config.Spawn(destroyWithScene: false);
+        }
+        
         if (joinButton != null) joinButton.gameObject.SetActive(false);
         if (joinCodeInput != null) joinCodeInput.gameObject.SetActive(false);
 
@@ -157,7 +167,8 @@ public class ConnectUI : MonoBehaviour
         if (startButton != null) startButton.gameObject.SetActive(false);
 
         if (VoiceChatManager.Instance != null && session != null) {
-            await VoiceChatManager.Instance.JoinSessionVoiceAsync(session.Id);
+            VoiceChatManager.Instance.SetSession(session.Id);
+            await VoiceChatManager.Instance.SwitchToLobbyAsync();
         }
 
         if (joinCodeDisplay != null)
@@ -181,7 +192,8 @@ public class ConnectUI : MonoBehaviour
         }
 
         if (VoiceChatManager.Instance != null && session != null) {
-            await VoiceChatManager.Instance.JoinSessionVoiceAsync(session.Id);
+            VoiceChatManager.Instance.SetSession(session.Id);
+            await VoiceChatManager.Instance.SwitchToLobbyAsync();
         }
 
         nm.SceneManager.LoadScene(gameplayScene, LoadSceneMode.Single);
