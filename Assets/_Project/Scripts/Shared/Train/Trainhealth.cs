@@ -31,10 +31,7 @@ public sealed class TrainHealth : NetworkBehaviour
     [Tooltip("A generated car the players ride relative to. Assign the Lok or Wagon 1")]
     public Transform CarryReference;
 
-    [Header("Repair")]
-    [SerializeField] private MinigameType _repairMinigame = MinigameType.Mash;
-    [Tooltip("Button presses needed to repair one defect.")]
-    [SerializeField] private int _repairDifficulty = 10;
+    public Material BrokenMaterial => _brokenMat;
 
     [ContextMenu("Debug: Break A Defect")]
     private void DebugBreak()
@@ -50,9 +47,6 @@ public sealed class TrainHealth : NetworkBehaviour
             }
         }
     }
-
-    public MinigameType RepairMinigame => _repairMinigame;
-    public int RepairDifficulty => _repairDifficulty;
 
     public event Action OnTrainDestroyed;
     public event Action<int> OnWagonChanged; //wagon index whose broken state changed
@@ -140,6 +134,8 @@ public sealed class TrainHealth : NetworkBehaviour
         Wagon w = _wagons[i];
         if (w.Defects == 0) return;
 
+        amount = ModifyDamage(i, amount);
+
         int y = w.MaxHP / w.Defects;
         _currentHp[i] = Mathf.Max(0, _currentHp[i] - amount);
 
@@ -205,22 +201,21 @@ public sealed class TrainHealth : NetworkBehaviour
 
         if (AimTarget == null) AimTarget = _lok != null ? _lok : transform;
 
-        // Resize the synced damage masks to match the new wagon count.
         if (IsSpawned && IsServer)
         {
             while (_masks.Count > n) _masks.RemoveAt(_masks.Count - 1);
             while (_masks.Count < n) _masks.Add(0);
         }
 
-        // Repair points wire themselves up; designers never touch them.
         for (int i = 0; i < n; i++)
         {
             var pts = _wagons[i].DamagePoints;
             for (int p = 0; p < pts.Count; p++)
             {
                 if (pts[p] == null) continue;
-                RepairPoint rp = pts[p].GetComponent<RepairPoint>() ?? pts[p].AddComponent<RepairPoint>();
-                rp.Setup(this, i, p);
+                Defect d = pts[p].GetComponent<Defect>();
+                if (d == null) d = pts[p].AddComponent<SuperficialDefect>();
+                d.Bind(this, i, p);
             }
         }
 
@@ -321,8 +316,8 @@ public sealed class TrainHealth : NetworkBehaviour
         for (int p = 0; p < pts.Count; p++)
         {
             if (pts[p] == null) continue;
-            MeshRenderer mr = pts[p].GetComponent<MeshRenderer>();
-            if (mr != null) mr.sharedMaterial = IsBit(mask, p) ? _brokenMat : _workingMat;
+            Defect d = pts[p].GetComponent<Defect>();
+            if (d != null) d.SetBroken(IsBit(mask, p));
         }
     }
 
@@ -367,5 +362,33 @@ public sealed class TrainHealth : NetworkBehaviour
 
     private bool InRange(int wagon) => _wagons != null && wagon >= 0 && wagon < _wagons.Length;
     private static bool IsBit(int mask, int index) => (mask & (1 << index)) != 0;
+
+    private int ModifyDamage(int wagon, int amount)
+    {
+        IReadOnlyList<GameObject> pts = _wagons[wagon].DamagePoints;
+        for (int p = 0; p < pts.Count; p++)
+        {
+            if (!IsBit(_masks[wagon], p) || pts[p] == null) continue;
+            Defect d = pts[p].GetComponent<Defect>();
+            if (d != null) amount = d.ModifyIncomingDamage(amount);
+        }
+        return amount;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void DefectFailedServerRpc(int wagon, int point)
+    {
+        if (!InRange(wagon)) return;
+        var pts = _wagons[wagon].DamagePoints;
+        if (point < 0 || point >= pts.Count || pts[point] == null) return;
+        Defect d = pts[point].GetComponent<Defect>();
+        if (d != null && d.IsBroken) d.OnFailedServer();
+    }
+
+    public void ForceBreak(int wagon, int point)
+    {
+        if (!IsServer || !InRange(wagon)) return;
+        _masks[wagon] = _masks[wagon] | (1 << point);
+    }
 }
 

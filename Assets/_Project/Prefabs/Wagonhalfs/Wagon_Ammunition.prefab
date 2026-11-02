@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7552028388651259245}
   - component: {fileID: 7175226669982204060}
   - component: {fileID: 8569185661417717112}
+  - component: {fileID: 7492615888246434857}
   m_Layer: 3
   m_Name: Sphere
   m_TagString: Untagged
@@ -112,6 +113,25 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.7
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7492615888246434857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 170271444965187907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 588fc13d0269bd84d98f4ceee3ca0a97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SuperficialDefect
+  _displayName: Superficial Defect
+  _requiredItem: {fileID: 11400000, guid: 7da2f5dbdde984c4d80deea677654c57, type: 2}
+  _minigame: 0
+  _difficulty: 10
+  _activeVisual: {fileID: 0}
+  _renderers: []
+  _brokenMaterialOverride: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
 --- !u!1 &383726010626506678
 GameObject:
   m_ObjectHideFlags: 0
@@ -124,6 +144,7 @@ GameObject:
   - component: {fileID: 225643933574496235}
   - component: {fileID: 2561198079537548022}
   - component: {fileID: 7836154855533622665}
+  - component: {fileID: 7661132860108134951}
   m_Layer: 3
   m_Name: Sphere (1)
   m_TagString: Untagged
@@ -224,6 +245,25 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.7
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7661132860108134951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 383726010626506678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 588fc13d0269bd84d98f4ceee3ca0a97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SuperficialDefect
+  _displayName: Superficial Defect
+  _requiredItem: {fileID: 11400000, guid: 7da2f5dbdde984c4d80deea677654c57, type: 2}
+  _minigame: 0
+  _difficulty: 10
+  _activeVisual: {fileID: 0}
+  _renderers: []
+  _brokenMaterialOverride: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
 --- !u!1 &722743194893650952
 GameObject:
   m_ObjectHideFlags: 0
@@ -236,6 +276,7 @@ GameObject:
   - component: {fileID: 82316346742581671}
   - component: {fileID: 2788919683278804140}
   - component: {fileID: 6231141560812272837}
+  - component: {fileID: 4334017000915446305}
   m_Layer: 3
   m_Name: Sphere (2)
   m_TagString: Untagged
@@ -336,6 +377,25 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.7
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4334017000915446305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 722743194893650952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 588fc13d0269bd84d98f4ceee3ca0a97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SuperficialDefect
+  _displayName: Superficial Defect
+  _requiredItem: {fileID: 11400000, guid: 7da2f5dbdde984c4d80deea677654c57, type: 2}
+  _minigame: 0
+  _difficulty: 10
+  _activeVisual: {fileID: 0}
+  _renderers: []
+  _brokenMaterialOverride: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
 --- !u!1 &2410683322983644816
 GameObject:
   m_ObjectHideFlags: 0
@@ -383,6 +443,7 @@ GameObject:
   - component: {fileID: 2603901126299166348}
   - component: {fileID: 3517367413640897868}
   - component: {fileID: 5862028144620678763}
+  - component: {fileID: 781836753013884796}
   m_Layer: 3
   m_Name: Sphere (3)
   m_TagString: Untagged
@@ -483,6 +544,25 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.7
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &781836753013884796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6012712137734435939}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 588fc13d0269bd84d98f4ceee3ca0a97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SuperficialDefect
+  _displayName: Superficial Defect
+  _requiredItem: {fileID: 11400000, guid: 7da2f5dbdde984c4d80deea677654c57, type: 2}
+  _minigame: 0
+  _difficulty: 10
+  _activeVisual: {fileID: 0}
+  _renderers: []
+  _brokenMaterialOverride: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
 --- !u!1001 &438384777970723188
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -816,6 +896,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d5f64117842cdad4ebb186623d7ee58d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 117038475066166943}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d5f64117842cdad4ebb186623d7ee58d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9093054415434610603}
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d5f64117842cdad4ebb186623d7ee58d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5723843926925310179}
@@ -1160,4 +1243,116 @@ MonoBehaviour:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
   m_PrefabInstance: {fileID: 5252768113431518984}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &8771813250732625984
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4489190768803864017}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.908
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.248
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 4.692
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      propertyPath: m_Name
+      value: train_box_placeholder_v001 (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1722515426022518438}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3321330141415381588}
+  m_SourcePrefab: {fileID: 100100000, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+--- !u!1 &8465312082025688337 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+  m_PrefabInstance: {fileID: 8771813250732625984}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &1722515426022518438
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8465312082025688337}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.49999997, y: 0.49999997, z: 0.5}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3321330141415381588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8465312082025688337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78ff5a3151109cf4292419cb0dec704f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemSourceBox
+  _item: {fileID: 11400000, guid: 7da2f5dbdde984c4d80deea677654c57, type: 2}
+  _verb: Take
+--- !u!4 &9093054415434610603 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+  m_PrefabInstance: {fileID: 8771813250732625984}
   m_PrefabAsset: {fileID: 0}

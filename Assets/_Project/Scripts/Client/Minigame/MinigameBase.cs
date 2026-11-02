@@ -8,9 +8,6 @@ public enum MinigameType
     Refuel = 2,
 }
  
-// Base for every minigame. Minigames are LOCAL: only the player doing it runs
-// one, and only the result is sent to the server. That keeps them cheap and
-// means new minigames need no networking code at all.
 public abstract class MinigameBase : MonoBehaviour
 {
     [SerializeField] private MinigameType _type;
@@ -18,16 +15,16 @@ public abstract class MinigameBase : MonoBehaviour
  
     private Action _onSuccess;
     private Action _onCancel;
+    private Action _onFail;
  
     protected int Difficulty { get; private set; }
  
-    //called by MinigameHost. Difficulty means whatever the minigame wants
-    //(for Mash it is the number of presses required).
-    public void Begin(int difficulty, Action onSuccess, Action onCancel)
+    public void Begin(int difficulty, Action onSuccess, Action onCancel, Action onFail = null)
     {
         Difficulty = Mathf.Max(1, difficulty);
         _onSuccess = onSuccess;
         _onCancel = onCancel;
+        _onFail = onFail;
  
         gameObject.SetActive(true);
         OnBegin();
@@ -48,11 +45,19 @@ public abstract class MinigameBase : MonoBehaviour
         Close();
         cb?.Invoke();
     }
+
+    protected void Fail()
+    {
+        Action cb = _onFail;
+        Close();
+        cb?.Invoke();
+    }
  
     private void Close()
     {
         _onSuccess = null;
         _onCancel = null;
+        _onFail = null;
         gameObject.SetActive(false);
     }
 }

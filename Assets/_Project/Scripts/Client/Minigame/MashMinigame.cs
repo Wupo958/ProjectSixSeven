@@ -50,7 +50,7 @@ public sealed class MashMinigame : MinigameBase
         if (_timeLimit > 0f)
         {
             _timeLeft -= Time.deltaTime;
-            if (_timeLeft <= 0f) { Cancel(); return; }
+            if (_timeLeft <= 0f) { Fail(); return; }
         }
  
         Refresh();
