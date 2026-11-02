@@ -15,15 +15,27 @@ public class EnemySpawner : NetworkBehaviour
             return;
         }
 
-        if (!FindAnyObjectByType<GroundJeepEnemy>())
+        int perType = EnemiesPerType();
+
+        for (int i = EnemyBase.CountOf<GroundJeepEnemy>(); i < perType; i++)
         {
             SpawnEnemy(jeepEnemy, -3);
         }
 
-        if (!FindAnyObjectByType<AirPlaneEnemy>())
+        for (int i = EnemyBase.CountOf<AirPlaneEnemy>(); i < perType; i++)
         {
             SpawnEnemy(planeEnemy, 25);
         }
+    }
+
+    private int EnemiesPerType()
+    {
+        if (GameSession.Instance == null)
+        {
+            return 1;
+        }
+
+        return GameSession.Instance.LevelIndex + 1;
     }
 
     private void SpawnEnemy(NetworkObject prefab, float height)
@@ -31,6 +43,6 @@ public class EnemySpawner : NetworkBehaviour
         Vector3 trainPos = train.transform.position;
         Vector3 spawnPoint = new Vector3(trainPos.x + Random.Range(-100f, 100f), height, trainPos.z + Random.Range(-100f, -250f));
         NetworkObject enemy = Instantiate(prefab, spawnPoint, Quaternion.identity);
-        enemy.Spawn();
+        enemy.Spawn(true);
     }
 }

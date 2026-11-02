@@ -144,7 +144,7 @@ public abstract class WeaponBase : MonoBehaviour
         Vector3 dir = ApplySpread(_muzzle.forward, _definition.BulletSpread);
  
         GameObject go = Instantiate(_projectilePrefab, _muzzle.position, Quaternion.LookRotation(dir));
-        go.GetComponent<NetworkObject>().Spawn();
+        go.GetComponent<NetworkObject>().Spawn(destroyWithScene: true);
         go.GetComponent<WeaponProjectile>().Launch(
             dir,
             _definition.ProjectileSpeed,

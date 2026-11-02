@@ -133,9 +133,8 @@ MonoBehaviour:
   _workingMat: {fileID: 2100000, guid: 2b63af79cdab87641a03126bfcf2d164, type: 2}
   _brokenMat: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
   _lok: {fileID: 854112223567147420, guid: 9b7184afd6a445d43adb7b54791a959d, type: 3}
-  _lokMaxHp: 100
   _explodeBelowFraction: 0.25
-  loseScene: GameLostScreen
+  loseScene: LevelEndScreen
   AimTarget: {fileID: 0}
   CarryReference: {fileID: 0}
   _repairMinigame: 0
@@ -168,4 +167,4 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   trainBuilder: {fileID: 2001273552815994070}
   winDistanceFromEnd: 1
-  winScene: GameWonScreen
+  winScene: LevelEndScreen

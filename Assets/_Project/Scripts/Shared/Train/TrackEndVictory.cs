@@ -7,7 +7,7 @@ public class TrackEndVictory : NetworkBehaviour
 {
     [SerializeField] private Trainbuilder trainBuilder;
     [SerializeField] private float winDistanceFromEnd = 1f;
-    [SerializeField] private string winScene = "GameWonScreen";
+    [SerializeField] private string winScene = "LevelEndScreen";
 
     private bool hasWon;
 
@@ -58,6 +58,13 @@ public class TrackEndVictory : NetworkBehaviour
         if (PlayerLifecycle.Main != null)
         {
             PlayerLifecycle.Main.DespawnAllPlayers();
+        }
+
+        EnemyBase.DespawnAll();
+
+        if (GameSession.Instance != null)
+        {
+            GameSession.Instance.EndLevel(true);
         }
 
         NetworkManager.Singleton.SceneManager.LoadScene(winScene, LoadSceneMode.Single);
