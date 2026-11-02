@@ -646,6 +646,8 @@ MonoBehaviour:
   - {fileID: 1579233984733909019}
   - {fileID: 1987636127192287822}
   - {fileID: 305612434495785414}
+  _spawnAnchors: []
+  _displayName: Empty Wagon
 --- !u!65 &1707267819538811576
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -40,14 +40,13 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
 
     private IEnumerator BoardWhenReady()
     {
-        while (TrainHealth.Instance == null)
+        while (TrainHealth.Instance == null || !TrainHealth.Instance.IsBuilt)
         {
             yield return null;
         }
-
-        _carriage = TrainHealth.Instance.CarryReference;
         yield return null;
 
+        _carriage = TrainHealth.Instance.CarryReference;
         Transform anchor = TrainHealth.Instance.GetSpawnAnchor(OwnerClientId);
 
         bool wasEnabled = _controller.enabled;
@@ -62,13 +61,14 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
 
     private void LateUpdate()
     {
-        if (_carriage == null)
+        Transform current = TrainHealth.Instance != null ? TrainHealth.Instance.CarryReference : null;
+        if (current == null) return;
+
+        if (current != _carriage)
         {
-            _carriage = TrainHealth.Instance != null ? TrainHealth.Instance.CarryReference : null;
-            if (_carriage == null)
-            {
-                return;
-            }
+            _carriage = current;
+            _lastCarriagePos = _carriage.position;
+            _lastCarriageRot = _carriage.rotation;
         }
 
         if (IsOwner)
