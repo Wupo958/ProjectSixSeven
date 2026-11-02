@@ -26,6 +26,7 @@ public class PlayerLifecycle : MonoBehaviour
     private void Start()
     {
         NetworkManager.Singleton.OnServerStarted += SubscribeToLoadEvents;
+        NetworkManager.Singleton.OnClientStarted += SubscribeToLoadEvents;
         NetworkManager.Singleton.OnClientStopped += OnClientStopped;
     }
 
@@ -35,6 +36,7 @@ public class PlayerLifecycle : MonoBehaviour
         if (networkManager != null)
         {
             networkManager.OnServerStarted -= SubscribeToLoadEvents;
+            networkManager.OnClientStarted -= SubscribeToLoadEvents;
             networkManager.OnClientStopped -= OnClientStopped;
             if (isSubscribedToLoadEvents)
             {
@@ -99,12 +101,23 @@ public class PlayerLifecycle : MonoBehaviour
 
     private void OnClientStopped(bool wasHost)
     {
-        _ = VoiceChatManager.Instance.LeaveActiveChannelAsync();
+        isSubscribedToLoadEvents = false;
+
+        if (VoiceChatManager.Instance != null)
+        {
+            _ = VoiceChatManager.Instance.LeaveActiveChannelAsync();
+        }
+
         SceneManager.LoadScene(menuScene);
     }
 
     private void SubscribeToLoadEvents()
     {
+        if (isSubscribedToLoadEvents)
+        {
+            return;
+        }
+
         NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnSceneLoadCompleted;
         isSubscribedToLoadEvents = true;
     }
@@ -112,13 +125,23 @@ public class PlayerLifecycle : MonoBehaviour
     private void OnSceneLoadCompleted(string sceneName, LoadSceneMode loadSceneMode,
         List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
     {
-        if (Carriage.Main == null)
+        bool isGameplayScene = TrainHealth.Instance != null;
+
+        if (VoiceChatManager.Instance != null)
         {
-            _ = VoiceChatManager.Instance.SwitchToLobbyAsync();
-            return;
+            if (isGameplayScene)
+            {
+                _ = VoiceChatManager.Instance.SwitchToPositionalAsync();
+            }
+            else
+            {
+                _ = VoiceChatManager.Instance.SwitchToLobbyAsync();
+            }
         }
 
-        _ = VoiceChatManager.Instance.SwitchToPositionalAsync();
-        SpawnMissingPlayers();
+        if (isGameplayScene)
+        {
+            SpawnMissingPlayers();
+        }
     }
 }
