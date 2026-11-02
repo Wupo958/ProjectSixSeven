@@ -28,7 +28,7 @@ public sealed class MinigameHost : MonoBehaviour
         if (Instance == this) Instance = null;
     }
  
-    public bool Run(MinigameType type, int difficulty, PlayerInteractor player, Action onSuccess)
+    public bool Run(MinigameType type, int difficulty, PlayerInteractor player, Action onSuccess, Action onFail = null)
     {
         if (IsRunning) return false;
  
@@ -48,7 +48,8 @@ public sealed class MinigameHost : MonoBehaviour
  
         game.Begin(difficulty,
             () => { Finish(player); onSuccess?.Invoke(); },
-            () => Finish(player));
+            () => Finish(player),
+            () => { Finish(player); onFail?.Invoke(); });
  
         return true;
     }
