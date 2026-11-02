@@ -63,7 +63,7 @@ public class FirstPersonController : NetworkBehaviour
 
     void TryEnableControl()
     {
-        if (controlEnabled || !IsOwner || TrainHealth.Instance == null)
+        if (controlEnabled || !IsOwner || TrainHealth.Instance == null || !TrainHealth.Instance.IsBuilt)
             return;
 
         controlEnabled = true;

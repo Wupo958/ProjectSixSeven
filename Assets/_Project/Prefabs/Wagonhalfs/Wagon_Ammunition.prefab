@@ -874,6 +874,8 @@ MonoBehaviour:
   - {fileID: 383726010626506678}
   - {fileID: 722743194893650952}
   - {fileID: 6012712137734435939}
+  _spawnAnchors: []
+  _displayName: Ammunition Wagon
 --- !u!65 &1819053730057758233
 BoxCollider:
   m_ObjectHideFlags: 0

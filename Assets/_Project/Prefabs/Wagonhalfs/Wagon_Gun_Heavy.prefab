@@ -858,6 +858,8 @@ MonoBehaviour:
   - {fileID: 5084656528368774582}
   - {fileID: 7997845042607251617}
   - {fileID: 7522219293470575153}
+  _spawnAnchors: []
+  _displayName: Heavy Gun Wagon
 --- !u!65 &2221166405748365186
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1059,15 +1061,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea6491299d2a21343811ce228b4b6571, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CannonWeapon
-  ShowTopMostFoldoutHeaderGroup: 1
   _definition: {fileID: 11400000, guid: 318caefcc1646c6448608409bce29673, type: 2}
   _yawPivot: {fileID: 8556720029384325016}
   _pitchPivot: {fileID: 5058613223040215176}
+  _pitchPivotIsSibling: 1
+  _pitchPivotPoint: {fileID: 0}
   _muzzle: {fileID: 399680587416633800}
   _cameraAnchor: {fileID: 4959159571746989863}
   _projectilePrefab: {fileID: 6368186506939396444, guid: 7a2a2522329bdc14982433d7cc0f80cd, type: 3}
-  _pitchPivotIsSibling: 1
-  _pitchPivotPoint: {fileID: 0}
   _aimSendRate: 20
   _remoteAimSmoothing: 12
   _pitchUpKey: 37
