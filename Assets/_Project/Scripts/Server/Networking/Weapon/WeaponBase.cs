@@ -148,7 +148,8 @@ public abstract class WeaponBase : NetworkBehaviour
             dir,
             _definition.ProjectileSpeed,
             _definition.Range,
-            _definition.Damage * _ammoMultiplier.Value);
+            _definition.Damage * _ammoMultiplier.Value,
+            TrainHealth.Instance != null ? TrainHealth.Instance.Velocity : Vector3.zero);
     }
  
     private static Vector3 ApplySpread(Vector3 forward, float degrees)

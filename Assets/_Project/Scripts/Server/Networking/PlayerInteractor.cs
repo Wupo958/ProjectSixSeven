@@ -49,7 +49,9 @@ public sealed class PlayerInteractor : NetworkBehaviour
  
         if (Keyboard.current == null) return;
  
-        if (_current != null && Keyboard.current[_interactKey].wasPressedThisFrame
+        bool justFinishedMinigame = MinigameHost.Instance != null && MinigameHost.Instance.FinishedThisFrame;
+
+        if (!justFinishedMinigame && _current != null && Keyboard.current[_interactKey].wasPressedThisFrame
             && _current.CanInteract(this))
         {
             _current.Interact(this);

@@ -11,6 +11,10 @@ public sealed class MinigameHost : MonoBehaviour
     [SerializeField] private MinigameBase[] _minigames;
  
     public bool IsRunning { get; private set; }
+
+    private int lastFinishedFrame = -1;
+
+    public bool FinishedThisFrame => lastFinishedFrame == Time.frameCount;
  
     private void Awake()
     {
@@ -52,6 +56,7 @@ public sealed class MinigameHost : MonoBehaviour
     private void Finish(PlayerInteractor player)
     {
         IsRunning = false;
+        lastFinishedFrame = Time.frameCount;
         if (player != null) player.Busy = false;
  
         Cursor.lockState = CursorLockMode.Locked;
