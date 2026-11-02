@@ -130,14 +130,10 @@ public sealed class Trainbuilder : MonoBehaviour
             });
             nose += _wagonLength;
         }
-<<<<<<< Updated upstream
-
-=======
  
         //total length of the assembled train. The nose starts this far along the track so every car sits at a positive distance instead of clamping to 0
         _trainLength = nose;
  
->>>>>>> Stashed changes
         PlaceAll(EditDistance());
  
         //train tells Trainhealth what it is made of, instead of a designer re-dragging references after every rebuild.
@@ -203,14 +199,14 @@ public sealed class Trainbuilder : MonoBehaviour
     //DRIVING
 
     private void Update() {
-            
+
         if (_track == null || _track.Path == null || !_track.Path.IsValid || _placed == null) return;
- 
+
         PlaceAll(Application.isPlaying ? PlayDistance() : EditDistance());
     }
 
     private float EditDistance() {
-        float length = _track != null & _track.Path != null ? _track.Path.Length : 0f;
+        float length = _track != null && _track.Path != null ? _track.Path.Length : 0f;
         return Mathf.Clamp(_startDistance + _trainLength, 0f, length);
     }
 
@@ -218,13 +214,14 @@ public sealed class Trainbuilder : MonoBehaviour
         float length = _track.Path.Length;
         float time = TrainFollower.TimeSource != null ? TrainFollower.TimeSource() : Time.timeSinceLevelLoad;
         float moving = Mathf.Max(0f, time - _startDelay);
+        float start = _startDistance + _trainLength;
 
         if (_track.IsLoop)
-            return Mathf.Repeat(_startDistance + _speed * moving, length);
+            return Mathf.Repeat(start + _speed * moving, length);
         
         if (length < 0.01f) return 0f;
         float omega = 2f * _speed / length;
-        return 0.5f * length * (1f - Mathf.Cos(omega * moving));
+        return Mathf.Min(length, start + 0.5f * (length - start) * (1f - Mathf.Cos(omega * moving)));
     }
 
     private void PlaceAll(float nose) {

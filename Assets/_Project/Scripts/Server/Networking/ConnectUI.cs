@@ -167,7 +167,8 @@ public class ConnectUI : MonoBehaviour
         if (startButton != null) startButton.gameObject.SetActive(false);
 
         if (VoiceChatManager.Instance != null && session != null) {
-            await VoiceChatManager.Instance.JoinSessionVoiceAsync(session.Id);
+            VoiceChatManager.Instance.SetSession(session.Id);
+            await VoiceChatManager.Instance.SwitchToLobbyAsync();
         }
 
         if (joinCodeDisplay != null)
@@ -191,7 +192,8 @@ public class ConnectUI : MonoBehaviour
         }
 
         if (VoiceChatManager.Instance != null && session != null) {
-            await VoiceChatManager.Instance.JoinSessionVoiceAsync(session.Id);
+            VoiceChatManager.Instance.SetSession(session.Id);
+            await VoiceChatManager.Instance.SwitchToLobbyAsync();
         }
 
         nm.SceneManager.LoadScene(gameplayScene, LoadSceneMode.Single);

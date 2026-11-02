@@ -2934,6 +2934,7 @@ GameObject:
   - component: {fileID: 1097701154}
   - component: {fileID: 1097701153}
   - component: {fileID: 1097701152}
+  - component: {fileID: 1097701155}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -3029,8 +3030,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-<<<<<<< Updated upstream
-=======
 --- !u!114 &1097701155
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3044,7 +3043,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerLifecycle
   menuScene: MultiplayerTest
->>>>>>> Stashed changes
 --- !u!1 &1108366495
 GameObject:
   m_ObjectHideFlags: 0

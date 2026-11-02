@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2001273552815994070}
   - component: {fileID: 8056750963570279866}
   - component: {fileID: 3389157851927771567}
+  - component: {fileID: 4471903628815550241}
   m_Layer: 0
   m_Name: Train
   m_TagString: Untagged
@@ -151,8 +152,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3203e4e1355a56e4687ba8521c1f2ba2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkTrainClock
-<<<<<<< Updated upstream
-=======
   ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &4471903628815550241
 MonoBehaviour:
@@ -170,4 +169,3 @@ MonoBehaviour:
   trainBuilder: {fileID: 2001273552815994070}
   winDistanceFromEnd: 1
   winScene: GameWonScreen
->>>>>>> Stashed changes

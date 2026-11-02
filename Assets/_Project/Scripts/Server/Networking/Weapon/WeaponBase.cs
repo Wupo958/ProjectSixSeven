@@ -149,12 +149,8 @@ public abstract class WeaponBase : MonoBehaviour
             dir,
             _definition.ProjectileSpeed,
             _definition.Range,
-<<<<<<< Updated upstream
-            _definition.Damage * _ammoMultiplier.Value);
-=======
             _definition.Damage * ammoMultiplier,
             TrainHealth.Instance != null ? TrainHealth.Instance.Velocity : Vector3.zero);
->>>>>>> Stashed changes
     }
  
     private static Vector3 ApplySpread(Vector3 forward, float degrees)
