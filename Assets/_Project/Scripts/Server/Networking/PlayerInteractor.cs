@@ -2,12 +2,15 @@ using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
- 
+
+[DefaultExecutionOrder(100)] 
 public sealed class PlayerInteractor : NetworkBehaviour
 {
     [Header("Raycast")]
     [SerializeField] private Transform _rayOrigin;      //the player camera
     [SerializeField] private float _range = 3f;
+    [Tooltip("Thickness of the aim ray. A little width keeps small targets from flickering at their edges.")]
+    [SerializeField] private float _aimRadius = 0.1f;
     [SerializeField] private LayerMask _mask = ~0;
  
     [Header("Input")]
@@ -66,12 +69,10 @@ public sealed class PlayerInteractor : NetworkBehaviour
     private Interactable FindTarget()
     {
         if (_rayOrigin == null) return null;
- 
-        if (Physics.Raycast(_rayOrigin.position, _rayOrigin.forward, out RaycastHit hit, _range, _mask, QueryTriggerInteraction.Collide))
-        {
-            return hit.collider.GetComponentInParent<Interactable>();
-        }
-        return null;
+
+        Physics.SyncTransforms();
+
+        return Physics.SphereCast(_rayOrigin.position, _aimRadius, _rayOrigin.forward, out RaycastHit hit, _range, _mask, QueryTriggerInteraction.Collide) ? hit.collider.GetComponentInParent<Interactable>() : null;
     }
  
     private void UpdatePrompt()
