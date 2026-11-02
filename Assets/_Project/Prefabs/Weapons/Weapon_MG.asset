@@ -18,7 +18,7 @@ MonoBehaviour:
   FireMode: 1
   RoundsPerMinute: 240
   MagazineCapacity: 100
-  BulletSpread: 15
+  BulletSpread: 5
   Recoil: 1
   RoundsPerAmmoItem: 100
   ProjectileSpeed: 100

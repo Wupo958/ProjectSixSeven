@@ -56,6 +56,36 @@ public sealed class Trainbuilder : MonoBehaviour
     [SerializeField, HideInInspector] private List<PlacedCar> _placed = new List<PlacedCar>();
     [SerializeField, HideInInspector] private float _trainLength;
 
+    private float noseDistance;
+
+    public float NoseDistance => noseDistance;
+
+    public float TrackLength
+    {
+        get
+        {
+            if (_track == null || _track.Path == null)
+            {
+                return 0f;
+            }
+
+            return _track.Path.Length;
+        }
+    }
+
+    public bool IsLoopTrack
+    {
+        get
+        {
+            if (_track == null)
+            {
+                return false;
+            }
+
+            return _track.IsLoop;
+        }
+    }
+
     private const string ContainerName = "Generated";
 
     //ASSEMBLY
@@ -97,10 +127,21 @@ public sealed class Trainbuilder : MonoBehaviour
             nose += _wagonLength;
         }
 
+        _trainLength = nose;
+
         PlaceAll(EditDistance());
     }
 
     public void Awake() {
+
+        string offsets = "";
+        foreach (PlacedCar c in _placed)
+            offsets += $"[{(c.Car == null ? "NULL" : c.Car.name)} off={c.CentreOffset} bogie={c.Bogie}] ";
+
+        Debug.Log($"TrainBuilder.Awake placed={_placed.Count} trainLength={_trainLength} " +
+                $"pathValid={(_track != null && _track.Path != null && _track.Path.IsValid)} " +
+                $"pathLen={(_track?.Path != null ? _track.Path.Length : -1)} {offsets}");
+
         PlaceAll(EditDistance());
     }
 
@@ -134,7 +175,16 @@ public sealed class Trainbuilder : MonoBehaviour
         if (_track == null || _track.Path == null || !_track.Path.IsValid || _placed == null)
             return;
  
-        PlaceAll(Application.isPlaying ? PlayDistance() : EditDistance());
+        if (Application.isPlaying)
+        {
+            noseDistance = PlayDistance();
+        }
+        else
+        {
+            noseDistance = EditDistance();
+        }
+
+        PlaceAll(noseDistance);
     }
 
     private float EditDistance() {
@@ -146,13 +196,14 @@ public sealed class Trainbuilder : MonoBehaviour
         float length = _track.Path.Length;
         float time = TrainFollower.TimeSource != null ? TrainFollower.TimeSource() : Time.timeSinceLevelLoad;
         float moving = Mathf.Max(0f, time - _startDelay);
+        float start = _startDistance + _trainLength;
 
         if (_track.IsLoop)
-            return Mathf.Repeat(_startDistance + _speed * moving, length);
+            return Mathf.Repeat(start + _speed * moving, length);
         
         if (length < 0.01f) return 0f;
         float omega = 2f * _speed / length;
-        return 0.5f * length * (1f - Mathf.Cos(omega * moving));
+        return Mathf.Min(length, start + 0.5f * (length - start) * (1f - Mathf.Cos(omega * moving)));
     }
 
     private void PlaceAll(float nose) {
