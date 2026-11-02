@@ -23,6 +23,8 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
     private Quaternion _lastCarriageRot;
     private bool _riding;
 
+    public Transform Seat { get; set; }
+
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
@@ -38,15 +40,14 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
 
     private IEnumerator BoardWhenReady()
     {
-        while (Carriage.Main == null)
+        while (TrainHealth.Instance == null || !TrainHealth.Instance.IsBuilt)
         {
             yield return null;
         }
-
-        _carriage = Carriage.Main.transform;
         yield return null;
 
-        Transform anchor = Carriage.Main.GetSpawnAnchor(OwnerClientId);
+        _carriage = TrainHealth.Instance.CarryReference;
+        Transform anchor = TrainHealth.Instance.GetSpawnAnchor(OwnerClientId);
 
         bool wasEnabled = _controller.enabled;
         _controller.enabled = false;
@@ -60,19 +61,27 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
 
     private void LateUpdate()
     {
-        if (_carriage == null)
+        Transform current = TrainHealth.Instance != null ? TrainHealth.Instance.CarryReference : null;
+        if (current == null) return;
+
+        if (current != _carriage)
         {
-            _carriage = Carriage.Main != null ? Carriage.Main.transform : null;
-            if (_carriage == null)
-            {
-                return;
-            }
+            _carriage = current;
+            _lastCarriagePos = _carriage.position;
+            _lastCarriageRot = _carriage.rotation;
         }
 
         if (IsOwner)
         {
-            if (_riding)
+            if (Seat != null)
             {
+                bool wasEnabled = _controller.enabled;
+                _controller.enabled = false;
+                transform.SetPositionAndRotation(Seat.position, Seat.rotation);
+                _controller.enabled = wasEnabled;
+                _lastCarriagePos = _carriage.position;
+                _lastCarriageRot = _carriage.rotation;
+            } else if (_riding) {
                 CarryWithCarriage();
             }
 
