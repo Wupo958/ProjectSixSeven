@@ -52,6 +52,7 @@ public sealed class TrainHealth : NetworkBehaviour
 
     //one broken-points bitmask per wagon
     private readonly NetworkList<int> _masks = new NetworkList<int>();
+    private readonly NetworkVariable<int> _destroyedWagons = new NetworkVariable<int>(0);
 
     private Wagon[] _wagons;
     private int[] _currentHp;
@@ -97,12 +98,14 @@ public sealed class TrainHealth : NetworkBehaviour
         Instance = this;
         _masks.OnListChanged += OnMaskChanged;
 
+        _destroyedWagons.OnValueChanged += OnDestroyedChanged;
         Rebind();
     }
 
     public override void OnNetworkDespawn()
     {
         _masks.OnListChanged -= OnMaskChanged;
+        _destroyedWagons.OnValueChanged -= OnDestroyedChanged;
         if (Instance == this) Instance = null;
     }
 
@@ -137,6 +140,8 @@ public sealed class TrainHealth : NetworkBehaviour
 
     private void DamageWagon(int i, int amount, Vector3 hitPos)
     {
+        if (IsWagonDestroyed(i)) return;
+
         Wagon w = _wagons[i];
         if (w.Defects == 0) return;
 
@@ -151,6 +156,8 @@ public sealed class TrainHealth : NetworkBehaviour
             _nextBreak[i] -= y;
             if (explosive > 0) _currentHp[i] = Mathf.Max(0, _currentHp[i] - explosive);
         }
+
+        if (CountBroken(i) >= w.Defects) DestroyWagon(i);
     }
 
     //returns explosive damage if this defect finished off a half.
@@ -203,6 +210,7 @@ public sealed class TrainHealth : NetworkBehaviour
         {
             while (_masks.Count > n) _masks.RemoveAt(_masks.Count - 1);
             while (_masks.Count < n) _masks.Add(0);
+            _destroyedWagons.Value = 0;
         }
 
         for (int i = 0; i < n; i++)
@@ -219,6 +227,7 @@ public sealed class TrainHealth : NetworkBehaviour
 
         int count = Mathf.Min(n, _masks.Count);
         for (int i = 0; i < count; i++) ApplyMask(i, _masks[i]);
+        ApplyDestroyed(_destroyedWagons.Value);
     }
 
     public void SetSpawnAnchors(List<Transform> anchors)
@@ -235,7 +244,7 @@ public sealed class TrainHealth : NetworkBehaviour
 
     public void RepairDefect(int wagonIndex, int pointIndex)
     {
-        if (!IsServer || _dead || !InRange(wagonIndex)) return;
+        if (!IsServer || _dead || !InRange(wagonIndex) || IsWagonDestroyed(wagonIndex)) return;
 
         int mask = _masks[wagonIndex];
         if (!IsBit(mask, pointIndex)) return;
@@ -396,6 +405,41 @@ public sealed class TrainHealth : NetworkBehaviour
     {
         if (!IsServer || !InRange(wagon)) return;
         _masks[wagon] = _masks[wagon] | (1 << point);
+
+        if (CountBroken(wagon) >= _wagons[wagon].Defects) DestroyWagon(wagon);
+    }
+
+    public bool IsWagonDestroyed(int wagon) => IsBit(_destroyedWagons.Value, wagon);
+
+    private void DestroyWagon(int wagon)
+    {
+        if (!IsServer || IsWagonDestroyed(wagon)) return;
+        _currentHp[wagon] = 0;
+        _destroyedWagons.Value = _destroyedWagons.Value | (1 << wagon);
+        Debug.Log($"Wagon {wagon + 1} destroyed");
+        CheckTotal();
+    }
+
+    public void ForceDestroyWagon(int wagon)
+    {
+        if (InRange(wagon)) DestroyWagon(wagon);
+    }
+
+    private void OnDestroyedChanged(int oldMask, int newMask) => ApplyDestroyed(newMask);
+
+    private void ApplyDestroyed(int mask)
+    {
+        if (_wagons == null) return;
+        for (int i = 0; i < _wagons.Length; i++)
+        {
+            if (!IsBit(mask, i) || _wagons[i] == null || _wagons[i].IsDestroyed) continue;
+
+            foreach (WeaponStation s in _wagons[i].GetComponentsInChildren<WeaponStation>())
+                s.ForceDismount();
+
+            _wagons[i].SetDestroyed();
+            OnWagonChanged?.Invoke(i);
+        }
     }
 }
 

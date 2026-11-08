@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c23e1de46211cf84aafb95cdedf396ec, type: 3}
+  m_Name: Handbook_Default
+  m_EditorClassIdentifier: Assembly-CSharp::HandbookPage
+  Title: Default Page
+  Left:
+  - Heading: This is the left default header
+    Image: {fileID: 0}
+    Body: 'Press [E] to man a gun and [F] to unman the gun. I can also write <b>bold</b>
+      or <i>italic</i> with html tags. '
+    Controls: []
+  Right:
+  - Heading: This is the right default header
+    Image: {fileID: 0}
+    Body: I just exist for the funzies.
+    Controls: []

@@ -14,6 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemDefinition
   DisplayName: Heavy Ammo
   HeldPrefab: {fileID: 7914133416397727646, guid: 99d321ae5251f8c469222fdc6b914a7c, type: 3}
-  CanRepair: 0
+  Type: 0
   ConsumeOnUse: 1
+  ExplosiveWhenStored: 1
+  Breakable: 0
   AmmoTag: HeavyAmmo
+  AmmoDamageMultiplier: 1
+  _defaultsAppliedFor: 0
