@@ -14,6 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemDefinition
   DisplayName: Hammer
   HeldPrefab: {fileID: 7045301525193603659, guid: b6cd4486ccb9fd34fa267dd76dc2cbe7, type: 3}
-  CanRepair: 1
+  Type: 3
   ConsumeOnUse: 0
+  ExplosiveWhenStored: 0
+  Breakable: 0
   AmmoTag: 
+  AmmoDamageMultiplier: 1
+  _defaultsAppliedFor: 3

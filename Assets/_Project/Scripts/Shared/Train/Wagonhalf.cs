@@ -22,4 +22,26 @@ public sealed class Wagonhalf : MonoBehaviour
 
     public int ExplosiveDamage => _explosiveDamage;
     public GameObject[] DamagePoints => _damagePoints;
+
+    [Header("Destruction")]
+    [Tooltip("Wreck shown when this wagon is destroyed. Visual only: the half root's colliders stay, so players can still walk across. Inherits this half's rotation, so it flips with the back half.")]
+    [SerializeField] private GameObject _destroyedPrefab;
+
+    public bool IsDestroyed { get; private set; }
+
+    public void SetDestroyed()
+    {
+        if (IsDestroyed) return;
+        IsDestroyed = true;
+
+        for (int i = 0; i < transform.childCount; i++)
+            transform.GetChild(i).gameObject.SetActive(false);
+
+        if (_destroyedPrefab != null)
+        {
+            GameObject wreck = Instantiate(_destroyedPrefab, transform);
+            wreck.transform.localPosition = Vector3.zero;
+            wreck.transform.localRotation = Quaternion.identity;
+        }
+    }
 }
