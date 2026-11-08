@@ -932,6 +932,7 @@ MonoBehaviour:
   - {fileID: 8581266556720040806}
   _spawnAnchors: []
   _displayName: Light Gun Wagon
+  _destroyedPrefab: {fileID: 8106230332829546911, guid: bb992fc224319624f8dc50f69ab38716, type: 3}
 --- !u!65 &8181683825133361114
 BoxCollider:
   m_ObjectHideFlags: 0

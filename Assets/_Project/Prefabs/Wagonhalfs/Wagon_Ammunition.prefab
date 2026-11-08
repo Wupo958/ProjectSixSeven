@@ -959,6 +959,7 @@ MonoBehaviour:
   - {fileID: 6012712137734435939}
   _spawnAnchors: []
   _displayName: Ammunition Wagon
+  _destroyedPrefab: {fileID: 8106230332829546911, guid: bb992fc224319624f8dc50f69ab38716, type: 3}
 --- !u!65 &1819053730057758233
 BoxCollider:
   m_ObjectHideFlags: 0
