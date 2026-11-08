@@ -108,7 +108,7 @@ public abstract class WeaponBase : MonoBehaviour
     {
         if (item == null || _definition == null) return false;
         if (string.IsNullOrEmpty(_definition.AcceptedAmmoTag)) return false;
-        return item.AmmoTag == _definition.AcceptedAmmoTag;
+        return item.Type == ItemType.Ammo && item.AmmoTag == _definition.AcceptedAmmoTag;
     }
  
     public void LoadAmmoServerRpc(float damageMultiplier)
