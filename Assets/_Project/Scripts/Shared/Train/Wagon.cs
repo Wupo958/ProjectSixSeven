@@ -27,4 +27,12 @@ public sealed class Wagon : MonoBehaviour
         _defects = _damagePoints.Count;
         _maxHp = Defects * hpPerDefect; // Y = hpPerDefect
     }
+
+    public bool IsDestroyed => (_front != null && _front.IsDestroyed) || (_back != null && _back.IsDestroyed);
+
+    public void SetDestroyed()
+    {
+        if (_front != null) _front.SetDestroyed();
+        if (_back != null) _back.SetDestroyed();
+    }
 }

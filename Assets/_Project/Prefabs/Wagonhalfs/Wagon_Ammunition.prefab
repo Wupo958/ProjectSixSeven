@@ -959,6 +959,7 @@ MonoBehaviour:
   - {fileID: 6012712137734435939}
   _spawnAnchors: []
   _displayName: Ammunition Wagon
+  _destroyedPrefab: {fileID: 8106230332829546911, guid: bb992fc224319624f8dc50f69ab38716, type: 3}
 --- !u!65 &1819053730057758233
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1198,6 +1199,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7920252840755212180}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3599149900951114093}
   m_SourcePrefab: {fileID: 100100000, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}
 --- !u!1 &4910327761259242073 stripped
 GameObject:
@@ -1239,6 +1243,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemSourceBox
   _item: {fileID: 11400000, guid: 7c81c971a71167543b3a8d594567b677, type: 2}
   _verb: Take
+--- !u!114 &3599149900951114093
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4910327761259242073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c77ea64ee462bb1418a2db82d4a5be09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HandbookTopic
+  Page: {fileID: 11400000, guid: ef6d2969136e93244933b26ef2d1c9d7, type: 2}
 --- !u!4 &5723843926925310179 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 27b83fff6b5bfff439dcebcd48c1ec29, type: 3}

@@ -23,6 +23,7 @@ public sealed class PlayerInteractor : NetworkBehaviour
  
     private PlayerInventory _inventory;
     private Interactable _current;
+    public Interactable Current => _current;
  
     public PlayerInventory Inventory => _inventory;
     public Transform RayOrigin => _rayOrigin;

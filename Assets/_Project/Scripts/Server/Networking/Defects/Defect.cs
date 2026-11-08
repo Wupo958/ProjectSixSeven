@@ -151,7 +151,7 @@ public abstract class Defect : Interactable
             onSuccess: () =>
             {
                 // Someone else may have fixed it while we were busy; don't eat the item then.
-                if (!IsBroken) return;
+                if (!IsBroken || !gameObject.activeInHierarchy) return;
                 Train.RepairDefectServerRpc(WagonIndex, PointIndex);
                 if (_requiredItem != null) player.Inventory?.NotifyUsed();
             },
