@@ -728,6 +728,7 @@ MonoBehaviour:
   - {fileID: 305612434495785414}
   _spawnAnchors: []
   _displayName: Empty Wagon
+  _destroyedPrefab: {fileID: 8106230332829546911, guid: bb992fc224319624f8dc50f69ab38716, type: 3}
 --- !u!65 &1707267819538811576
 BoxCollider:
   m_ObjectHideFlags: 0

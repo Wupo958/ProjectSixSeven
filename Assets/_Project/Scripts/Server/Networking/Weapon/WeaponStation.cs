@@ -129,4 +129,9 @@ public sealed class WeaponStation : Interactable
         _controller = null;
         _attachment = null;
     }
+
+    public void ForceDismount()
+    {
+        if (_localRider != null) Dismount();
+    }
 }

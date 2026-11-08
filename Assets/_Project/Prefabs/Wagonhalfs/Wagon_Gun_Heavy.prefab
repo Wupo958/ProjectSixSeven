@@ -940,6 +940,7 @@ MonoBehaviour:
   - {fileID: 7522219293470575153}
   _spawnAnchors: []
   _displayName: Heavy Gun Wagon
+  _destroyedPrefab: {fileID: 8106230332829546911, guid: bb992fc224319624f8dc50f69ab38716, type: 3}
 --- !u!65 &2221166405748365186
 BoxCollider:
   m_ObjectHideFlags: 0

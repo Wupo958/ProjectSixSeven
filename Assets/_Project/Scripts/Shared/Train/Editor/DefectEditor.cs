@@ -31,6 +31,7 @@ public sealed class DefectEditor : Editor
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Break")) train.ForceBreak(defect.WagonIndex, defect.PointIndex);
             if (GUILayout.Button("Repair")) train.RepairDefect(defect.WagonIndex, defect.PointIndex);
+            if (GUILayout.Button("Destroy whole wagon")) train.ForceDestroyWagon(defect.WagonIndex);
             EditorGUILayout.EndHorizontal();
         }
  
