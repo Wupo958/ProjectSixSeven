@@ -895,6 +895,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c55206a8d88a367489f142b04f1dd900, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8353401664102663273}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: c55206a8d88a367489f142b04f1dd900, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 709766767776366615}
     - targetCorrespondingSourceObject: {fileID: 6790279758497844644, guid: c55206a8d88a367489f142b04f1dd900, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4988233372387026034}
@@ -1147,6 +1150,19 @@ MonoBehaviour:
   _mouseSensitivity: 0.05
   _invertPitch: 0
   _zoomLerp: 8
+--- !u!114 &709766767776366615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2290042502276414408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c77ea64ee462bb1418a2db82d4a5be09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HandbookTopic
+  Page: {fileID: 11400000, guid: ef6d2969136e93244933b26ef2d1c9d7, type: 2}
 --- !u!4 &2445582116571934144 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -5551029938806117543, guid: c55206a8d88a367489f142b04f1dd900, type: 3}
