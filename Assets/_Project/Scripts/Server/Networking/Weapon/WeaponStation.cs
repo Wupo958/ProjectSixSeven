@@ -104,6 +104,9 @@ public sealed class WeaponStation : Interactable
  
         _weapon.BeginLocalControl(player);
         _weapon.RequestMountServerRpc(NetworkManager.Singleton.LocalClientId);
+
+        HandbookTopic topic = GetComponentInParent<HandbookTopic>();
+        HandbookView.ContextOverride = topic != null ? topic.Page : null;
     }
  
     private void Dismount()
@@ -128,6 +131,7 @@ public sealed class WeaponStation : Interactable
         _localRider = null;
         _controller = null;
         _attachment = null;
+        HandbookView.ContextOverride = null;
     }
 
     public void ForceDismount()
