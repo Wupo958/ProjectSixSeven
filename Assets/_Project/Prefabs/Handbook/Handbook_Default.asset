@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c23e1de46211cf84aafb95cdedf396ec, type: 3}
   m_Name: Handbook_Default
   m_EditorClassIdentifier: Assembly-CSharp::HandbookPage
-  Title: Default Page
+  Title: Default
   Left:
   - Heading: This is the left default header
     Image: {fileID: 0}
