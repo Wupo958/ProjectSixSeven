@@ -3245,9 +3245,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   ShowTopMostFoldoutHeaderGroup: 1
-  jeepEnemy: {fileID: 5092281380877550705, guid: bc9464a17a174e041b2b57508c786253, type: 3}
-  planeEnemy: {fileID: 9176659118933066593, guid: 72d32dc4da0e6b041915116a4373972e, type: 3}
+  enemyTypes:
+  - {fileID: 7284110989491117277, guid: bc9464a17a174e041b2b57508c786253, type: 3}
+  - {fileID: 6068967524307053091, guid: 72d32dc4da0e6b041915116a4373972e, type: 3}
   train: {fileID: 950080782}
+  minPoolSize: 1
+  maxPoolSize: 2
+  waveInterval: 10
+  firstWaveDelay: 45
+  minGroupsPerWave: 1
+  maxGroupsPerWave: 2
+  groupSpread: 25
 --- !u!4 &2086304838
 Transform:
   m_ObjectHideFlags: 0

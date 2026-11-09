@@ -6,14 +6,14 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/_Project/Scenes/MultiplayerTest.unity
+    guid: fd5d7df4c89385546b585171116df530
+  - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
     path: Assets/_Project/Scenes/RailTest.unity
     guid: 6a7f1c0e5b2d4f4a9c1e0d3b5a7f9c40
-  - enabled: 1
-    path: Assets/_Project/Scenes/MultiplayerTest.unity
-    guid: fd5d7df4c89385546b585171116df530
   - enabled: 1
     path: Assets/_Project/Scenes/RailTestMultiplayer.unity
     guid: ae1dd0f7612e4c747a4be0990e17ab8c
