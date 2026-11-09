@@ -17,6 +17,9 @@ public sealed class GameSession : NetworkBehaviour
 
     [SerializeField] private string gameplayScene = "ProcGenTest";
 
+    [SerializeField] private MedalDefinition startGameMedal;
+    [SerializeField] private MedalDefinition firstKillMedal;
+
     private readonly NetworkVariable<int> levelIndex = new NetworkVariable<int>(0);
     private readonly NetworkVariable<LevelStats> current = new NetworkVariable<LevelStats>();
     private readonly NetworkVariable<LevelStats> total = new NetworkVariable<LevelStats>();
@@ -66,6 +69,8 @@ public sealed class GameSession : NetworkBehaviour
         current.Value = new LevelStats();
         levelStartTime = NetworkManager.ServerTime.Time;
         levelRunning = true;
+
+        MedalAwards.AwardAll(startGameMedal);
     }
 
     public void EndLevel(bool won)
@@ -88,9 +93,52 @@ public sealed class GameSession : NetworkBehaviour
         sum.Repairs += stats.Repairs;
         sum.Time += stats.Time;
         total.Value = sum;
+
+        if (won)
+        {
+            MissionWonRpc();
+        }
     }
 
-    public void AddKill()
+    public void AwardMedal(ulong clientId, string medalId)
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+
+        UnlockMedalRpc(medalId, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+    }
+
+    public void AwardMedalToAll(string medalId)
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+
+        UnlockMedalForAllRpc(medalId);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void UnlockMedalForAllRpc(string medalId)
+    {
+        _ = ProfileService.UnlockMedal(medalId);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void MissionWonRpc()
+    {
+        _ = ProfileService.AddSuccessfulMission();
+    }
+
+    [Rpc(SendTo.SpecifiedInParams)]
+    private void UnlockMedalRpc(string medalId, RpcParams rpcParams)
+    {
+        _ = ProfileService.UnlockMedal(medalId);
+    }
+
+    public void AddKill(ulong killerClientId)
     {
         if (!IsServer || !levelRunning)
         {
@@ -100,6 +148,12 @@ public sealed class GameSession : NetworkBehaviour
         LevelStats stats = current.Value;
         stats.Kills++;
         current.Value = stats;
+
+        bool wasKilledByPlayer = killerClientId != WeaponBase.NoOccupant;
+        if (wasKilledByPlayer)
+        {
+            MedalAwards.Award(firstKillMedal, killerClientId);
+        }
     }
 
     public void AddDamage(int amount)

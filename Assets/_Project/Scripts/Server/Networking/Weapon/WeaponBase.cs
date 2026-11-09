@@ -137,7 +137,7 @@ public abstract class WeaponBase : MonoBehaviour
         Pitch = ClampPitch(Pitch + _definition.Recoil);
     }
  
-    public void SpawnProjectile(float ammoMultiplier)
+    public void SpawnProjectile(float ammoMultiplier, ulong shooterClientId)
     {
         if (_definition == null || _projectilePrefab == null || _muzzle == null) return;
  
@@ -150,7 +150,8 @@ public abstract class WeaponBase : MonoBehaviour
             _definition.ProjectileSpeed,
             _definition.Range,
             _definition.Damage * ammoMultiplier,
-            TrainHealth.Instance != null ? TrainHealth.Instance.Velocity : Vector3.zero);
+            TrainHealth.Instance.Velocity,
+            shooterClientId);
     }
  
     private static Vector3 ApplySpread(Vector3 forward, float degrees)
