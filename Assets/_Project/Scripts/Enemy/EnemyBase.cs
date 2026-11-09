@@ -19,6 +19,7 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
     [SerializeField] protected float stationGain = 1f;
 
     private float health;
+    private ulong lastAttackerClientId = WeaponBase.NoOccupant;
     private Vector3 lastTrainPos;
     private Vector3 trainVelocity;
     private bool hasLastTrainPos;
@@ -94,13 +95,14 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
         rb = GetComponent<Rigidbody>();
     }
 
-    public void ApplyDamage(float amount, Vector3 hitPoint)
+    public void ApplyDamage(float amount, Vector3 hitPoint, ulong attackerClientId)
     {
         if (!IsServer || !IsSpawned)
         {
             return;
         }
 
+        lastAttackerClientId = attackerClientId;
         health -= amount;
         if (health <= 0f)
         {
@@ -112,7 +114,7 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
     {
         if (GameSession.Instance != null)
         {
-            GameSession.Instance.AddKill();
+            GameSession.Instance.AddKill(lastAttackerClientId);
         }
 
 
