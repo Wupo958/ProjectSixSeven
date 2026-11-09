@@ -1,45 +1,50 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class BasicProjectileScript : NetworkBehaviour
 {
-    [SerializeField] private float _speed = 30f;
-    [SerializeField] private int _damage = 1;
+    [SerializeField] [FormerlySerializedAs("_speed")] private float speed = 30f;
 
-    public float Speed => _speed;
+    private Vector3 direction;
+    private float maxRange = 200f;
+    private float travelled;
+    private float damage;
 
-    private Vector3 _direction;
-    private float _maxRange = 200f;
-    private float _travelled;
-
-    public void Launch(Vector3 direction, float maxRange)
+    public float Speed
     {
-        _direction = direction.normalized;
-        _maxRange = maxRange;
+        get
+        {
+            return speed;
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Launch(Vector3 launchDirection, float launchMaxRange, float launchDamage)
     {
-        // the server flies the bullet, clients just follow it with the NetworkTransform
+        direction = launchDirection.normalized;
+        maxRange = launchMaxRange;
+        damage = launchDamage;
+    }
+
+    private void Update()
+    {
         if (!IsServer)
         {
             return;
         }
 
-        float step = _speed * Time.deltaTime;
+        float step = speed * Time.deltaTime;
 
-        // raycast the way we are about to move so we cant fly through the train
-        if (Physics.Raycast(transform.position, _direction, out RaycastHit hit, step))
+        if (Physics.Raycast(transform.position, direction, out RaycastHit hit, step))
         {
             Hit(hit.collider, hit.point);
             return;
         }
 
-        transform.position += _direction * step;
+        transform.position += direction * step;
 
-        _travelled += step;
-        if (_travelled > _maxRange)
+        travelled += step;
+        if (travelled > maxRange)
         {
             NetworkObject.Despawn();
         }
@@ -50,7 +55,7 @@ public class BasicProjectileScript : NetworkBehaviour
         TrainHealth train = other.GetComponentInParent<TrainHealth>();
         if (train != null)
         {
-            train.ReportHit(other, hitPos, _damage);
+            train.ReportHit(other, hitPos, Mathf.RoundToInt(damage));
         }
 
         NetworkObject.Despawn();
