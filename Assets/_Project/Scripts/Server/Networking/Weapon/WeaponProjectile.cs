@@ -10,9 +10,11 @@ public sealed class WeaponProjectile : NetworkBehaviour
     private float _damage;
     private float _travelled;
     private Vector3 _velocity;
- 
-    public void Launch(Vector3 direction, float speed, float maxRange, float damage, Vector3 inherited)
+    private ulong shooterClientId = WeaponBase.NoOccupant;
+
+    public void Launch(Vector3 direction, float speed, float maxRange, float damage, Vector3 inherited, ulong shooter)
     {
+        shooterClientId = shooter;
         _velocity = direction.normalized * speed + inherited;
         _maxRange = maxRange;
         _damage = damage;
@@ -28,7 +30,11 @@ public sealed class WeaponProjectile : NetworkBehaviour
 
         if (Physics.Raycast(transform.position, dir, out RaycastHit hit, dist))
         {
-            hit.collider.GetComponentInParent<IDamageable>()?.ApplyDamage(_damage, hit.point);
+            IDamageable target = hit.collider.GetComponentInParent<IDamageable>();
+            if (target != null)
+            {
+                target.ApplyDamage(_damage, hit.point, shooterClientId);
+            }
             if (NetworkObject.IsSpawned) NetworkObject.Despawn();
             return;
         }
