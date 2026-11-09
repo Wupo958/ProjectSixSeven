@@ -181,6 +181,9 @@ MonoBehaviour:
   acceleration: 15
   maxSpeed: 75
   stationGain: 1
+  minGroupSize: 1
+  maxGroupSize: 3
+  spawnHeight: -3
   sideOffset: 45
   forwardOffset: 10
 --- !u!54 &7580223811838290785
