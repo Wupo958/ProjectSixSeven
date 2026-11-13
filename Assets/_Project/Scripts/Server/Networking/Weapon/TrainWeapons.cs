@@ -9,11 +9,13 @@ public struct WeaponState : INetworkSerializable, IEquatable<WeaponState>
     public float Yaw;
     public int Loaded;
     public float AmmoMultiplier;
+    public int AmmoItemId;
  
     public static WeaponState Empty => new WeaponState
     {
         Occupant = WeaponBase.NoOccupant,
-        AmmoMultiplier = 1f
+        AmmoMultiplier = 1f,
+        AmmoItemId = ItemRegistry.Empty
     };
  
     public void NetworkSerialize<T>(BufferSerializer<T> s) where T : IReaderWriter
@@ -23,11 +25,13 @@ public struct WeaponState : INetworkSerializable, IEquatable<WeaponState>
         s.SerializeValue(ref Yaw);
         s.SerializeValue(ref Loaded);
         s.SerializeValue(ref AmmoMultiplier);
+        s.SerializeValue(ref AmmoItemId);
     }
  
     public bool Equals(WeaponState o) =>
         Occupant == o.Occupant && Pitch == o.Pitch && Yaw == o.Yaw &&
-        Loaded == o.Loaded && AmmoMultiplier == o.AmmoMultiplier;
+        Loaded == o.Loaded && AmmoMultiplier == o.AmmoMultiplier &&
+        AmmoItemId == o.AmmoItemId;
 }
  
 [RequireComponent(typeof(NetworkObject))]
@@ -100,15 +104,20 @@ public sealed class TrainWeapons : NetworkBehaviour
     }
  
     [ServerRpc(RequireOwnership = false)]
-    public void LoadAmmoServerRpc(int i, float damageMultiplier)
+    public void LoadAmmoServerRpc(int i, int ammoItemId)
     {
         if (!HasState(i) || _weapons[i] == null) return;
+
+        ItemDefinition ammo = ItemRegistry.Active != null ? ItemRegistry.Active.Get(ammoItemId) : null;
+        if (ammo == null || !_weapons[i].AcceptsAmmo(ammo)) return;
+
         WeaponState s = _states[i];
         int cap = _weapons[i].Capacity;
         if (s.Loaded >= cap) return;
- 
+
         s.Loaded = Mathf.Min(cap, s.Loaded + _weapons[i].RoundsPerLoad);
-        s.AmmoMultiplier = Mathf.Max(0.01f, damageMultiplier);
+        s.AmmoMultiplier = Mathf.Max(0.01f, ammo.AmmoDamageMultiplier);
+        s.AmmoItemId = ammoItemId;
         _states[i] = s;
     }
  

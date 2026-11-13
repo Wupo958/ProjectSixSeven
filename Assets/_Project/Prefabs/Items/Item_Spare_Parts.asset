@@ -13,8 +13,13 @@ MonoBehaviour:
   m_Name: Item_Spare_Parts
   m_EditorClassIdentifier: Assembly-CSharp::ItemDefinition
   DisplayName: Placeholder (Spare Parts)
+  WorldPrefab: {fileID: 7914133416397727646, guid: 99d321ae5251f8c469222fdc6b914a7c, type: 3}
+  Weight: 1
   HeldPrefab: {fileID: 7914133416397727646, guid: 99d321ae5251f8c469222fdc6b914a7c, type: 3}
-  CanRepair: 0
+  Type: 2
   ConsumeOnUse: 1
+  ExplosiveWhenStored: 0
+  Breakable: 0
   AmmoTag: 
   AmmoDamageMultiplier: 1
+  _defaultsAppliedFor: 2
