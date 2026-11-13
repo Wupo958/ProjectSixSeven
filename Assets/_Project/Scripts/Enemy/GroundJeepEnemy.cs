@@ -1,29 +1,10 @@
-using Unity.Netcode;
 using UnityEngine;
 
 public class GroundJeepEnemy : EnemyBase
 {
     [SerializeField] private float sideOffset = 25f;
     [SerializeField] private float forwardOffset = 0f;
-
-    private float side;
-
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-
-        if (!IsServer)
-        {
-            return;
-        }
-
-        Vector3 toJeep = transform.position - Train.CarryReference.position;
-        side = 1f;
-        if (Vector3.Dot(toJeep, TrainRight) < 0f)
-        {
-            side = -1f;
-        }
-    }
+    [SerializeField] private float formationSpacing = 12f;
 
     protected override void Move()
     {
@@ -40,6 +21,7 @@ public class GroundJeepEnemy : EnemyBase
 
     private Vector3 StationPoint()
     {
-        return Train.CarryReference.position + TrainRight * side * sideOffset + TrainHeading * forwardOffset;
+        float formationForward = forwardOffset + StaggeredRank * formationSpacing;
+        return Train.CarryReference.position + TrainRight * FormationSide * sideOffset + TrainHeading * formationForward;
     }
 }
