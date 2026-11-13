@@ -14,8 +14,14 @@ public sealed class TrainHealth : NetworkBehaviour
     [SerializeField] private Material _brokenMat;
 
     [Header("Locomotive")]
-    [Tooltip("Hits on the Lok are passed on to the nearest wagon. It has no HP of its own")]
+    [Tooltip("The generated Lok. Set automatically by the Trainbuilder.")]
     [SerializeField] private Transform _lok;
+
+    [Tooltip("The Lok's own HP (GDD: 100). It has no defects; at 0 the train derails: game over.")]
+    [SerializeField] private int _lokMaxHp = 100;
+
+    [Tooltip("Old rule: also game over when the wagons' total HP drops below the fraction below. The Lok being destroyed is always game over.")]
+    [SerializeField] private bool _totalHpGameOver = false;
 
     [Header("Game over")]
     [Tooltip("Train is destroyed when total current HP drops below this fraction of max")]
@@ -53,6 +59,13 @@ public sealed class TrainHealth : NetworkBehaviour
     //one broken-points bitmask per wagon
     private readonly NetworkList<int> _masks = new NetworkList<int>();
     private readonly NetworkVariable<int> _destroyedWagons = new NetworkVariable<int>(0);
+
+    private readonly NetworkVariable<int> _lokHp = new NetworkVariable<int>(100);
+
+    public int LokHp => _lokHp.Value;
+    public int LokMaxHp => _lokMaxHp;
+
+    public void SetLok(Transform lok) => _lok = lok;
 
     private Wagon[] _wagons;
     private int[] _currentHp;
@@ -117,6 +130,12 @@ public sealed class TrainHealth : NetworkBehaviour
         if (!IsServer || _dead) return;
 
         if (GameSession.Instance != null) GameSession.Instance.AddDamage(damage);
+
+        if (_lok != null && hitCollider != null && hitCollider.transform.IsChildOf(_lok))
+        {
+            DamageLok(damage);
+            return;
+        }
 
         Wagon wagon = hitCollider != null ? hitCollider.GetComponentInParent<Wagon>() : null;
         int index = wagon != null ? Array.IndexOf(_wagons, wagon) : -1;
@@ -211,6 +230,7 @@ public sealed class TrainHealth : NetworkBehaviour
             while (_masks.Count > n) _masks.RemoveAt(_masks.Count - 1);
             while (_masks.Count < n) _masks.Add(0);
             _destroyedWagons.Value = 0;
+            _lokHp.Value = _lokMaxHp;
         }
 
         for (int i = 0; i < n; i++)
@@ -263,7 +283,7 @@ public sealed class TrainHealth : NetworkBehaviour
 
     private void CheckTotal()
     {
-        if (_dead) return;
+        if (_dead || !_totalHpGameOver) return;
         float total = 0f;
         for (int i = 0; i < _currentHp.Length; i++) total += _currentHp[i];
         if (total < _maxTotalHp * _explodeBelowFraction) TriggerGameOver();
@@ -440,6 +460,24 @@ public sealed class TrainHealth : NetworkBehaviour
             _wagons[i].SetDestroyed();
             OnWagonChanged?.Invoke(i);
         }
+    }
+
+    private void DamageLok(int amount)
+    {
+        if (_lokHp.Value <= 0) return;
+
+        _lokHp.Value = Mathf.Max(0, _lokHp.Value - amount);
+        if (_lokHp.Value == 0)
+        {
+            Debug.Log("LOK DESTROYED - the train derails");
+            TriggerGameOver();
+        }
+    }
+
+    [ContextMenu("Debug: Damage Lok (25)")]
+    private void DebugDamageLok()
+    {
+        if (IsServer && !_dead) DamageLok(25);
     }
 }
 

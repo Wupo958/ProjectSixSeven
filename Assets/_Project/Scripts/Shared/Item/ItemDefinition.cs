@@ -13,6 +13,13 @@ public sealed class ItemDefinition : ScriptableObject
 {
     [Header("Display")]
     public string DisplayName = "Item";
+
+    [Header("World")]
+    [Tooltip("Placed in the world when the item is dropped or thrown. Needs NetworkObject, WorldItemPickup, a collider and a Rigidbody, and must be in the NetworkManager's prefab list. Pivot at the bottom.")]
+    public GameObject WorldPrefab;
+
+    [Tooltip("In kg. Heavier items are thrown less far.")]
+    public float Weight = 1f;
  
     [Tooltip("Visual spawned in the player's hand while held. Visual only: no colliders, no rigidbody")]
     public GameObject HeldPrefab;

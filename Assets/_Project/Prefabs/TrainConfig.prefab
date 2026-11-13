@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 773315042
+  GlobalObjectIdHash: 2831547400
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -94,3 +94,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameSession
   ShowTopMostFoldoutHeaderGroup: 1
   gameplayScene: ProcGenTest
+  startGameMedal: {fileID: 11400000, guid: d693675131bdcc54f959a12a8b9d1d19, type: 2}
+  firstKillMedal: {fileID: 11400000, guid: 3b6849c33b124df488cf7a0da58ab036, type: 2}
