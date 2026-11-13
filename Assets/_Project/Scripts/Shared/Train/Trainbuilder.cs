@@ -73,6 +73,13 @@ public sealed class Trainbuilder : MonoBehaviour
     
     public float TrainLength => _trainLength;
 
+    public static Trainbuilder Instance { get; private set; }
+
+    public Transform GetCar(int index) => _placed != null && index >= 0 && index < _placed.Count ? _placed[index].Car : null;
+
+    private void OnEnable() => Instance = this;
+    private void OnDisable() { if (Instance == this) Instance = null; }
+
     //ASSEMBLY
 
     [ContextMenu("Rebuild Train")]
@@ -258,6 +265,17 @@ public sealed class Trainbuilder : MonoBehaviour
     {
         if (length < 0.01f) return 0f;
         return _track.IsLoop ? Mathf.Repeat(d, length) : Mathf.Clamp(d, 0f, length);
+    }
+
+    public int CarIndexOf(Transform t)
+    {
+        if (_placed == null || t == null) return -1;
+        for (int i = 0; i < _placed.Count; i++)
+        {
+            Transform car = _placed[i].Car;
+            if (car != null && t.IsChildOf(car)) return i;
+        }
+        return -1;
     }
 
 }
