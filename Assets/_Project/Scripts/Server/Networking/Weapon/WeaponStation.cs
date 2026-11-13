@@ -55,7 +55,7 @@ public sealed class WeaponStation : Interactable
         ItemDefinition held = player.Inventory != null ? player.Inventory.Held : null;
         if (_weapon.NeedsAmmo && _weapon.AcceptsAmmo(held))
         {
-            _weapon.LoadAmmoServerRpc(held.AmmoDamageMultiplier);
+            _weapon.LoadAmmo(held);
             player.Inventory.ConsumeHeld();
             return;
         }

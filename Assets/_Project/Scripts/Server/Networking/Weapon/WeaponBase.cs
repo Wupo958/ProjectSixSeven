@@ -44,6 +44,10 @@ public abstract class WeaponBase : MonoBehaviour
     protected float Yaw;
     private float _nextAimSend;
     private float _nextShotTime;
+
+    public static WeaponBase LocalManned { get; private set; }
+    public ItemDefinition LoadedAmmo => ItemRegistry.Active != null ? ItemRegistry.Active.Get(State.AmmoItemId) : null;
+    public virtual string HudReadout => null;
  
     // ----- binding ---------------------------------------------------------
  
@@ -95,11 +99,13 @@ public abstract class WeaponBase : MonoBehaviour
         WeaponState s = State;
         Pitch = s.Pitch;
         Yaw = s.Yaw;
+        LocalManned = this;
     }
  
     public void EndLocalControl()
     {
         LocalGunner = null;
+        if (LocalManned == this) LocalManned = null;
     }
  
     // ----- ammo -----------------------------------------------------------
@@ -111,9 +117,10 @@ public abstract class WeaponBase : MonoBehaviour
         return item.Type == ItemType.Ammo && item.AmmoTag == _definition.AcceptedAmmoTag;
     }
  
-    public void LoadAmmoServerRpc(float damageMultiplier)
+    public void LoadAmmo(ItemDefinition item)
     {
-        if (IsSpawned) _hub.LoadAmmoServerRpc(_index, damageMultiplier);
+        if (!IsSpawned || item == null || ItemRegistry.Active == null) return;
+        _hub.LoadAmmoServerRpc(_index, ItemRegistry.Active.IdOf(item));
     }
  
     // ----- firing ---------------------------------------------------------
@@ -137,7 +144,7 @@ public abstract class WeaponBase : MonoBehaviour
         Pitch = ClampPitch(Pitch + _definition.Recoil);
     }
  
-    public void SpawnProjectile(float ammoMultiplier)
+    public void SpawnProjectile(float ammoMultiplier, ulong shooterClientId)
     {
         if (_definition == null || _projectilePrefab == null || _muzzle == null) return;
  
@@ -150,7 +157,8 @@ public abstract class WeaponBase : MonoBehaviour
             _definition.ProjectileSpeed,
             _definition.Range,
             _definition.Damage * ammoMultiplier,
-            TrainHealth.Instance != null ? TrainHealth.Instance.Velocity : Vector3.zero);
+            TrainHealth.Instance.Velocity,
+            shooterClientId);
     }
  
     private static Vector3 ApplySpread(Vector3 forward, float degrees)
