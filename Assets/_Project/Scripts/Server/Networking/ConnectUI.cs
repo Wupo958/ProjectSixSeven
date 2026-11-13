@@ -22,6 +22,10 @@ public class ConnectUI : MonoBehaviour
     [SerializeField] private TMP_InputField joinCodeInput;
     [SerializeField] private TMP_Text joinCodeDisplay;
 
+    [SerializeField] private TMP_InputField playerNameInput;
+    [SerializeField] private LobbyPlayerListUI lobbyPlayerList;
+    [SerializeField] private int maxPlayerNameLength = 20;
+
     [Header("Session")]
     [SerializeField] private int maxPlayers = 4;
 
@@ -52,47 +56,138 @@ public class ConnectUI : MonoBehaviour
         try
         {
             await UnityServices.InitializeAsync();
-
-            if (!AuthenticationService.Instance.IsSignedIn)
-            {
-                try
-                {
-                    string profile = "p" + Guid.NewGuid().ToString("N").Substring(0, 20);
-                    AuthenticationService.Instance.SwitchProfile(profile);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogWarning($"Could not switch auth profile: {e.Message}");
-                }
-
-                await AuthenticationService.Instance.SignInAnonymouslyAsync();
-            }
-
-            if (VoiceChatManager.Instance != null)
-            {
-                await VoiceChatManager.Instance.LoginAsync($"Player-{UnityEngine.Random.Range(1000, 9999)}");
-            }
         }
         catch (Exception e)
         {
-            Debug.LogError($"Unity Services init/sign-in failed: {e}");
+            Debug.LogError("Unity Services init failed: " + e);
             return;
         }
+
+        if (!await SignInAsync())
+        {
+            return;
+        }
+
+        playerNameInput.text = ProfileService.Current.DisplayName;
 
         hostButton.onClick.AddListener(() => _ = CreateSession());
         joinButton.onClick.AddListener(() => _ = JoinSession());
         SetButtonsInteractable(true);
     }
 
+    private async Task<bool> SignInAsync()
+    {
+        if (!AuthenticationService.Instance.IsSignedIn)
+        {
+            try
+            {
+                string cloneProfile = GetTestCloneProfileName();
+                if (cloneProfile.Length > 0)
+                {
+                    AuthenticationService.Instance.SwitchProfile(cloneProfile);
+                }
+
+                await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Sign-in failed: " + e);
+                return false;
+            }
+        }
+
+        if (!ProfileService.IsLoaded)
+        {
+            await ProfileService.LoadAsync();
+        }
+
+        return ProfileService.IsLoaded;
+    }
+
+    private string GetTestCloneProfileName()
+    {
+        string clonePathMarker = "/Library/VP/";
+        string dataPath = Application.dataPath;
+
+        int markerIndex = dataPath.IndexOf(clonePathMarker);
+        if (markerIndex < 0)
+        {
+            return "";
+        }
+
+        string cloneFolder = dataPath.Substring(markerIndex + clonePathMarker.Length);
+        int folderEnd = cloneFolder.IndexOf('/');
+        if (folderEnd >= 0)
+        {
+            cloneFolder = cloneFolder.Substring(0, folderEnd);
+        }
+
+        return ToProfileName(cloneFolder);
+    }
+
+    private async Task<bool> ApplyDisplayNameAsync()
+    {
+        string displayName = playerNameInput.text.Trim();
+        if (displayName.Length > maxPlayerNameLength)
+        {
+            displayName = displayName.Substring(0, maxPlayerNameLength);
+        }
+
+        if (displayName.Length == 0)
+        {
+            Debug.LogWarning("Enter a player name first.");
+            return false;
+        }
+
+        await ProfileService.SetDisplayName(displayName);
+
+        if (VoiceChatManager.Instance != null)
+        {
+            await VoiceChatManager.Instance.LoginAsync(displayName);
+        }
+
+        return true;
+    }
+
+    private string ToProfileName(string text)
+    {
+        string profileName = "";
+        foreach (char character in text)
+        {
+            bool isAsciiLetter = (character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z');
+            bool isAsciiDigit = character >= '0' && character <= '9';
+            if (isAsciiLetter || isAsciiDigit || character == '-' || character == '_')
+            {
+                profileName += character;
+            }
+        }
+
+        if (profileName.Length > 30)
+        {
+            profileName = profileName.Substring(0, 30);
+        }
+
+        return profileName;
+    }
+
     private async Task CreateSession()
     {
         SetButtonsInteractable(false);
+
+        if (!await ApplyDisplayNameAsync())
+        {
+            SetButtonsInteractable(true);
+            return;
+        }
+
         try
         {
-            var options = new SessionOptions { MaxPlayers = maxPlayers }.WithRelayNetwork();
+            SessionOptions options = new SessionOptions { MaxPlayers = maxPlayers }.WithRelayNetwork();
+            options.PlayerProperties = LobbyPlayerListUI.CreateLocalPlayerProperties();
             session = await MultiplayerService.Instance.CreateSessionAsync(options);
 
             Debug.Log($"Session created. Join code: {session.Code}");
+            lobbyPlayerList.SetSession(session);
             EnterHostLobby();
         }
         catch (Exception e)
@@ -112,9 +207,19 @@ public class ConnectUI : MonoBehaviour
         }
 
         SetButtonsInteractable(false);
+
+        if (!await ApplyDisplayNameAsync())
+        {
+            SetButtonsInteractable(true);
+            return;
+        }
+
         try
         {
-            session = await MultiplayerService.Instance.JoinSessionByCodeAsync(code);
+            JoinSessionOptions joinOptions = new JoinSessionOptions();
+            joinOptions.PlayerProperties = LobbyPlayerListUI.CreateLocalPlayerProperties();
+            session = await MultiplayerService.Instance.JoinSessionByCodeAsync(code, joinOptions);
+            lobbyPlayerList.SetSession(session);
             Debug.Log($"Joined session {session.Id}");
             EnterClientLobby();
         }
