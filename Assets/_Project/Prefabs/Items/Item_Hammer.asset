@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: Item_Hammer
   m_EditorClassIdentifier: Assembly-CSharp::ItemDefinition
   DisplayName: Hammer
-  HeldPrefab: {fileID: 7045301525193603659, guid: b6cd4486ccb9fd34fa267dd76dc2cbe7, type: 3}
+  WorldPrefab: {fileID: 6932870048990641934, guid: 9ff65619d568b3544a54b8d8b225e572, type: 3}
+  Weight: 1
+  HeldPrefab: {fileID: 6932870048990641934, guid: 9ff65619d568b3544a54b8d8b225e572, type: 3}
   Type: 3
   ConsumeOnUse: 0
   ExplosiveWhenStored: 0

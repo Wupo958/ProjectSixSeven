@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Item_LightAmmo
   m_EditorClassIdentifier: Assembly-CSharp::ItemDefinition
   DisplayName: Light Ammo
+  WorldPrefab: {fileID: 7914133416397727646, guid: 99d321ae5251f8c469222fdc6b914a7c, type: 3}
+  Weight: 1
   HeldPrefab: {fileID: 7914133416397727646, guid: 99d321ae5251f8c469222fdc6b914a7c, type: 3}
   Type: 0
   ConsumeOnUse: 1
