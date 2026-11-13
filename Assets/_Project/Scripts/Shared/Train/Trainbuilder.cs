@@ -148,6 +148,7 @@ public sealed class Trainbuilder : MonoBehaviour
         if (health != null) {
             health.CarryReference = lokTransform != null ? lokTransform : firstWagon != null ? firstWagon : transform;
             health.AimTarget = health.CarryReference;
+            health.SetLok(lokTransform);
             health.SetSpawnAnchors(anchors);
             health.Rebind();
         }
