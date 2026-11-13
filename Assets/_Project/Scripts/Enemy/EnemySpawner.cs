@@ -1,48 +1,108 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 public class EnemySpawner : NetworkBehaviour
 {
-    [SerializeField] private NetworkObject jeepEnemy;
-    [SerializeField] private NetworkObject planeEnemy;
+    [SerializeField] private EnemyBase[] enemyTypes;
     [SerializeField] private GameObject train;
 
-    // Update is called once per frame
-    void Update()
+    [SerializeField] private int minPoolSize = 1;
+    [SerializeField] private int maxPoolSize = 5;
+
+    [SerializeField] private float waveInterval = 45f;
+    [SerializeField] private float firstWaveDelay = 5f;
+    [SerializeField] private int minGroupsPerWave = 1;
+    [SerializeField] private int maxGroupsPerWave = 3;
+    [SerializeField] private float groupSpread = 15f;
+
+    private List<EnemyBase> enemyPool = new List<EnemyBase>();
+    private float nextWaveTime;
+
+    public override void OnNetworkSpawn()
     {
         if (!IsServer)
         {
             return;
         }
 
-        int perType = EnemiesPerType();
+        RollEnemyPool();
+        nextWaveTime = Time.time + firstWaveDelay;
+    }
 
-        for (int i = EnemyBase.CountOf<GroundJeepEnemy>(); i < perType; i++)
+    private void Update()
+    {
+        if (!IsServer)
         {
-            SpawnEnemy(jeepEnemy, -3);
+            return;
         }
 
-        for (int i = EnemyBase.CountOf<AirPlaneEnemy>(); i < perType; i++)
+        if (Time.time < nextWaveTime)
         {
-            SpawnEnemy(planeEnemy, 25);
+            return;
+        }
+
+        SpawnWave();
+        nextWaveTime = Time.time + waveInterval;
+    }
+
+    private void RollEnemyPool()
+    {
+        int poolSize = Random.Range(minPoolSize, maxPoolSize + 1);
+
+        do
+        {
+            enemyPool.Clear();
+            for (int i = 0; i < poolSize; i++)
+            {
+                enemyPool.Add(enemyTypes[Random.Range(0, enemyTypes.Length)]);
+            }
+        }
+        while (poolSize > 1 && enemyTypes.Length > 1 && HasOnlyOneType());
+    }
+
+    private bool HasOnlyOneType()
+    {
+        for (int i = 1; i < enemyPool.Count; i++)
+        {
+            if (enemyPool[i] != enemyPool[0])
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void SpawnWave()
+    {
+        int groupCount = Random.Range(minGroupsPerWave, maxGroupsPerWave + 1);
+        for (int i = 0; i < groupCount; i++)
+        {
+            EnemyBase enemyType = enemyPool[Random.Range(0, enemyPool.Count)];
+            SpawnGroup(enemyType);
         }
     }
 
-    private int EnemiesPerType()
+    private void SpawnGroup(EnemyBase prefab)
     {
-        if (GameSession.Instance == null)
+        float side = 1f;
+        if (Random.value < 0.5f)
         {
-            return 1;
+            side = -1f;
         }
 
-        return GameSession.Instance.LevelIndex + 1;
-    }
-
-    private void SpawnEnemy(NetworkObject prefab, float height)
-    {
         Vector3 trainPos = train.transform.position;
-        Vector3 spawnPoint = new Vector3(trainPos.x + Random.Range(-100f, 100f), height, trainPos.z + Random.Range(-100f, -250f));
-        NetworkObject enemy = Instantiate(prefab, spawnPoint, Quaternion.identity);
-        enemy.Spawn(true);
+        Vector3 groupCenter = new Vector3(trainPos.x + side * Random.Range(20f, 100f), prefab.SpawnHeight, trainPos.z + Random.Range(-100f, -250f));
+
+        int groupSize = Random.Range(prefab.MinGroupSize, prefab.MaxGroupSize + 1);
+        for (int i = 0; i < groupSize; i++)
+        {
+            Vector2 scatter = Random.insideUnitCircle * groupSpread;
+            Vector3 spawnPoint = groupCenter + new Vector3(scatter.x, 0f, scatter.y);
+            EnemyBase enemy = Instantiate(prefab, spawnPoint, Quaternion.identity);
+            enemy.SetFormation(i, side, groupCenter);
+            enemy.NetworkObject.Spawn(true);
+        }
     }
 }
