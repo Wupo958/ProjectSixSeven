@@ -8,7 +8,9 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
     [SerializeField] private GameObject projectilePrefab;
 
     [SerializeField] protected float maxHealth = 3f;
+    [SerializeField] [Range(0f, 100f)] private float armor = 0f;
 
+    [SerializeField] protected float damage = 3f;
     [SerializeField] protected float maxRange = 200f;
     [SerializeField] protected float attackInterval = 1f;
     [SerializeField] protected float firstAttackDelay = 1f;
@@ -18,11 +20,67 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
     [SerializeField] protected float maxSpeed = 60f;
     [SerializeField] protected float stationGain = 1f;
 
+    [SerializeField] private int minGroupSize = 1;
+    [SerializeField] private int maxGroupSize = 1;
+    [SerializeField] private float spawnHeight = 0f;
+
     private float health;
+    private ulong lastAttackerClientId = WeaponBase.NoOccupant;
     private Vector3 lastTrainPos;
     private Vector3 trainVelocity;
     private bool hasLastTrainPos;
+    private int formationSlot;
+    private float formationSide = 1f;
+    private Vector3 groupCenter;
     protected Rigidbody rb;
+
+    public int MinGroupSize
+    {
+        get
+        {
+            return minGroupSize;
+        }
+    }
+
+    public int MaxGroupSize
+    {
+        get
+        {
+            return maxGroupSize;
+        }
+    }
+
+    public float SpawnHeight
+    {
+        get
+        {
+            return spawnHeight;
+        }
+    }
+
+    protected float FormationSide => formationSide;
+    protected Vector3 GroupCenter => groupCenter;
+
+    protected int FormationRank
+    {
+        get
+        {
+            return (formationSlot + 1) / 2;
+        }
+    }
+
+    protected float StaggeredRank
+    {
+        get
+        {
+            if (formationSlot % 2 == 0)
+            {
+                return -FormationRank;
+            }
+
+            return FormationRank;
+        }
+    }
 
     protected TrainHealth Train => TrainHealth.Instance;
     protected Vector3 TrainVelocity => trainVelocity;
@@ -43,6 +101,13 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
     protected Vector3 TrainRight => Vector3.Cross(Vector3.up, TrainHeading);
 
     private static readonly List<EnemyBase> active = new List<EnemyBase>();
+
+    public void SetFormation(int slot, float side, Vector3 center)
+    {
+        formationSlot = slot;
+        formationSide = side;
+        groupCenter = center;
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -75,33 +140,21 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
         active.Clear();
     }
 
-    public static int CountOf<T>() where T : EnemyBase
-    {
-        int count = 0;
-        foreach (EnemyBase enemy in active)
-        {
-            if (enemy is T)
-            {
-                count++;
-            }
-        }
-
-        return count;
-    }
-
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody>();
     }
 
-    public void ApplyDamage(float amount, Vector3 hitPoint)
+    public void ApplyDamage(float amount, Vector3 hitPoint, ulong attackerClientId)
     {
         if (!IsServer || !IsSpawned)
         {
             return;
         }
 
-        health -= amount;
+        lastAttackerClientId = attackerClientId;
+        float damageAfterArmor = amount * (1f - armor / 100f);
+        health -= damageAfterArmor;
         if (health <= 0f)
         {
             Die();
@@ -112,7 +165,7 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
     {
         if (GameSession.Instance != null)
         {
-            GameSession.Instance.AddKill();
+            GameSession.Instance.AddKill(lastAttackerClientId);
         }
 
 
@@ -164,7 +217,7 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
 
         GameObject projectile = Instantiate(projectilePrefab, muzzle.position, Quaternion.LookRotation(direction));
         projectile.GetComponent<NetworkObject>().Spawn(destroyWithScene: true);
-        projectile.GetComponent<BasicProjectileScript>().Launch(direction, maxRange);
+        projectile.GetComponent<BasicProjectileScript>().Launch(direction, maxRange, damage);
     }
 
     protected abstract void Move();

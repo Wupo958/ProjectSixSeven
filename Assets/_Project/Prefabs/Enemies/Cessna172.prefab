@@ -169,6 +169,8 @@ MonoBehaviour:
   muzzle: {fileID: 5202059296398536232}
   projectilePrefab: {fileID: 8499486844344490790, guid: a20e0f1642f235c40bb893cdb4b6f370, type: 3}
   maxHealth: 25
+  armor: 0
+  damage: 3
   maxRange: 250
   attackInterval: 0.75
   firstAttackDelay: 3
@@ -176,9 +178,15 @@ MonoBehaviour:
   acceleration: 15
   maxSpeed: 80
   stationGain: 1
+  minGroupSize: 1
+  maxGroupSize: 3
+  spawnHeight: 15
   orbitRadius: 50
   orbitHeight: 15
   orbitDegreesPerSecond: 15
+  wedgeDegreesBehind: 8
+  wedgeSideSpacing: 10
+  wedgeHeightStep: 3
 --- !u!54 &7557054637839521558
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -121,7 +121,7 @@ public sealed class TrainWeapons : NetworkBehaviour
  
         s.Loaded -= 1;
         _states[i] = s;
-        _weapons[i].SpawnProjectile(s.AmmoMultiplier);
+        _weapons[i].SpawnProjectile(s.AmmoMultiplier, s.Occupant);
     }
  
     private void OnClientLeft(ulong clientId)
