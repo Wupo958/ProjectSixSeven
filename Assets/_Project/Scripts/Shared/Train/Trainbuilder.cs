@@ -67,6 +67,7 @@ public sealed class Trainbuilder : MonoBehaviour
     private const string ContainerName = "Generated";
 
     private float _noseDistance;
+    private TrainMotion _motion;
     public bool IsLoopTrack => _track != null && _track.IsLoop;
     public float TrackLength => _track != null && _track.Path != null ? _track.Path.Length : 0f;
     public float NoseDistance => _noseDistance;
@@ -178,6 +179,7 @@ public sealed class Trainbuilder : MonoBehaviour
     }
 
     public void Awake() {
+        _motion = GetComponent<TrainMotion>();
         PlaceAll(EditDistance());
     }
 
@@ -220,17 +222,14 @@ public sealed class Trainbuilder : MonoBehaviour
 
     private float PlayDistance() {
         float length = _track.Path.Length;
-        float time = TrainFollower.TimeSource != null ? TrainFollower.TimeSource() : Time.timeSinceLevelLoad;
-        float moving = Mathf.Max(0f, time - _startDelay);
         float start = _startDistance + _trainLength;
+        float travelled = _motion != null ? _motion.Distance : 0f;
 
-        if (_track.IsLoop)
-            return Mathf.Repeat(start + _speed * moving, length);
-        
-        if (length < 0.01f) return 0f;
-        float omega = 2f * _speed / length;
-        return Mathf.Min(length, start + 0.5f * (length - start) * (1f - Mathf.Cos(omega * moving)));
+        if (_track.IsLoop) return Mathf.Repeat(start + travelled, length);
+        return Mathf.Min(start + travelled, length);
     }
+
+    public float MaxTravel => _track == null || _track.Path == null || _track.IsLoop ? float.PositiveInfinity : Mathf.Max(0f, _track.Path.Length - (_startDistance + _trainLength));
 
     private void PlaceAll(float nose) {
         if (_track == null || _track.Path == null || !_track.Path.IsValid) return;
