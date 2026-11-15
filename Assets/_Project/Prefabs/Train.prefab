@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 8056750963570279866}
   - component: {fileID: 3389157851927771567}
   - component: {fileID: 4471903628815550241}
+  - component: {fileID: -4767230131394277540}
   m_Layer: 0
   m_Name: Train
   m_TagString: Untagged
@@ -133,12 +134,12 @@ MonoBehaviour:
   _workingMat: {fileID: 2100000, guid: 2b63af79cdab87641a03126bfcf2d164, type: 2}
   _brokenMat: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
   _lok: {fileID: 854112223567147420, guid: 9b7184afd6a445d43adb7b54791a959d, type: 3}
+  _lokMaxHp: 100
+  _totalHpGameOver: 0
   _explodeBelowFraction: 0.25
   loseScene: LevelEndScreen
   AimTarget: {fileID: 0}
   CarryReference: {fileID: 0}
-  _repairMinigame: 0
-  _repairDifficulty: 10
 --- !u!114 &3389157851927771567
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -168,3 +169,24 @@ MonoBehaviour:
   trainBuilder: {fileID: 2001273552815994070}
   winDistanceFromEnd: 1
   winScene: LevelEndScreen
+--- !u!114 &-4767230131394277540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 669473586591985552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2149e3bd410c6134bac743ea26ae65d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TrainMotion
+  ShowTopMostFoldoutHeaderGroup: 1
+  _maxSpeed: 30
+  _startSpeed: 30
+  _startDelay: 5
+  _acceleration: 2
+  _braking: 4
+  _currentSpeed: 0
+  _currentTarget: 0
+  _currentDistance: 0
