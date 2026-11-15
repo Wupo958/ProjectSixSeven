@@ -14,6 +14,8 @@ public sealed class MinigameHost : MonoBehaviour
 
     private int lastFinishedFrame = -1;
 
+    private MinigameBase _active;
+
     public bool FinishedThisFrame => lastFinishedFrame == Time.frameCount;
  
     private void Awake()
@@ -45,6 +47,8 @@ public sealed class MinigameHost : MonoBehaviour
         //free the cursor for UI-based minigames.
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+
+        _active = game;
  
         game.Begin(difficulty,
             () => { Finish(player); onSuccess?.Invoke(); },
@@ -56,6 +60,7 @@ public sealed class MinigameHost : MonoBehaviour
  
     private void Finish(PlayerInteractor player)
     {
+        _active = null;
         IsRunning = false;
         lastFinishedFrame = Time.frameCount;
         if (player != null) player.Busy = false;
@@ -69,5 +74,10 @@ public sealed class MinigameHost : MonoBehaviour
         foreach (MinigameBase m in _minigames)
             if (m != null && m.Type == type) return m;
         return null;
+    }
+    
+    public void CancelActive()
+    {
+        if (_active != null) _active.Abort();
     }
 }
