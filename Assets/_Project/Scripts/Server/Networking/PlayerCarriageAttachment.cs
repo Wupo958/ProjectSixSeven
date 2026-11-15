@@ -23,6 +23,8 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
     private Quaternion _lastCarriageRot;
     private bool _riding;
 
+    public bool IsRiding => _riding;
+
     public Transform Seat { get; set; }
 
     private void Awake()
@@ -142,5 +144,12 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
     {
         v.y = 0f;
         return v.sqrMagnitude < 1e-6f ? Vector3.forward : v.normalized;
+    }
+
+    public void Respawn()
+    {
+        if (!IsOwner) return;
+        StopAllCoroutines();
+        StartCoroutine(BoardWhenReady());
     }
 }

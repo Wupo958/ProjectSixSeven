@@ -47,6 +47,8 @@ public class FirstPersonController : NetworkBehaviour
     public bool IsCrouched => _crouched.Value;
     public bool IsSprinting { get; private set; }
 
+    public bool Dead { get; set; }
+
     static readonly Collider[] _overlap = new Collider[16];
 
     CharacterController controller;
@@ -69,8 +71,6 @@ public class FirstPersonController : NetworkBehaviour
     float visualBlend;          //same, for the visible model on every client
     Vector3 visualBaseScale;
     Vector3 visualBasePos;
-
-    NetworkVariable<int> HEALTH= new NetworkVariable<int>(100, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     readonly NetworkVariable<bool> _crouched = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
@@ -143,6 +143,12 @@ public class FirstPersonController : NetworkBehaviour
  
         if (ControlSuspended)
             return;
+
+        if (Dead)
+        {
+            Look();
+            return;
+        }
  
         Look();
         UpdateCrouch(Time.deltaTime);
@@ -271,7 +277,7 @@ public class FirstPersonController : NetworkBehaviour
     }
  
     bool IsGrounded()
-    {//
+    {
         Vector3 origin = transform.TransformPoint(controller.center);
         float distance = controller.height * Mathf.Abs(transform.lossyScale.y) * 0.5f + groundCheckDistance;
         return Physics.Raycast(origin, Vector3.down, distance, ~0, QueryTriggerInteraction.Ignore);

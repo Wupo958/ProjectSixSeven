@@ -52,10 +52,15 @@ public class BasicProjectileScript : NetworkBehaviour
 
     private void Hit(Collider other, Vector3 hitPos)
     {
-        TrainHealth train = other.GetComponentInParent<TrainHealth>();
-        if (train != null)
+        PlayerHealth player = other.GetComponentInParent<PlayerHealth>();
+        if (player != null)
         {
-            train.ReportHit(other, hitPos, Mathf.RoundToInt(damage));
+            player.ApplyDamage(damage, hitPos, PlayerHealth.EnvironmentAttacker);
+        }
+        else
+        {
+            TrainHealth train = other.GetComponentInParent<TrainHealth>();
+            if (train != null) train.ReportHit(other, hitPos, Mathf.RoundToInt(damage));
         }
 
         NetworkObject.Despawn();
