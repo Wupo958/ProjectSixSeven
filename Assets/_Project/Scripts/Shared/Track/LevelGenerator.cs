@@ -7,15 +7,14 @@ namespace ProjectSixSeven.Shared.Track
     public sealed class LevelGenerator : MonoBehaviour
     {
         [Header("Seed")]
-        [Tooltip("Same seed => same level on every client. Change it for a different layout.")]
+        [Tooltip("Added to the route's seed. Same seed => same level on every client. Change it for a different layout.")]
         [SerializeField] private int _seed = 12345;
         [SerializeField] private bool _generateOnAwake = true;
 
         [Header("Track shape")]
-        [Tooltip("Roughly how long the track should be, in metres.")]
+        [Tooltip("Track length in metres, only used when no GameSession route exists (testing the scene on its own). " +
+                 "In a real session the length comes from the chosen route, see RouteGenerator on GameSession.")]
         [SerializeField] private float _trackLength = 2400f;
-        [Tooltip("Extra track length added per level, in metres.")]
-        [SerializeField] private float _lengthPerLevel = 400f;
         [Tooltip("Spacing between control nodes, in metres. Keep it well above the track's transition length.")]
         [SerializeField] private float _nodeSpacing = 200f;
         [Tooltip("How far the track may swing left/right at each node, in degrees. Kept gentle so it stays above the min radius.")]
@@ -38,7 +37,18 @@ namespace ProjectSixSeven.Shared.Track
         private Material _material;
         private float _levelLength;
 
-        private static int CurrentLevel => GameSession.Instance != null ? GameSession.Instance.LevelIndex : 0;
+        private static RouteOption CurrentRoute
+        {
+            get
+            {
+                if (GameSession.Instance == null)
+                {
+                    return default;
+                }
+
+                return GameSession.Instance.CurrentRoute;
+            }
+        }
 
         private void Awake()
         {
@@ -51,9 +61,18 @@ namespace ProjectSixSeven.Shared.Track
         [ContextMenu("Generate")]
         public void Generate()
         {
-            int level = CurrentLevel;
-            _rng = new System.Random(_seed + level * 7919);
-            _levelLength = _trackLength + level * _lengthPerLevel;
+            RouteOption route = CurrentRoute;
+            if (route.IsValid)
+            {
+                _rng = new System.Random(unchecked(_seed + route.Seed));
+                _levelLength = route.Length;
+            }
+            else
+            {
+                _rng = new System.Random(_seed);
+                _levelLength = _trackLength;
+            }
+
             ResetContainer();
             EnsureMaterial();
 
