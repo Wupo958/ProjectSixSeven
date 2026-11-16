@@ -24,6 +24,9 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
     [SerializeField] private int maxGroupSize = 1;
     [SerializeField] private float spawnHeight = 0f;
 
+    [Tooltip("Name shown on the route map. Falls back to the prefab name.")]
+    [SerializeField] private string displayName;
+
     private float health;
     private ulong lastAttackerClientId = WeaponBase.NoOccupant;
     private Vector3 lastTrainPos;
@@ -33,6 +36,19 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
     private float formationSide = 1f;
     private Vector3 groupCenter;
     protected Rigidbody rb;
+
+    public string DisplayName
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(displayName))
+            {
+                return name;
+            }
+
+            return displayName;
+        }
+    }
 
     public int MinGroupSize
     {

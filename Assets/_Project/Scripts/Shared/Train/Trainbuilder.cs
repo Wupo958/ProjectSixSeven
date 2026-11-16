@@ -43,6 +43,9 @@ public sealed class Trainbuilder : MonoBehaviour
     [Tooltip("HP per defect (Y in GDD). Wagon HP = total defects * this")]
     [SerializeField] private int _hpPerDefect = 10;
 
+    [Tooltip("HP per defect of an upgraded wagon, as a multiple of the normal value.")]
+    [SerializeField, Min(1f)] private float _upgradeHpMultiplier = 1.5f;
+
     [Header("Spawning")]
     [Tooltip("Height above a wagon's origin for auto-generated spawn anchors, used when " +
              "a half prefab defines none of its own.")]
@@ -70,6 +73,18 @@ public sealed class Trainbuilder : MonoBehaviour
     private TrainMotion _motion;
     public bool IsLoopTrack => _track != null && _track.IsLoop;
     public float TrackLength => _track != null && _track.Path != null ? _track.Path.Length : 0f;
+    public TrackPath Path
+    {
+        get
+        {
+            if (_track == null)
+            {
+                return null;
+            }
+
+            return _track.Path;
+        }
+    }
     public float NoseDistance => _noseDistance;
     
     public float TrainLength => _trainLength;
@@ -86,17 +101,17 @@ public sealed class Trainbuilder : MonoBehaviour
     [ContextMenu("Rebuild Train")]
     //EDITOR PREVIEW ONLY: Builds from inspector list
     public void Rebuild() {
-        Build(_wagons.Count, i => _wagons[i] != null ? _wagons[i].Front : null, i => _wagons[i] != null ? _wagons[i].Back : null);
+        Build(_wagons.Count, i => _wagons[i] != null ? _wagons[i].Front : null, i => _wagons[i] != null ? _wagons[i].Back : null, i => false);
     }
 
     //RUNTIME: builds from the networked layout. Every client calls this with the same data, so every client ends up with an identical train.
     public void RebuildFrom(List<WagonSlotData> slots, WagonHalfRegistry registry) {
         if (slots == null || registry == null) return;
  
-        Build(slots.Count, i => registry.Get(slots[i].Front), i => registry.Get(slots[i].Back));
+        Build(slots.Count, i => registry.Get(slots[i].Front), i => registry.Get(slots[i].Back), i => slots[i].Upgraded);
     }
 
-    private void Build(int wagonCount, Func<int, Wagonhalf> frontOf, Func<int, Wagonhalf> backOf) {
+    private void Build(int wagonCount, Func<int, Wagonhalf> frontOf, Func<int, Wagonhalf> backOf, Func<int, bool> upgradedOf) {
         Transform container = PrepareContainer();
         _placed = new List<PlacedCar>();
  
@@ -125,7 +140,13 @@ public sealed class Trainbuilder : MonoBehaviour
  
             Wagonhalf front = InstantiateHalf(frontOf(i), wagonGo.transform, +_halfOffset, false);
             Wagonhalf back = InstantiateHalf(backOf(i), wagonGo.transform, -_halfOffset, _flipBackHalf);
-            wagon.Setup(front, back, _hpPerDefect);
+            int hpPerDefect = _hpPerDefect;
+            if (upgradedOf(i))
+            {
+                hpPerDefect = Mathf.RoundToInt(_hpPerDefect * _upgradeHpMultiplier);
+            }
+
+            wagon.Setup(front, back, hpPerDefect);
  
             if (firstWagon == null) firstWagon = wagonGo.transform;
  
