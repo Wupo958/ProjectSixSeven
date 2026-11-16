@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1466f0d9ac0fb64eae078ca0e0803be, type: 3}
   m_Name: Weapon_MG
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinition
-  DisplayName: Cannon
+  DisplayName: Machine Gun
   AcceptedAmmoTag: LightAmmo
   Damage: 2
   FireMode: 1

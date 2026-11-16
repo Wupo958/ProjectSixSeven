@@ -10,6 +10,9 @@ public class LevelEndScreenUI : NetworkBehaviour
     [SerializeField] private TMP_Text continueLabel;
     [SerializeField] private TMP_Text waitingText;
 
+    [Tooltip("Optional. When set, a win shows the route vote instead of the continue button.")]
+    [SerializeField] private RouteMapUI routeMap;
+
     [SerializeField] private string wonResult = "You Win";
     [SerializeField] private string lostResult = "Game Over";
     [SerializeField] private string wonContinue = "Next Level";
@@ -88,6 +91,14 @@ public class LevelEndScreenUI : NetworkBehaviour
         if (continueLabel != null)
         {
             continueLabel.text = won ? wonContinue : lostContinue;
+        }
+
+        bool voteReplacesContinue = won && routeMap != null;
+        continueButton.gameObject.SetActive(!voteReplacesContinue);
+
+        if (waitingText != null)
+        {
+            waitingText.gameObject.SetActive(!IsServer && !voteReplacesContinue);
         }
     }
 }
