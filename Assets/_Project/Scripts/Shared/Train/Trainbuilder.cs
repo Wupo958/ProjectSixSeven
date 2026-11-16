@@ -131,6 +131,8 @@ public sealed class Trainbuilder : MonoBehaviour
                 Bogie = _lokLength * _bogieFraction
             });
             nose += _lokLength;
+
+            CollectLokAnchors(lok.transform, anchors);
         }
  
         for (int i = 0; i < wagonCount; i++) {
@@ -150,7 +152,7 @@ public sealed class Trainbuilder : MonoBehaviour
  
             if (firstWagon == null) firstWagon = wagonGo.transform;
  
-            CollectSpawnAnchors(wagonGo.transform, front, back, anchors);
+            if (lokTransform == null) CollectSpawnAnchors(wagonGo.transform, front, back, anchors);
  
             _placed.Add(new PlacedCar {
                 Car = wagonGo.transform,
@@ -188,6 +190,20 @@ public sealed class Trainbuilder : MonoBehaviour
         if (into.Count == before) {
             var fallback = new GameObject("SpawnAnchor");
             fallback.transform.SetParent(wagon, false);
+            fallback.transform.localPosition = new Vector3(0f, _spawnAnchorHeight, 0f);
+            into.Add(fallback.transform);
+        }
+    }
+
+    private void CollectLokAnchors(Transform lok, List<Transform> into) {
+        int before = into.Count;
+
+        foreach (Transform t in lok.GetComponentsInChildren<Transform>(true))
+            if (t != lok && t.name.StartsWith("SpawnAnchor")) into.Add(t);
+
+        if (into.Count == before) {
+            var fallback = new GameObject("SpawnAnchor");
+            fallback.transform.SetParent(lok, false);
             fallback.transform.localPosition = new Vector3(0f, _spawnAnchorHeight, 0f);
             into.Add(fallback.transform);
         }

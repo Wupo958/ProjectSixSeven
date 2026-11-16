@@ -474,10 +474,10 @@ public sealed class TrainHealth : NetworkBehaviour
         }
     }
 
-    [ContextMenu("Debug: Damage Lok (25)")]
+    [ContextMenu("Debug: Damage Lok (250)")]
     private void DebugDamageLok()
     {
-        if (IsServer && !_dead) DamageLok(25);
+        if (IsServer && !_dead) DamageLok(250);
     }
 }
 
