@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinition
   DisplayName: Machine Gun
   AcceptedAmmoTag: LightAmmo
-  Damage: 2
+  Damage: 20
   FireMode: 1
   RoundsPerMinute: 240
   MagazineCapacity: 100
