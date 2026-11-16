@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDefinition
   DisplayName: Heavy Cannon
   AcceptedAmmoTag: HeavyAmmo
-  Damage: 100
+  Damage: 1000
   FireMode: 0
   RoundsPerMinute: 300
   MagazineCapacity: 1
