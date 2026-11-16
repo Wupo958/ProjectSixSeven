@@ -96,3 +96,4 @@ MonoBehaviour:
   gameplayScene: ProcGenTest
   startGameMedal: {fileID: 11400000, guid: d693675131bdcc54f959a12a8b9d1d19, type: 2}
   firstKillMedal: {fileID: 11400000, guid: 3b6849c33b124df488cf7a0da58ab036, type: 2}
+  enemyRegistry: {fileID: 11400000, guid: 38ea8ed4518d4584b9b80f6e8f553e41, type: 2}

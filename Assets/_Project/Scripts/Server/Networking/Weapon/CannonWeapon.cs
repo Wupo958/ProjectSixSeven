@@ -16,6 +16,9 @@ public sealed class CannonWeapon : WeaponBase
     private Camera _gunnerCamera;
     private float _baseFov;
     private float _zoomT;
+
+    private int _hudDegrees = int.MinValue;
+    private string _hudText;
  
     //weaponStation hands us the camera it moved onto the gun
     public void AttachCamera(Camera cam)
@@ -59,5 +62,19 @@ public sealed class CannonWeapon : WeaponBase
         //200% zoom means half the field of view
         float factor = Mathf.Max(1f, _definition.MaxZoomPercent / 100f);
         _gunnerCamera.fieldOfView = Mathf.Lerp(_baseFov, _baseFov / factor, _zoomT);
+    }
+
+    public override string HudReadout
+    {
+        get
+        {
+            int degrees = Mathf.RoundToInt(Pitch);
+            if (degrees != _hudDegrees)
+            {
+                _hudDegrees = degrees;
+                _hudText = $"Elevation {degrees}°";
+            }
+            return _hudText;
+        }
     }
 }

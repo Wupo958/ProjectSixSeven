@@ -60,4 +60,6 @@ public abstract class MinigameBase : MonoBehaviour
         _onFail = null;
         gameObject.SetActive(false);
     }
+
+    public void Abort() => Cancel();
 }
