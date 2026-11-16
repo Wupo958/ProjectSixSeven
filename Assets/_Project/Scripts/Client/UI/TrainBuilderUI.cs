@@ -23,6 +23,9 @@ public sealed class TrainBuilderUI : MonoBehaviour
  
     [SerializeField] private Button _addButton;
     [SerializeField] private TMP_Text _countLabel;
+
+    [Tooltip("Optional. Shows the team's resources and the prices once building costs something.")]
+    [SerializeField] private TMP_Text _resourcesLabel;
  
     [Header("New wagons")]
     [Tooltip("Registry id used for the front half of a newly added wagon.")]
@@ -35,6 +38,7 @@ public sealed class TrainBuilderUI : MonoBehaviour
  
     private readonly List<TrainBuilderRow> _rows = new List<TrainBuilderRow>();
     private TrainConfig _config;
+    private GameSession _session;
     private bool _open;
  
     private void Awake()
@@ -47,14 +51,26 @@ public sealed class TrainBuilderUI : MonoBehaviour
     private void OnDestroy()
     {
         if (_config != null) _config.LayoutChanged -= Refresh;
+
+        if (_session != null)
+        {
+            _session.ResourcesChanged -= Refresh;
+        }
     }
- 
+
     private void Update()
     {
         if (_config == null && TrainConfig.Instance != null)
         {
             _config = TrainConfig.Instance;
             _config.LayoutChanged += Refresh;
+        }
+
+        if (_session == null && GameSession.Instance != null)
+        {
+            _session = GameSession.Instance;
+            _session.ResourcesChanged += Refresh;
+            Refresh();
         }
 
         if (_lobbyMode)
@@ -115,27 +131,104 @@ public sealed class TrainBuilderUI : MonoBehaviour
             _rows.RemoveAt(last);
         }
  
-        for (int i = 0; i < count; i++) _rows[i].Show(i, _config.GetWagon(i));
- 
-        if (_addButton != null) _addButton.interactable = count < _config.MaxWagons;
+        bool charging = IsCharging();
+        bool canAffordUpgrade = CanAfford(_config.UpgradeCost);
+        for (int i = 0; i < count; i++)
+        {
+            _rows[i].Show(i, _config.GetWagon(i), charging, canAffordUpgrade);
+        }
+
+        if (_addButton != null)
+        {
+            _addButton.interactable = count < _config.MaxWagons && CanAfford(_config.AddWagonCost);
+        }
+
         if (_countLabel != null) _countLabel.text = $"Wagons: {count}/{_config.MaxWagons}";
+
+        RefreshResources(charging);
     }
- 
+
+    private void RefreshResources(bool charging)
+    {
+        if (_resourcesLabel == null)
+        {
+            return;
+        }
+
+        _resourcesLabel.gameObject.SetActive(charging);
+        if (!charging)
+        {
+            return;
+        }
+
+        _resourcesLabel.text = "Resources: " + _session.TeamResources
+            + "   (new wagon " + _config.AddWagonCost
+            + ", change half " + _config.ChangeHalfCost
+            + ", upgrade " + _config.UpgradeCost + ")";
+    }
+
+    private bool IsCharging()
+    {
+        if (_session == null)
+        {
+            return false;
+        }
+
+        return _session.RunStarted;
+    }
+
+    private bool CanAfford(int cost)
+    {
+        if (_session == null)
+        {
+            return true;
+        }
+
+        return _session.CanAfford(cost);
+    }
+
     // ----- requests (called by rows) ---------------------------------------
- 
+
     public void OnRowChanged(int index, int frontId, int backId)
     {
-        if (_config != null) _config.SetWagonServerRpc(index, frontId, backId);
+        if (_config == null)
+        {
+            return;
+        }
+
+        int changedHalves = _config.CountChangedHalves(_config.GetWagon(index), frontId, backId);
+        if (!CanAfford(changedHalves * _config.ChangeHalfCost))
+        {
+            Refresh();
+            return;
+        }
+
+        _config.SetWagonServerRpc(index, frontId, backId);
     }
- 
+
+    public void OnRowUpgraded(int index)
+    {
+        if (_config == null || !CanAfford(_config.UpgradeCost))
+        {
+            return;
+        }
+
+        _config.UpgradeWagonServerRpc(index);
+    }
+
     public void OnRowRemoved(int index)
     {
         if (_config != null) _config.RemoveWagonServerRpc(index);
     }
- 
+
     private void OnAddClicked()
     {
-        if (_config != null) _config.AddWagonServerRpc(_defaultFrontId, _defaultBackId);
+        if (_config == null || !CanAfford(_config.AddWagonCost))
+        {
+            return;
+        }
+
+        _config.AddWagonServerRpc(_defaultFrontId, _defaultBackId);
     }
  
     // ----- local player ----------------------------------------------------
