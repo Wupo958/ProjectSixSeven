@@ -179,7 +179,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
   ShowTopMostFoldoutHeaderGroup: 1
-  _maxHealth: 100
+  _maxHealth: 1000
   _respawnDelay: 10
   _friendlyFire: 0
   _fallDeathDepth: 8
