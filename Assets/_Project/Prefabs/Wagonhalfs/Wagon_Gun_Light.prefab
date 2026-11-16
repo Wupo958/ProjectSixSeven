@@ -927,7 +927,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73b50658116f5f440910a622037cc05a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Wagonhalf
-  _explosiveDamage: 0
+  _explosiveDamage: 100
   _damagePoints:
   - {fileID: 2898810354323712138}
   - {fileID: 912180736597182804}

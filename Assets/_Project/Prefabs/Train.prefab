@@ -111,7 +111,8 @@ MonoBehaviour:
   _bogieFraction: 0.7
   _rideHeight: 2
   _flipBackHalf: 1
-  _hpPerDefect: 10
+  _hpPerDefect: 100
+  _upgradeHpMultiplier: 1.5
   _spawnAnchorHeight: 1.1
   _speed: 30
   _startDistance: 0
@@ -134,7 +135,7 @@ MonoBehaviour:
   _workingMat: {fileID: 2100000, guid: 2b63af79cdab87641a03126bfcf2d164, type: 2}
   _brokenMat: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
   _lok: {fileID: 854112223567147420, guid: 9b7184afd6a445d43adb7b54791a959d, type: 3}
-  _lokMaxHp: 100
+  _lokMaxHp: 1000
   _totalHpGameOver: 0
   _explodeBelowFraction: 0.25
   loseScene: LevelEndScreen
