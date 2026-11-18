@@ -114,6 +114,8 @@ MonoBehaviour:
   _hpPerDefect: 100
   _upgradeHpMultiplier: 1.5
   _spawnAnchorHeight: 1.1
+  _statusPanelPrefab: {fileID: 8753445951095864181, guid: c796089a2808a9948ae9190c839da0c6, type: 3}
+  _statusPanelFallback: {x: 0, y: 2.2, z: 0}
   _speed: 30
   _startDistance: 0
   _startDelay: 5

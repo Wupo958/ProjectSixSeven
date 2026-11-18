@@ -489,6 +489,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4568994400314155446}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5399997303514347739
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3211086702002396082}
+  m_Layer: 0
+  m_Name: StatusPanelAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3211086702002396082
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5399997303514347739}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 1.43272, y: 2.13596, z: 2.75823}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1480572848686440818}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!1 &5474217612140093187
 GameObject:
   m_ObjectHideFlags: 0
@@ -852,6 +883,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: c55206a8d88a367489f142b04f1dd900, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8836315649125526684}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: c55206a8d88a367489f142b04f1dd900, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3211086702002396082}
     - targetCorrespondingSourceObject: {fileID: 3201743119096686383, guid: c55206a8d88a367489f142b04f1dd900, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8345318384539964006}
