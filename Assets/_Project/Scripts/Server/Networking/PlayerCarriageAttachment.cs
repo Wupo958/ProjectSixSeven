@@ -104,16 +104,9 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
 
         Quaternion rotDelta = rotNow * Quaternion.Inverse(_lastCarriageRot);
         Vector3 target = posNow + rotDelta * (transform.position - _lastCarriagePos);
-        Vector3 carry = target - transform.position;
 
-        if (_controller.enabled)
-        {
-            _controller.Move(carry);
-        }
-        else
-        {
-            transform.position = target;
-        }
+        transform.position = target;
+        Physics.SyncTransforms();
 
         float yawDelta = Vector3.SignedAngle(Flatten(_lastCarriageRot * Vector3.forward),
             Flatten(rotNow * Vector3.forward), Vector3.up);

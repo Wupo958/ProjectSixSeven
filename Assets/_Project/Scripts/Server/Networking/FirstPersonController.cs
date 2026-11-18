@@ -41,6 +41,7 @@ public class FirstPersonController : NetworkBehaviour
     public Transform cameraTransform;
 
     public float SpeedMultiplier { get; set; } = 1f;
+    public Vector3 CameraSway { get; set; }
     public bool MovementReversed { get; set; }
 
     public bool ControlSuspended { get; set; }
@@ -165,7 +166,7 @@ public class FirstPersonController : NetworkBehaviour
         transform.Rotate(Vector3.up * look.x);
 
         pitch = Mathf.Clamp(pitch - look.y, -maxPitch, maxPitch);
-        cameraTransform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        cameraTransform.localRotation = Quaternion.Euler(pitch + CameraSway.x, CameraSway.y, CameraSway.z);
     }
 
     // ----- crouching -------------------------------------------------------
