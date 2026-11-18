@@ -611,7 +611,6 @@ MonoBehaviour:
   _seed: 3
   _generateOnAwake: 1
   _trackLength: 2500
-  _lengthPerLevel: 400
   _nodeSpacing: 250
   _wobble: 25
   _treeCount: 150
@@ -3301,10 +3300,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2001273552815994070, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
-      propertyPath: _hpPerDefect
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 2001273552815994070, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
       propertyPath: _wagonLength
       value: 13
       objectReference: {fileID: 0}
@@ -3379,26 +3374,6 @@ PrefabInstance:
     - target: {fileID: 5542184989258879744, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
       value: 1516531431
-      objectReference: {fileID: 0}
-    - target: {fileID: 8056750963570279866, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
-      propertyPath: AimTarget
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 8056750963570279866, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
-      propertyPath: _lokMaxHp
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 8056750963570279866, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
-      propertyPath: _brokenMat
-      value: 
-      objectReference: {fileID: 2100000, guid: 3f80b21e875d8b44f806a0090c922b3a, type: 2}
-    - target: {fileID: 8056750963570279866, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
-      propertyPath: _workingMat
-      value: 
-      objectReference: {fileID: 2100000, guid: 2b63af79cdab87641a03126bfcf2d164, type: 2}
-    - target: {fileID: 8056750963570279866, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
-      propertyPath: CarryReference
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8056750963570279866, guid: ee23e8173f37d6d49a83eea5473232af, type: 3}
       propertyPath: _spawnAnchors.Array.size
@@ -4720,17 +4695,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   ShowTopMostFoldoutHeaderGroup: 1
+  train: {fileID: 950080782}
+  firstWaveDelay: 45
+  waveIntervalJitter: 10
+  distanceBehindTrain: {x: 100, y: 250}
+  sideOffset: {x: 20, y: 100}
+  groupSpread: 25
   enemyTypes:
   - {fileID: 7284110989491117277, guid: bc9464a17a174e041b2b57508c786253, type: 3}
   - {fileID: 6068967524307053091, guid: 72d32dc4da0e6b041915116a4373972e, type: 3}
-  train: {fileID: 950080782}
   minPoolSize: 1
   maxPoolSize: 2
   waveInterval: 10
-  firstWaveDelay: 45
   minGroupsPerWave: 1
   maxGroupsPerWave: 2
-  groupSpread: 25
 --- !u!4 &2086304838
 Transform:
   m_ObjectHideFlags: 0
