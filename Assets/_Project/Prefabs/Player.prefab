@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 8907786118003607902}
   - component: {fileID: 5904731682634683284}
   - component: {fileID: 5422435706669172236}
+  - component: {fileID: -4137737855621299484}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -54,7 +55,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2205324801
+  GlobalObjectIdHash: 1020688971
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -184,6 +185,25 @@ MonoBehaviour:
   _friendlyFire: 0
   _fallDeathDepth: 8
   _offTrainDeathTime: 0.2
+--- !u!114 &-4137737855621299484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2439380001659679026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7348e781417b548856d59304b6cac2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerBump
+  ShowTopMostFoldoutHeaderGroup: 1
+  _minImpactSpeed: 6
+  _hitMargin: 0.1
+  _cooldown: 1
+  _checkInterval: 0.1
+  _maxRunSpeed: 20
+  _logBumps: 1
 --- !u!1 &4070976229342315736
 GameObject:
   m_ObjectHideFlags: 0

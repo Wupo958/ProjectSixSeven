@@ -27,6 +27,8 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
 
     public Transform Seat { get; set; }
 
+    public Vector3 PublishedLocalPosition => _localPosition.Value;
+
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
