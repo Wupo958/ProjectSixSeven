@@ -50,6 +50,8 @@ public class FirstPersonController : NetworkBehaviour
 
     public bool Dead { get; set; }
 
+    public bool InputBlocked { get; set; }
+
     static readonly Collider[] _overlap = new Collider[16];
 
     CharacterController controller;
@@ -151,7 +153,7 @@ public class FirstPersonController : NetworkBehaviour
             return;
         }
  
-        Look();
+        if (!InputBlocked) Look();
         UpdateCrouch(Time.deltaTime);
         Move();
     }
@@ -173,7 +175,7 @@ public class FirstPersonController : NetworkBehaviour
  
     void UpdateCrouch(float dt)
     {
-        if (crouchAction != null)
+        if (crouchAction != null && !InputBlocked)
         {
             if (toggleCrouch)
             {
@@ -246,21 +248,20 @@ public class FirstPersonController : NetworkBehaviour
  
     void Move()
     {
-        Vector2 input = moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
+        Vector2 input = !InputBlocked && moveAction != null ? moveAction.ReadValue<Vector2>() : Vector2.zero;
         if (MovementReversed) input = -input;
  
         bool grounded = IsGrounded();
  
         if (grounded)
         {
-            IsSprinting = !_crouched.Value && sprintAction != null && sprintAction.IsPressed()
-                          && input.sqrMagnitude > 0.01f;
+            IsSprinting = !_crouched.Value && sprintAction != null && sprintAction.IsPressed() && input.sqrMagnitude > 0.01f;
             airSpeed = GroundSpeed();
  
             if (verticalVelocity < 0f)
                 verticalVelocity = groundStick;
  
-            if (jumpAction != null && jumpAction.WasPressedThisFrame())
+            if (!InputBlocked && jumpAction != null && jumpAction.WasPressedThisFrame())
                 verticalVelocity = -gravity * jumpAirtime * 0.5f;
         }
  
