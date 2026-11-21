@@ -123,6 +123,11 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
         }
     }
 
+    protected Vector3 PredictedTargetPosition(float seconds)
+    {
+        return Train.PredictTargetPosition(targetIndex, seconds) + Vector3.up * targetAimHeight;
+    }
+
     public void SetGroup(int index, int seed, float side, Vector3 center)
     {
         groupIndex = index;

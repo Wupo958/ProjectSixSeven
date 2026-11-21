@@ -46,7 +46,7 @@ public class RhinoArtilleryEnemy : EnemyBase
 
         if (IsServer)
         {
-            targetIndex = Train.HighestHpTarget();
+            targetIndex = Train.HighestHpWagonTarget();
         }
     }
 
@@ -60,7 +60,7 @@ public class RhinoArtilleryEnemy : EnemyBase
     {
         if (!HasTarget)
         {
-            targetIndex = Train.HighestHpTarget();
+            targetIndex = Train.HighestHpWagonTarget();
             if (!HasTarget)
             {
                 return;
@@ -137,7 +137,7 @@ public class RhinoArtilleryEnemy : EnemyBase
         float inaccuracy = Mathf.Min(maxInaccuracyRadius, damageSinceLastShot * inaccuracyRadiusPerDamage);
         Vector2 miss = Random.insideUnitCircle * inaccuracy;
 
-        Vector3 impactPoint = TargetPosition + TrainVelocity * shellFlightSeconds;
+        Vector3 impactPoint = PredictedTargetPosition(shellFlightSeconds);
         impactPoint += new Vector3(miss.x, 0f, miss.y);
 
         MortarShell shell = Instantiate(shellPrefab, muzzle.position, Quaternion.identity);

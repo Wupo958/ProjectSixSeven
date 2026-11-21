@@ -320,8 +320,8 @@ MonoBehaviour:
   targetAimHeight: 1.5
   maxHealth: 250
   armor: 75
-  acceleration: 10
-  maxSpeed: 100
+  acceleration: 11
+  maxSpeed: 60
   stationGain: 1
   minGroupSize: 1
   maxGroupSize: 1
@@ -331,7 +331,7 @@ MonoBehaviour:
   mortarVisual: {fileID: 1752438777489319028}
   shellDamage: 60
   shellBlastRadius: 1.25
-  shellFlightSeconds: 5
+  shellFlightSeconds: 3
   secondsBetweenShots: 8
   inaccuracyRadiusPerDamage: 0.1
   maxInaccuracyRadius: 15

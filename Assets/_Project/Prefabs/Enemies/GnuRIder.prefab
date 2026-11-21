@@ -176,10 +176,10 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   muzzle: {fileID: 226063155636184564}
   targetAimHeight: 1.5
-  maxHealth: 100
+  maxHealth: 40
   armor: 50
   acceleration: 15
-  maxSpeed: 125
+  maxSpeed: 75
   stationGain: 1
   minGroupSize: 3
   maxGroupSize: 5

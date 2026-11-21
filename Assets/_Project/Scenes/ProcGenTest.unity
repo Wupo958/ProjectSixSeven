@@ -5666,7 +5666,7 @@ MonoBehaviour:
   groupSpread: 25
   useSceneEnemiesOnFirstLevel: 1
   enemyTypes:
-  - {fileID: 7284110989491117277, guid: bc9464a17a174e041b2b57508c786253, type: 3}
+  - {fileID: 1909479312747434536, guid: 33241a2d8d7f4924d8e6646cab40a7cf, type: 3}
   - {fileID: 1909479312747434536, guid: 33241a2d8d7f4924d8e6646cab40a7cf, type: 3}
   minPoolSize: 2
   maxPoolSize: 3

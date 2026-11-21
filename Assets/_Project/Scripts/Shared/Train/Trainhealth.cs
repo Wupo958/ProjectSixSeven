@@ -100,8 +100,11 @@ public sealed class TrainHealth : NetworkBehaviour
         _hasLastCarryPos = true;
     }
 
+    private Trainbuilder builder;
+
     private void Awake()
     {
+        builder = GetComponent<Trainbuilder>();
         if (AimTarget == null) AimTarget = _lok != null ? _lok : transform;
         Rebind();
 
@@ -379,6 +382,17 @@ public sealed class TrainHealth : NetworkBehaviour
         return _wagons[target - 1].transform.position;
     }
 
+    public Vector3 PredictTargetPosition(int target, float seconds)
+    {
+        Transform targetCar = _lok;
+        if (target > 0)
+        {
+            targetCar = _wagons[target - 1].transform;
+        }
+
+        return builder.PredictCarPosition(builder.CarIndexOf(targetCar), seconds);
+    }
+
     public int TargetHp(int target)
     {
         if (target == 0)
@@ -413,9 +427,19 @@ public sealed class TrainHealth : NetworkBehaviour
 
     public int HighestHpTarget()
     {
+        return HighestHpTargetFrom(0);
+    }
+
+    public int HighestHpWagonTarget()
+    {
+        return HighestHpTargetFrom(1);
+    }
+
+    private int HighestHpTargetFrom(int firstTarget)
+    {
         int best = -1;
         int bestHp = 0;
-        for (int i = 0; i < TargetCount; i++)
+        for (int i = firstTarget; i < TargetCount; i++)
         {
             if (IsTargetAlive(i) && TargetHp(i) > bestHp)
             {
