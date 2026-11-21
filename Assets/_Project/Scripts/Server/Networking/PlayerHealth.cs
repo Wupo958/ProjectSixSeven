@@ -157,6 +157,7 @@ public sealed class PlayerHealth : NetworkBehaviour, IDamageable
  
         _health.Value = 0;
         _dead.Value = true;
+        if (TryGetComponent(out StatusEffectReceiver status)) status.ClearAll();
         _respawnAt.Value = _respawnDelay > 0f ? NetworkManager.ServerTime.Time + _respawnDelay : -1.0;
         Debug.Log($"Player {OwnerClientId} died: {cause}");
  

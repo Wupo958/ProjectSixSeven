@@ -51,6 +51,12 @@ public sealed class Trainbuilder : MonoBehaviour
              "a half prefab defines none of its own.")]
     [SerializeField] private float _spawnAnchorHeight = 1.1f;
 
+    [Header("Status panels")]
+    [Tooltip("Panel prefab with a WagonStatusPanel. One is placed per wagon.")]
+    [SerializeField] private WagonStatusPanel _statusPanelPrefab;
+    [Tooltip("Where the panel goes if neither half has a child named \"StatusPanelAnchor\". Local to the wagon.")]
+    [SerializeField] private Vector3 _statusPanelFallback = new Vector3(0f, 2.2f, 0f);
+
 
     [Header("Movement")]
     [SerializeField] private float _speed = 30f;
@@ -120,6 +126,9 @@ public sealed class Trainbuilder : MonoBehaviour
         Transform firstWagon = null;
  
         float nose = 0f; //offset grows backwards from the nose
+
+        var panels = new List<WagonStatusPanel>();
+        WagonStatusPanel lokPanel = null;
  
         if (_lokPrefab != null) {
             GameObject lok = Instantiate(_lokPrefab, container);
@@ -133,6 +142,7 @@ public sealed class Trainbuilder : MonoBehaviour
             nose += _lokLength;
 
             CollectLokAnchors(lok.transform, anchors);
+            lokPanel = CreateStatusPanel(lok.transform, FindPanelAnchor(lok.transform));
         }
  
         for (int i = 0; i < wagonCount; i++) {
@@ -149,6 +159,10 @@ public sealed class Trainbuilder : MonoBehaviour
             }
 
             wagon.Setup(front, back, hpPerDefect);
+
+            Transform panelAnchor = FindPanelAnchor(front);
+            if (panelAnchor == null) panelAnchor = FindPanelAnchor(back);
+            panels.Add(CreateStatusPanel(wagonGo.transform, panelAnchor));
  
             if (firstWagon == null) firstWagon = wagonGo.transform;
  
@@ -175,10 +189,35 @@ public sealed class Trainbuilder : MonoBehaviour
             health.SetLok(lokTransform);
             health.SetSpawnAnchors(anchors);
             health.Rebind();
+
+            if (lokPanel != null) lokPanel.BindLok(health, Mathf.Max(1, health.LokMaxHp / _hpPerDefect));
+
+            for (int i = 0; i < panels.Count; i++)
+                if (panels[i] != null) panels[i].Bind(health, i, health.DefectsOf(i));
         }
 
         TrainWeapons weapons = GetComponent<TrainWeapons>();
         if (weapons != null) weapons.Rebind();
+    }
+
+    private WagonStatusPanel CreateStatusPanel(Transform parent, Transform anchor) {
+        if (_statusPanelPrefab == null) return null;
+
+        WagonStatusPanel panel = Instantiate(_statusPanelPrefab, parent);
+        if (anchor != null) {
+            panel.transform.SetPositionAndRotation(anchor.position, anchor.rotation);
+        } else {
+            panel.transform.localPosition = _statusPanelFallback;
+            panel.transform.localRotation = Quaternion.identity;
+        }
+        return panel;
+    }
+
+    private static Transform FindPanelAnchor(Component root) {
+        if (root == null) return null;
+        foreach (Transform t in root.GetComponentsInChildren<Transform>(true))
+            if (t.name.StartsWith("StatusPanelAnchor")) return t;
+        return null;
     }
 
     private void CollectSpawnAnchors(Transform wagon, Wagonhalf front, Wagonhalf back, List<Transform> into) {
