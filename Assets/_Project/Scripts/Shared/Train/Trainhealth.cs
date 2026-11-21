@@ -345,6 +345,110 @@ public sealed class TrainHealth : NetworkBehaviour
     public bool IsDefectBroken(int wagon, int point) => InRange(wagon) && wagon < _masks.Count && IsBit(_masks[wagon], point);
     public bool IsWagonDestroyed(int wagon) => wagon >= 0 && wagon < 32 && (_destroyedWagons.Value & (1 << wagon)) != 0;
 
+    public int TargetCount
+    {
+        get
+        {
+            return WagonCount + 1;
+        }
+    }
+
+    public bool IsTargetAlive(int target)
+    {
+        if (target == 0)
+        {
+            return _lok != null && _lokHp.Value > 0;
+        }
+
+        int wagon = target - 1;
+        if (!InRange(wagon))
+        {
+            return false;
+        }
+
+        return _wagons[wagon].Defects > 0 && _currentHp[wagon] > 0 && !IsWagonDestroyed(wagon);
+    }
+
+    public Vector3 TargetPosition(int target)
+    {
+        if (target == 0)
+        {
+            return _lok.position;
+        }
+
+        return _wagons[target - 1].transform.position;
+    }
+
+    public int TargetHp(int target)
+    {
+        if (target == 0)
+        {
+            return _lokHp.Value;
+        }
+
+        return _currentHp[target - 1];
+    }
+
+    public int NearestTarget(Vector3 position)
+    {
+        int best = -1;
+        float bestDistance = float.MaxValue;
+        for (int i = 0; i < TargetCount; i++)
+        {
+            if (!IsTargetAlive(i))
+            {
+                continue;
+            }
+
+            float distance = (TargetPosition(i) - position).sqrMagnitude;
+            if (distance < bestDistance)
+            {
+                best = i;
+                bestDistance = distance;
+            }
+        }
+
+        return best;
+    }
+
+    public int HighestHpTarget()
+    {
+        int best = -1;
+        int bestHp = 0;
+        for (int i = 0; i < TargetCount; i++)
+        {
+            if (IsTargetAlive(i) && TargetHp(i) > bestHp)
+            {
+                best = i;
+                bestHp = TargetHp(i);
+            }
+        }
+
+        return best;
+    }
+
+    public void DamageTarget(int target, Vector3 hitPos, int damage)
+    {
+        if (!IsServer || _dead)
+        {
+            return;
+        }
+
+        if (GameSession.Instance != null)
+        {
+            GameSession.Instance.AddDamage(damage);
+        }
+
+        if (target == 0)
+        {
+            DamageLok(damage);
+            return;
+        }
+
+        DamageWagon(target - 1, damage, hitPos);
+        CheckTotal();
+    }
+
     //VISUALS + HELPERS
 
     private void OnMaskChanged(NetworkListEvent<int> e)
