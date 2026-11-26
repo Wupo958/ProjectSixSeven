@@ -51,6 +51,8 @@ public class FirstPersonController : NetworkBehaviour
     public bool Dead { get; set; }
 
     public bool InputBlocked { get; set; }
+    public float CarrySpeedMultiplier { get; set; } = 1f;
+    public bool JumpBlocked { get; set; }
 
     static readonly Collider[] _overlap = new Collider[16];
 
@@ -261,11 +263,11 @@ public class FirstPersonController : NetworkBehaviour
             if (verticalVelocity < 0f)
                 verticalVelocity = groundStick;
  
-            if (!InputBlocked && jumpAction != null && jumpAction.WasPressedThisFrame())
+            if (!InputBlocked && !JumpBlocked && jumpAction != null && jumpAction.WasPressedThisFrame())
                 verticalVelocity = -gravity * jumpAirtime * 0.5f;
         }
  
-        float speed = (grounded ? GroundSpeed() : airSpeed) * SpeedMultiplier;
+        float speed = (grounded ? GroundSpeed() : airSpeed) * SpeedMultiplier * CarrySpeedMultiplier;
  
         Vector3 move = transform.right * input.x + transform.forward * input.y;
         if (move.sqrMagnitude > 1f) move.Normalize();

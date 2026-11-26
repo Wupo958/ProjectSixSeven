@@ -219,8 +219,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectReceiver
   ShowTopMostFoldoutHeaderGroup: 1
   _swaySpeed: 0.6
-  _debugEffect: {fileID: 0}
-  _activeEffects: 
 --- !u!1 &4070976229342315736
 GameObject:
   m_ObjectHideFlags: 0
@@ -581,6 +579,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
   ShowTopMostFoldoutHeaderGroup: 1
+  _heavySpeedMultiplier: 0.5
+  _heavyBlocksJump: 1
   _registry: {fileID: 11400000, guid: 885ea3dcbc56c0b47aa278ed9a10e0dc, type: 2}
   _handAnchor: {fileID: 6732856967915299268}
 --- !u!114 &9078098026651186617
