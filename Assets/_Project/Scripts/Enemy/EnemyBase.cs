@@ -36,6 +36,8 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
     private float formationSide = 1f;
     private Vector3 groupCenter;
     protected Rigidbody rb;
+    private StatusEffectReceiver status; 
+    protected float SpeedFactor => status != null ? status.Mods.SpeedMultiplier : 1f;
 
     public string DisplayName
     {
@@ -159,6 +161,7 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        status = GetComponent<StatusEffectReceiver>();
     }
 
     public void ApplyDamage(float amount, Vector3 hitPoint, ulong attackerClientId)
@@ -246,12 +249,12 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
     protected Vector3 DesiredVelocity(Vector3 stationPoint)
     {
         Vector3 toStation = stationPoint - transform.position;
-        return Vector3.ClampMagnitude(trainVelocity + toStation * stationGain, maxSpeed);
+        return Vector3.ClampMagnitude(trainVelocity + toStation * stationGain, maxSpeed * SpeedFactor);
     }
 
     protected void ApplySteering(Vector3 desiredVelocity)
     {
-        Vector3 steering = Vector3.ClampMagnitude(desiredVelocity - rb.linearVelocity, acceleration);
+        Vector3 steering = Vector3.ClampMagnitude(desiredVelocity - rb.linearVelocity, acceleration * SpeedFactor);
         rb.linearVelocity += steering * Time.fixedDeltaTime;
     }
 
