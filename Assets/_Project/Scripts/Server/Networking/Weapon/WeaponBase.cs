@@ -1,5 +1,17 @@
 using Unity.Netcode;
 using UnityEngine;
+using System;
+using UnityEngine.Events;
+using Random = UnityEngine.Random;
+
+[Flags]
+public enum WeaponFault
+{
+    None = 0,
+    PitchLocked = 1,    
+    YawLocked = 2,     
+    TriggerJammed = 4  
+}
  
 public abstract class WeaponBase : MonoBehaviour
 {
@@ -33,6 +45,12 @@ public abstract class WeaponBase : MonoBehaviour
     [Header("Networking")]
     [Tooltip("How many times per second the gunner's aim is sent to the server.")]
     [SerializeField] private float _aimSendRate = 20f;
+
+    [Header("Wear")]
+    [Tooltip("Called on every machine when wear reaches the definition's Warning Wear, e.g. to play a squeak.")]
+    [SerializeField] private UnityEvent _onWearWarning;
+
+    private bool _wearWarned;
  
     [SerializeField] private float _remoteAimSmoothing = 12f;
  
@@ -61,7 +79,7 @@ public abstract class WeaponBase : MonoBehaviour
  
     private WeaponState State => IsSpawned ? _hub.Get(_index) : WeaponState.Empty;
  
-    // ----- public API (unchanged) ---------------------------------------------
+    // ----- public API ---------------------------------------------
  
     public WeaponDefinition Definition => _definition;
     public Transform CameraAnchor => _cameraAnchor;
@@ -75,6 +93,23 @@ public abstract class WeaponBase : MonoBehaviour
  
     public PlayerInteractor LocalGunner { get; private set; }
     public bool IsLocalGunner => LocalGunner != null;
+
+    public float Wear => IsSpawned ? _hub.WearOf(_index) : 0f;
+    public bool IsJammed => Wear >= 1f;
+    public WeaponFault Faults => (WeaponFault)State.Faults;
+    public bool HasFault(WeaponFault fault) => (Faults & fault) != 0;
+
+    public event Action<WeaponBase> WearWarning;
+
+    protected float PitchSpeed => HasFault(WeaponFault.PitchLocked) ? 0f : _definition.PitchSpeed * AimSpeedFactor;
+    protected float YawSpeed => HasFault(WeaponFault.YawLocked) ? 0f : _definition.YawSpeed * AimSpeedFactor;
+    private float AimSpeedFactor => IsJammed ? 0f : Mathf.Lerp(1f, _definition.MinAimSpeed, Wear);
+
+    public void RequestMaintenance() { if (IsSpawned) _hub.MaintainServerRpc(_index); }
+    public void SetFaultsServer(WeaponFault faults) { if (IsSpawned) _hub.SetFaults(_index, (int)faults); }
+
+    public void DebugAddWear(float amount) { if (IsSpawned) _hub.DebugAddWearServerRpc(_index, amount); }
+    public void DebugSetFaults(WeaponFault faults) { if (IsSpawned) _hub.DebugSetFaultsServerRpc(_index, (int)faults); }
  
     protected virtual void Awake()
     {
@@ -127,6 +162,7 @@ public abstract class WeaponBase : MonoBehaviour
  
     protected bool CanFireNow()
     {
+        if (IsJammed || HasFault(WeaponFault.TriggerJammed)) return false;
         if (_definition == null || Loaded <= 0) return false;
         return Time.time >= _nextShotTime;
     }
@@ -174,6 +210,8 @@ public abstract class WeaponBase : MonoBehaviour
     protected virtual void Update()
     {
         if (_definition == null || !IsSpawned) return;
+
+        CheckWearWarning();
  
         if (IsLocalGunner)
         {
@@ -189,6 +227,17 @@ public abstract class WeaponBase : MonoBehaviour
             Yaw = Mathf.LerpAngle(Yaw, s.Yaw, t);
             ApplyAim(Pitch, Yaw);
         }
+    }
+
+    private void CheckWearWarning()
+    {
+        bool warn = Wear >= _definition.WarningWear;
+        if (warn && !_wearWarned)
+        {
+            _onWearWarning?.Invoke();
+            WearWarning?.Invoke(this);
+        }
+        _wearWarned = warn;
     }
  
     protected abstract void HandleGunnerInput(float dt);

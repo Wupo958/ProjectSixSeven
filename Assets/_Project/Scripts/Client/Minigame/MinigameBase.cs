@@ -6,6 +6,7 @@ public enum MinigameType
     Mash = 0,
     Driving = 1,
     Refuel = 2,
+    Maintenance = 3,
 }
  
 public abstract class MinigameBase : MonoBehaviour

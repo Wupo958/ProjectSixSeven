@@ -10,12 +10,15 @@ public struct WeaponState : INetworkSerializable, IEquatable<WeaponState>
     public int Loaded;
     public float AmmoMultiplier;
     public int AmmoItemId;
+    public float WearBase;  
+    public double WearTime; 
+    public int Faults; 
  
     public static WeaponState Empty => new WeaponState
     {
         Occupant = WeaponBase.NoOccupant,
         AmmoMultiplier = 1f,
-        AmmoItemId = ItemRegistry.Empty
+        AmmoItemId = ItemRegistry.Empty,
     };
  
     public void NetworkSerialize<T>(BufferSerializer<T> s) where T : IReaderWriter
@@ -26,12 +29,16 @@ public struct WeaponState : INetworkSerializable, IEquatable<WeaponState>
         s.SerializeValue(ref Loaded);
         s.SerializeValue(ref AmmoMultiplier);
         s.SerializeValue(ref AmmoItemId);
+        s.SerializeValue(ref WearBase);
+        s.SerializeValue(ref WearTime);
+        s.SerializeValue(ref Faults);
     }
  
     public bool Equals(WeaponState o) =>
         Occupant == o.Occupant && Pitch == o.Pitch && Yaw == o.Yaw &&
         Loaded == o.Loaded && AmmoMultiplier == o.AmmoMultiplier &&
-        AmmoItemId == o.AmmoItemId;
+        AmmoItemId == o.AmmoItemId
+        && WearBase == o.WearBase && WearTime == o.WearTime && Faults == o.Faults;
 }
  
 [RequireComponent(typeof(NetworkObject))]
@@ -66,7 +73,11 @@ public sealed class TrainWeapons : NetworkBehaviour
         if (IsSpawned && IsServer)
         {
             _states.Clear();
-            for (int i = 0; i < _weapons.Length; i++) _states.Add(WeaponState.Empty);
+            for (int i = 0; i < _weapons.Length; i++) {
+                WeaponState fresh = WeaponState.Empty;
+                fresh.WearTime = NetworkManager.ServerTime.Time;
+                _states.Add(fresh);
+            }
         }
     }
  
@@ -127,8 +138,10 @@ public sealed class TrainWeapons : NetworkBehaviour
         if (!HasState(i) || _weapons[i] == null) return;
         WeaponState s = _states[i];
         if (s.Occupant != p.Receive.SenderClientId || s.Loaded <= 0) return;
+        if (_weapons[i].IsJammed || (s.Faults & (int)WeaponFault.TriggerJammed) != 0) return;
  
         s.Loaded -= 1;
+        SetWear(ref s, WearOf(i) + _weapons[i].Definition.WearPerShot);
         _states[i] = s;
         _weapons[i].SpawnProjectile(s.AmmoMultiplier, s.Occupant);
     }
@@ -143,4 +156,50 @@ public sealed class TrainWeapons : NetworkBehaviour
             _states[i] = s;
         }
     }
+
+    // ----- wear and faults ---------------------------------------------------------
+
+    public float WearOf(int i)
+    {
+        if (!HasState(i) || _weapons[i] == null || _weapons[i].Definition == null) return 0f;
+        WeaponState s = _states[i];
+        float perSecond = _weapons[i].Definition.WearPerMinute / 60f;
+        return Mathf.Clamp01(s.WearBase + perSecond * (float)(NetworkManager.ServerTime.Time - s.WearTime));
+    }
+
+    private void SetWear(ref WeaponState s, float wear)
+    {
+        s.WearBase = Mathf.Clamp01(wear);
+        s.WearTime = NetworkManager.ServerTime.Time;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void MaintainServerRpc(int i)
+    {
+        if (!HasState(i)) return;
+        WeaponState s = _states[i];
+        SetWear(ref s, 0f);
+        _states[i] = s;
+    }
+
+    public void SetFaults(int i, int faults)
+    {
+        if (!IsServer || !HasState(i)) return;
+        WeaponState s = _states[i];
+        if (s.Faults == faults) return;
+        s.Faults = faults;
+        _states[i] = s;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void DebugAddWearServerRpc(int i, float amount)
+    {
+        if (!HasState(i)) return;
+        WeaponState s = _states[i];
+        SetWear(ref s, WearOf(i) + amount);
+        _states[i] = s;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void DebugSetFaultsServerRpc(int i, int faults) => SetFaults(i, faults);
 }
