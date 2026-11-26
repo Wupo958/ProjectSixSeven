@@ -32,6 +32,7 @@ public sealed class PlayerBump : NetworkBehaviour
     private Vector3 _previous;
     private Vector3 _current;
     private Vector3 _velocity;
+    private Vector3 _lastVelocity;
     private bool _hasSample;
     private bool _valid;
     private float _immuneUntil;
@@ -92,6 +93,7 @@ public sealed class PlayerBump : NetworkBehaviour
             _hasSample = active;
             _previous = _current = position;
             _velocity = Vector3.zero;
+            _lastVelocity = Vector3.zero;
             _valid = false;
             return;
         }
@@ -103,10 +105,12 @@ public sealed class PlayerBump : NetworkBehaviour
         if (reference.TransformVector(raw).magnitude > _maxRunSpeed)
         {
             _velocity = Vector3.zero;
+            _lastVelocity = Vector3.zero;
             _valid = false;
             return;
         }
  
+        _lastVelocity = _velocity;
         _velocity = Vector3.Lerp(_velocity, raw, 0.5f);
         _valid = true;
     }
@@ -127,8 +131,10 @@ public sealed class PlayerBump : NetworkBehaviour
         float t = path.sqrMagnitude > 1e-6f ? Mathf.Clamp01(-Vector3.Dot(before, path) / path.sqrMagnitude) : 0f;
         if ((before + path * t).magnitude >= touch) return;
  
-        Vector3 relative = reference.TransformVector(b._velocity - a._velocity);
-        float closing = -Vector3.Dot(relative, before.normalized);
+        Vector3 dir = before.normalized;
+        float closingNow = -Vector3.Dot(reference.TransformVector(b._velocity - a._velocity), dir);
+        float closingBefore = -Vector3.Dot(reference.TransformVector(b._lastVelocity - a._lastVelocity), dir);
+        float closing = Mathf.Max(closingNow, closingBefore);
         bool hit = closing >= _minImpactSpeed;
  
         if (_logBumps)

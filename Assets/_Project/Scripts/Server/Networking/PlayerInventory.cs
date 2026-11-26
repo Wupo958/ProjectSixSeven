@@ -3,6 +3,15 @@ using UnityEngine;
  
 public sealed class PlayerInventory : NetworkBehaviour
 {
+    [Header("Heavy items")]
+    [Tooltip("Movement speed while carrying a Heavy item.")]
+    [SerializeField, Range(0f, 1f)] private float _heavySpeedMultiplier = 0.5f;
+
+    [Tooltip("Tick to stop players jumping while carrying a Heavy item.")]
+    [SerializeField] private bool _heavyBlocksJump = false;
+
+    private FirstPersonController _controller;
+
     [Tooltip("Registry asset listing every item. Same asset on every prefab")]
     [SerializeField] private ItemRegistry _registry;
  
@@ -21,12 +30,14 @@ public sealed class PlayerInventory : NetworkBehaviour
     private void Awake()
     {
         if (_registry != null) _registry.MakeActive();
+        _controller = GetComponentInParent<FirstPersonController>();
     }
  
     public override void OnNetworkSpawn()
     {
         _heldId.OnValueChanged += OnHeldChanged;
         RebuildHandVisual(_heldId.Value);   //for late joiners
+        ApplyWeight();
     }
  
     public override void OnNetworkDespawn()
@@ -110,7 +121,20 @@ public sealed class PlayerInventory : NetworkBehaviour
  
     //VISUALS
  
-    private void OnHeldChanged(int oldId, int newId) => RebuildHandVisual(newId);
+    private void OnHeldChanged(int oldId, int newId)
+    {
+        RebuildHandVisual(newId);
+        ApplyWeight();
+    }
+
+    private void ApplyWeight()
+    {
+        if (!IsOwner || _controller == null) return;
+
+        bool heavy = Held != null && Held.Heavy;
+        _controller.CarrySpeedMultiplier = heavy ? _heavySpeedMultiplier : 1f;
+        _controller.JumpBlocked = heavy && _heavyBlocksJump;
+    }
  
     private void RebuildHandVisual(int id)
     {
