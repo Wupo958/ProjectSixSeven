@@ -126,6 +126,7 @@ public sealed class PlayerHealth : NetworkBehaviour, IDamageable
                 Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
             return false;
 
+        if (hit.collider.GetComponentInParent<CharacterController>() != null) return false;
         return !IsTrain(hit.collider.transform);
     }
 

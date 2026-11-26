@@ -22,6 +22,9 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
     private Vector3 _lastCarriagePos;
     private Quaternion _lastCarriageRot;
     private bool _riding;
+    private Vector3 _smoothLocal;
+    private float _smoothYaw;
+    private bool _hasSmooth;
 
     public bool IsRiding => _riding;
 
@@ -125,14 +128,24 @@ public sealed class PlayerCarriageAttachment : NetworkBehaviour
 
     private void ApplyRemotePose()
     {
-        Vector3 worldTarget = _carriage.TransformPoint(_localPosition.Value);
-        Quaternion worldRot = Quaternion.LookRotation(Flatten(_carriage.forward), Vector3.up)
-            * Quaternion.Euler(0f, _localYaw.Value, 0f);
+        Vector3 target = _localPosition.Value;
+        float targetYaw = _localYaw.Value;
 
-        float t = 1f - Mathf.Exp(-remoteSmoothing * Time.deltaTime);
-        transform.SetPositionAndRotation(
-            Vector3.Lerp(transform.position, worldTarget, t),
-            Quaternion.Slerp(transform.rotation, worldRot, t));
+        if (!_hasSmooth || (target - _smoothLocal).sqrMagnitude > 25f)
+        {
+            _smoothLocal = target;
+            _smoothYaw = targetYaw;
+            _hasSmooth = true;
+        }
+        else
+        {
+            float t = 1f - Mathf.Exp(-remoteSmoothing * Time.deltaTime);
+            _smoothLocal = Vector3.Lerp(_smoothLocal, target, t);
+            _smoothYaw = Mathf.LerpAngle(_smoothYaw, targetYaw, t);
+        }
+
+        Quaternion worldRot = Quaternion.LookRotation(Flatten(_carriage.forward), Vector3.up) * Quaternion.Euler(0f, _smoothYaw, 0f);
+        transform.SetPositionAndRotation(_carriage.TransformPoint(_smoothLocal), worldRot);
     }
 
     private static Vector3 Flatten(Vector3 v)
