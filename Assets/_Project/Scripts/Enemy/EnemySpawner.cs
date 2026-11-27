@@ -26,6 +26,7 @@ public class EnemySpawner : NetworkBehaviour
     [SerializeField] private float groupSpread = 15f;
 
     [Header("Fallback without a route (testing the scene on its own)")]
+    [SerializeField] private bool useSceneEnemiesOnFirstLevel = true;
     [SerializeField] private EnemyBase[] enemyTypes;
     [SerializeField] private int minPoolSize = 1;
     [SerializeField] private int maxPoolSize = 5;
@@ -65,7 +66,8 @@ public class EnemySpawner : NetworkBehaviour
             registry = GameSession.Instance.EnemyRegistry;
         }
 
-        if (route.IsValid)
+        bool isFirstLevel = GameSession.Instance != null && GameSession.Instance.LevelIndex == 0;
+        if (route.IsValid && !(useSceneEnemiesOnFirstLevel && isFirstLevel))
         {
             ApplyRoute(route, registry);
         }
@@ -175,13 +177,14 @@ public class EnemySpawner : NetworkBehaviour
 
         Quaternion facing = Quaternion.LookRotation(forward, Vector3.up);
 
+        int groupSeed = Random.Range(0, int.MaxValue);
         int groupSize = Random.Range(prefab.MinGroupSize, prefab.MaxGroupSize + 1);
         for (int i = 0; i < groupSize; i++)
         {
             Vector2 scatter = Random.insideUnitCircle * groupSpread;
             Vector3 spawnPoint = groupCenter + new Vector3(scatter.x, 0f, scatter.y);
             EnemyBase enemy = Instantiate(prefab, spawnPoint, facing);
-            enemy.SetFormation(i, side, groupCenter);
+            enemy.SetGroup(i, groupSeed, side, groupCenter);
             enemy.NetworkObject.Spawn(true);
         }
     }
