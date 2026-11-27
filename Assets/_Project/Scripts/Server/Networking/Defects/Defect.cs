@@ -1,20 +1,7 @@
-using Unity.Netcode;
 using UnityEngine;
  
-public abstract class Defect : Interactable
+public abstract class Defect : MinigameStation
 {
-    [Header("Defect")]
-    [SerializeField] private string _displayName = "Defect";
- 
-    [Tooltip("Item the player must hold to start the repair. Leave empty if none is needed. " +
-             "Whether it is used up is set on the item (Consume On Use).")]
-    [SerializeField] private ItemDefinition _requiredItem;
- 
-    [SerializeField] private MinigameType _minigame = MinigameType.Mash;
- 
-    [Tooltip("Meaning depends on the minigame. For Mash: number of presses.")]
-    [SerializeField] private int _difficulty = 10;
- 
     [Header("Visuals")]
     [Tooltip("Optional object shown only while the defect is active (smoke, sparks, ...).")]
     [SerializeField] private GameObject _activeVisual;
@@ -31,20 +18,7 @@ public abstract class Defect : Interactable
     protected TrainHealth Train { get; private set; }
     public int WagonIndex { get; private set; } = -1;
     public int PointIndex { get; private set; } = -1;
-    public bool IsBroken { get; private set; }
- 
-    public string DisplayName => _displayName;
-    public ItemDefinition RequiredItem => _requiredItem;
- 
-    protected static bool IsServer =>
-        NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
- 
-    protected void SetDefaults(string displayName, MinigameType minigame, int difficulty)
-    {
-        _displayName = displayName;
-        _minigame = minigame;
-        _difficulty = difficulty;
-    }
+    public bool IsBroken => IsActive;
  
     // ----- wiring (called by TrainHealth) ----------------------------------
  
@@ -67,31 +41,25 @@ public abstract class Defect : Interactable
  
     public void SetBroken(bool broken)
     {
-        bool changed = broken != IsBroken;
-        IsBroken = broken;
         ApplyVisual(broken);
- 
-        if (!changed) return;
-        if (broken) OnActivated();
-        else OnRepaired();
+        SetActiveState(broken);
     }
  
-    protected virtual void Update()
-    {
-        if (IsBroken) WhileActive(Time.deltaTime);
-    }
+    // ----- station behaviour ---------------------------------------------------
+ 
+    protected override bool IsAvailable => IsActive && Train != null;
+    protected override string ActionVerb => "Repair";
+ 
+    protected override void Complete(PlayerInteractor player) =>
+        Train.RepairDefectServerRpc(WagonIndex, PointIndex);
+ 
+    protected override void ReportFailure(PlayerInteractor player) =>
+        Train.DefectFailedServerRpc(WagonIndex, PointIndex);
  
     // ----- hooks for child classes -------------------------------------------
- 
-    protected virtual void OnActivated() { }
- 
-    protected virtual void WhileActive(float deltaTime) { }
- 
+
+    protected sealed override void OnCompleted() => OnRepaired();
     protected virtual void OnRepaired() { }
- 
-    protected virtual void OnFailedLocal(PlayerInteractor player) { }
- 
-    public virtual void OnFailedServer() { }
  
     public virtual int ModifyIncomingDamage(int damage) => damage;
  
@@ -100,8 +68,7 @@ public abstract class Defect : Interactable
         if (_activeVisual != null) _activeVisual.SetActive(broken);
         if (_renderers == null || _originalMaterials == null) return;
  
-        Material brokenMat = _brokenMaterialOverride != null ? _brokenMaterialOverride
-                           : Train != null ? Train.BrokenMaterial : null;
+        Material brokenMat = _brokenMaterialOverride != null ? _brokenMaterialOverride : Train != null ? Train.BrokenMaterial : null;
  
         for (int i = 0; i < _renderers.Length; i++)
         {
@@ -120,45 +87,5 @@ public abstract class Defect : Interactable
                 r.sharedMaterials = original;
             }
         }
-    }
- 
-    // ----- interaction ---------------------------------------------------------
- 
-    private bool HasRequiredItem(PlayerInteractor player)
-    {
-        if (_requiredItem == null) return true;
-        return player.Inventory != null && player.Inventory.Held == _requiredItem;
-    }
- 
-    public override bool CanInteract(PlayerInteractor player)
-    {
-        return IsBroken && Train != null && HasRequiredItem(player) &&
-               MinigameHost.Instance != null && !MinigameHost.Instance.IsRunning;
-    }
- 
-    public override string GetPrompt(PlayerInteractor player)
-    {
-        if (!IsBroken) return string.Empty;
-        if (!HasRequiredItem(player)) return $"{_displayName} - requires {_requiredItem.DisplayName}";
-        return $"[E] Repair {_displayName}";
-    }
- 
-    public override void Interact(PlayerInteractor player)
-    {
-        if (MinigameHost.Instance == null) return;
- 
-        MinigameHost.Instance.Run(_minigame, _difficulty, player,
-            onSuccess: () =>
-            {
-                // Someone else may have fixed it while we were busy; don't eat the item then.
-                if (!IsBroken || !gameObject.activeInHierarchy) return;
-                Train.RepairDefectServerRpc(WagonIndex, PointIndex);
-                if (_requiredItem != null) player.Inventory?.NotifyUsed();
-            },
-            onFail: () =>
-            {
-                OnFailedLocal(player);
-                Train.DefectFailedServerRpc(WagonIndex, PointIndex);
-            });
     }
 }

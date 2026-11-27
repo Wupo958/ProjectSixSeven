@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66169a25b2f329e428f6bea97d7bdefa, type: 3}
+  m_Name: StatusEffectRegistry
+  m_EditorClassIdentifier: Assembly-CSharp::StatusEffectRegistry
+  _effects:
+  - {fileID: 11400000, guid: d3357290467d07e448b1d45244d10910, type: 2}
+  - {fileID: 11400000, guid: c213d128b1303db4c9dbe1929a8f6a68, type: 2}
+  - {fileID: 11400000, guid: eefdfb87c1c8e394b80c9adced1b7d2f, type: 2}
+  - {fileID: 11400000, guid: c392695477f743543b4a7f3463dd674a, type: 2}
+  - {fileID: 11400000, guid: bb0834f223cbbbc4e85251f89008d3c6, type: 2}
+  - {fileID: 11400000, guid: b32a9481be91c124f8e18b52ac96a460, type: 2}
