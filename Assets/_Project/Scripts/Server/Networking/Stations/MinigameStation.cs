@@ -43,6 +43,11 @@ public abstract class MinigameStation : Interactable
         _hub = hub;
         _stationIndex = index;
     }
+
+    protected StationHub Hub => _hub;
+    protected int StationIndex => _stationIndex;
+
+    public virtual void ApplyStationState(double activeSince) { }
  
     // ----- decided by the child class -----------------------------------------
  

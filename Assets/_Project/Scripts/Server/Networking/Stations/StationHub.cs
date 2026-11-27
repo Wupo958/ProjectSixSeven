@@ -11,6 +11,7 @@ public sealed class StationHub : NetworkBehaviour
     public static StationHub Instance { get; private set; }
  
     private readonly NetworkList<ulong> _holders = new NetworkList<ulong>();
+    private readonly NetworkList<double> _activeSince = new NetworkList<double>();
     private readonly Dictionary<int, Action<bool>> _pending = new Dictionary<int, Action<bool>>();
     private MinigameStation[] _stations = Array.Empty<MinigameStation>();
  
@@ -18,12 +19,14 @@ public sealed class StationHub : NetworkBehaviour
     {
         Instance = this;
         if (IsServer) NetworkManager.OnClientDisconnectCallback += OnClientLeft;
+        _activeSince.OnListChanged += OnActiveChanged;
         Rebind();
     }
  
     public override void OnNetworkDespawn()
     {
         if (IsServer && NetworkManager != null) NetworkManager.OnClientDisconnectCallback -= OnClientLeft;
+        _activeSince.OnListChanged -= OnActiveChanged;
         if (Instance == this) Instance = null;
     }
  
@@ -36,11 +39,53 @@ public sealed class StationHub : NetworkBehaviour
         if (IsSpawned && IsServer)
         {
             _holders.Clear();
-            for (int i = 0; i < _stations.Length; i++) _holders.Add(Free);
+            _activeSince.Clear();
+            for (int i = 0; i < _stations.Length; i++)
+            {
+                _holders.Add(Free);
+                _activeSince.Add(-1.0);
+            }
         }
+ 
+        ApplyAllStates();
     }
  
     public ulong HolderOf(int i) => i >= 0 && i < _holders.Count ? _holders[i] : Free;
+ 
+    public double ActiveSinceOf(int i) => i >= 0 && i < _activeSince.Count ? _activeSince[i] : -1.0;
+ 
+    // ----- station state (maintenance tasks etc.) ----------------------------------
+ 
+    public void SetActive(int i, bool active)
+    {
+        if (!IsServer || i < 0 || i >= _activeSince.Count) return;
+        bool isActive = _activeSince[i] >= 0.0;
+        if (active == isActive) return;
+        _activeSince[i] = active ? NetworkManager.ServerTime.Time : -1.0;
+    }
+ 
+    [ServerRpc(RequireOwnership = false)]
+    public void DeactivateServerRpc(int i) => SetActive(i, false);
+ 
+    [ServerRpc(RequireOwnership = false)]
+    public void DebugSetActiveServerRpc(int i, bool active) => SetActive(i, active);
+ 
+    private void OnActiveChanged(NetworkListEvent<double> change)
+    {
+        if (change.Type == NetworkListEvent<double>.EventType.Value &&
+            change.Index >= 0 && change.Index < _stations.Length && _stations[change.Index] != null)
+        {
+            _stations[change.Index].ApplyStationState(change.Value);
+            return;
+        }
+        ApplyAllStates();
+    }
+ 
+    private void ApplyAllStates()
+    {
+        for (int i = 0; i < _stations.Length; i++)
+            if (_stations[i] != null) _stations[i].ApplyStationState(ActiveSinceOf(i));
+    }
  
     // ----- locking -------------------------------------------------------------
  
