@@ -18,7 +18,7 @@ public sealed class TrainHealth : NetworkBehaviour
     [SerializeField] private Transform _lok;
 
     [Tooltip("The Lok's own HP (GDD: 100). It has no defects; at 0 the train derails: game over.")]
-    [SerializeField] private int _lokMaxHp = 100;
+    [SerializeField] private int _lokMaxHp = 1000;
 
     [Tooltip("Old rule: also game over when the wagons' total HP drops below the fraction below. The Lok being destroyed is always game over.")]
     [SerializeField] private bool _totalHpGameOver = false;
@@ -55,12 +55,14 @@ public sealed class TrainHealth : NetworkBehaviour
 
     public event Action OnTrainDestroyed;
     public event Action<int> OnWagonChanged; //wagon index whose broken state changed
+    public event Action OnLokChanged;
+    public event Action<int> OnWagonDestroyed;
 
     //one broken-points bitmask per wagon
     private readonly NetworkList<int> _masks = new NetworkList<int>();
     private readonly NetworkVariable<int> _destroyedWagons = new NetworkVariable<int>(0);
 
-    private readonly NetworkVariable<int> _lokHp = new NetworkVariable<int>(100);
+    private readonly NetworkVariable<int> _lokHp = new NetworkVariable<int>();
 
     public int LokHp => _lokHp.Value;
     public int LokMaxHp => _lokMaxHp;
@@ -98,8 +100,11 @@ public sealed class TrainHealth : NetworkBehaviour
         _hasLastCarryPos = true;
     }
 
+    private Trainbuilder builder;
+
     private void Awake()
     {
+        builder = GetComponent<Trainbuilder>();
         if (AimTarget == null) AimTarget = _lok != null ? _lok : transform;
         Rebind();
 
@@ -111,6 +116,8 @@ public sealed class TrainHealth : NetworkBehaviour
         Instance = this;
         _masks.OnListChanged += OnMaskChanged;
 
+        _lokHp.OnValueChanged += OnLokHpChanged;
+
         _destroyedWagons.OnValueChanged += OnDestroyedChanged;
         Rebind();
     }
@@ -118,6 +125,9 @@ public sealed class TrainHealth : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         _masks.OnListChanged -= OnMaskChanged;
+
+        _lokHp.OnValueChanged -= OnLokHpChanged;
+
         _destroyedWagons.OnValueChanged -= OnDestroyedChanged;
         if (Instance == this) Instance = null;
     }
@@ -128,6 +138,8 @@ public sealed class TrainHealth : NetworkBehaviour
     public void ReportHit(Collider hitCollider, Vector3 hitPos, int damage)
     {
         if (!IsServer || _dead) return;
+
+        if (DebugCheats.TrainGodMode) return;
 
         if (GameSession.Instance != null) GameSession.Instance.AddDamage(damage);
 
@@ -335,7 +347,133 @@ public sealed class TrainHealth : NetworkBehaviour
     public bool IsDead => _dead;
     public int WagonCount => _wagons != null ? _wagons.Length : 0;
     public int DefectsOf(int wagon) => InRange(wagon) ? _wagons[wagon].Defects : 0;
-    public bool IsDefectBroken(int wagon, int point) => InRange(wagon) && IsBit(_masks[wagon], point);
+    public bool IsDefectBroken(int wagon, int point) => InRange(wagon) && wagon < _masks.Count && IsBit(_masks[wagon], point);
+    public bool IsWagonDestroyed(int wagon) => wagon >= 0 && wagon < 32 && (_destroyedWagons.Value & (1 << wagon)) != 0;
+
+    public int TargetCount
+    {
+        get
+        {
+            return WagonCount + 1;
+        }
+    }
+
+    public bool IsTargetAlive(int target)
+    {
+        if (target == 0)
+        {
+            return _lok != null && _lokHp.Value > 0;
+        }
+
+        int wagon = target - 1;
+        if (!InRange(wagon))
+        {
+            return false;
+        }
+
+        return _wagons[wagon].Defects > 0 && _currentHp[wagon] > 0 && !IsWagonDestroyed(wagon);
+    }
+
+    public Vector3 TargetPosition(int target)
+    {
+        if (target == 0)
+        {
+            return _lok.position;
+        }
+
+        return _wagons[target - 1].transform.position;
+    }
+
+    public Vector3 PredictTargetPosition(int target, float seconds)
+    {
+        Transform targetCar = _lok;
+        if (target > 0)
+        {
+            targetCar = _wagons[target - 1].transform;
+        }
+
+        return builder.PredictCarPosition(builder.CarIndexOf(targetCar), seconds);
+    }
+
+    public int TargetHp(int target)
+    {
+        if (target == 0)
+        {
+            return _lokHp.Value;
+        }
+
+        return _currentHp[target - 1];
+    }
+
+    public int NearestTarget(Vector3 position)
+    {
+        int best = -1;
+        float bestDistance = float.MaxValue;
+        for (int i = 0; i < TargetCount; i++)
+        {
+            if (!IsTargetAlive(i))
+            {
+                continue;
+            }
+
+            float distance = (TargetPosition(i) - position).sqrMagnitude;
+            if (distance < bestDistance)
+            {
+                best = i;
+                bestDistance = distance;
+            }
+        }
+
+        return best;
+    }
+
+    public int HighestHpTarget()
+    {
+        return HighestHpTargetFrom(0);
+    }
+
+    public int HighestHpWagonTarget()
+    {
+        return HighestHpTargetFrom(1);
+    }
+
+    private int HighestHpTargetFrom(int firstTarget)
+    {
+        int best = -1;
+        int bestHp = 0;
+        for (int i = firstTarget; i < TargetCount; i++)
+        {
+            if (IsTargetAlive(i) && TargetHp(i) > bestHp)
+            {
+                best = i;
+                bestHp = TargetHp(i);
+            }
+        }
+
+        return best;
+    }
+
+    public void DamageTarget(int target, Vector3 hitPos, int damage)
+    {
+        if (!IsServer || _dead)
+        {
+            return;
+        }
+
+        if (GameSession.Instance != null)
+        {
+            GameSession.Instance.AddDamage(damage);
+        }
+
+        if (target == 0)
+        {
+            DamageLok(damage);
+            return;
+        }
+
+        DamageWagon(target - 1, damage, hitPos);
+        CheckTotal();
+    }
 
     //VISUALS + HELPERS
 
@@ -429,8 +567,6 @@ public sealed class TrainHealth : NetworkBehaviour
         if (CountBroken(wagon) >= _wagons[wagon].Defects) DestroyWagon(wagon);
     }
 
-    public bool IsWagonDestroyed(int wagon) => IsBit(_destroyedWagons.Value, wagon);
-
     private void DestroyWagon(int wagon)
     {
         if (!IsServer || IsWagonDestroyed(wagon)) return;
@@ -459,8 +595,11 @@ public sealed class TrainHealth : NetworkBehaviour
 
             _wagons[i].SetDestroyed();
             OnWagonChanged?.Invoke(i);
+            OnWagonDestroyed?.Invoke(i);
         }
     }
+
+    private void OnLokHpChanged(int previous, int current) => OnLokChanged?.Invoke();
 
     private void DamageLok(int amount)
     {
@@ -477,7 +616,22 @@ public sealed class TrainHealth : NetworkBehaviour
     [ContextMenu("Debug: Damage Lok (250)")]
     private void DebugDamageLok()
     {
-        if (IsServer && !_dead) DamageLok(250);
+        if (!IsServer || _dead) return;
+        int before = _lokHp.Value;
+        DamageLok(250);
+        Debug.Log($"Debug: Lok HP {before} -> {_lokHp.Value} / {_lokMaxHp}");
+    }
+
+    public void DebugSetLokHp(int hp)
+    {
+        if (!IsServer || _dead) return;
+        _lokHp.Value = Mathf.Clamp(hp, 0, _lokMaxHp);
+        if (_lokHp.Value == 0) TriggerGameOver();
+    }
+
+    public void DebugTriggerGameOver()
+    {
+        if (IsServer) TriggerGameOver();
     }
 }
 

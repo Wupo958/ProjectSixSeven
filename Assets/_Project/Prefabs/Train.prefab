@@ -17,6 +17,8 @@ GameObject:
   - component: {fileID: 3389157851927771567}
   - component: {fileID: 4471903628815550241}
   - component: {fileID: -4767230131394277540}
+  - component: {fileID: -3342145112234703902}
+  - component: {fileID: 2292178608914882395}
   m_Layer: 0
   m_Name: Train
   m_TagString: Untagged
@@ -114,6 +116,8 @@ MonoBehaviour:
   _hpPerDefect: 100
   _upgradeHpMultiplier: 1.5
   _spawnAnchorHeight: 1.1
+  _statusPanelPrefab: {fileID: 8753445951095864181, guid: c796089a2808a9948ae9190c839da0c6, type: 3}
+  _statusPanelFallback: {x: 0, y: 2.2, z: 0}
   _speed: 30
   _startDistance: 0
   _startDelay: 5
@@ -191,3 +195,34 @@ MonoBehaviour:
   _currentSpeed: 0
   _currentTarget: 0
   _currentDistance: 0
+--- !u!114 &-3342145112234703902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 669473586591985552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e57c576e1be69df4388107a2050fed57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LokFuel
+  ShowTopMostFoldoutHeaderGroup: 1
+  _capacity: 100
+  _startFuel: 100
+  _usePerKm: 10
+  _fuelPerItem: 25
+  _emptySpeedLimit: 0
+--- !u!114 &2292178608914882395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 669473586591985552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 117a1b561c3efd14f85707fea0c8178f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StationHub
+  ShowTopMostFoldoutHeaderGroup: 1
