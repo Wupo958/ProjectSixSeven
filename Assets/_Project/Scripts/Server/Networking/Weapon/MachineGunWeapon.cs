@@ -37,8 +37,8 @@ public sealed class MachineGunWeapon : WeaponBase
         Vector2 delta = mouse.delta.ReadValue() * _mouseSensitivity;
  
         //definition speeds scale the sensitivity so designers still tune per weapon
-        float pitchDelta = delta.y * _definition.PitchSpeed;
-        float yawDelta = delta.x * _definition.YawSpeed;
+        float pitchDelta = delta.y * PitchSpeed;
+        float yawDelta = delta.x * YawSpeed;
  
         Pitch = ClampPitch(Pitch + (_invertPitch ? -pitchDelta : pitchDelta));
         Yaw = ClampYaw(Yaw + yawDelta);

@@ -51,6 +51,8 @@ public class FirstPersonController : NetworkBehaviour
     public bool Dead { get; set; }
 
     public bool InputBlocked { get; set; }
+    public float CarrySpeedMultiplier { get; set; } = 1f;
+    public bool JumpBlocked { get; set; }
 
     static readonly Collider[] _overlap = new Collider[16];
 
@@ -74,12 +76,15 @@ public class FirstPersonController : NetworkBehaviour
     float visualBlend;          //same, for the visible model on every client
     Vector3 visualBaseScale;
     Vector3 visualBasePos;
+    CapsuleCollider remoteBody;
+    PlayerHealth health;
 
     readonly NetworkVariable<bool> _crouched = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     void Awake()
     {
         controller = GetComponent<CharacterController>();
+        health = GetComponent<PlayerHealth>();
  
         moveAction = InputSystem.actions.FindAction("Move");
         lookAction = InputSystem.actions.FindAction("Look");
@@ -107,6 +112,7 @@ public class FirstPersonController : NetworkBehaviour
         base.OnNetworkSpawn();
  
         controller.enabled = false;
+        if (!IsOwner) CreateRemoteBody();
  
         if (cameraTransform != null)
             cameraTransform.gameObject.SetActive(false);
@@ -136,7 +142,10 @@ public class FirstPersonController : NetworkBehaviour
         UpdateVisual(Time.deltaTime);
  
         if (!IsOwner)
+        {
+            UpdateRemoteBody();
             return;
+        }
  
         if (!controlEnabled)
         {
@@ -237,6 +246,28 @@ public class FirstPersonController : NetworkBehaviour
         crouchVisual.localPosition = visualBasePos - new Vector3(0f, drop * 0.5f, 0f);
     }
 
+    void CreateRemoteBody()
+    {
+        remoteBody = gameObject.AddComponent<CapsuleCollider>();
+        remoteBody.radius = controller.radius;
+        remoteBody.height = standHeight;
+        remoteBody.center = standCenter;
+    }
+
+    void UpdateRemoteBody()
+    {
+        if (remoteBody == null) return;
+
+        bool alive = health == null || !health.IsDead;
+        if (remoteBody.enabled != alive) remoteBody.enabled = alive;
+
+        float height = _crouched.Value ? standHeight * crouchHeightFactor : standHeight;
+        if (Mathf.Approximately(remoteBody.height, height)) return;
+
+        remoteBody.height = height;
+        remoteBody.center = standCenter - new Vector3(0f, (standHeight - height) * 0.5f, 0f);
+    }
+
 
     // ----- moving ----------------------------------------------------------
  
@@ -261,17 +292,18 @@ public class FirstPersonController : NetworkBehaviour
             if (verticalVelocity < 0f)
                 verticalVelocity = groundStick;
  
-            if (!InputBlocked && jumpAction != null && jumpAction.WasPressedThisFrame())
+            if (!InputBlocked && !JumpBlocked && jumpAction != null && jumpAction.WasPressedThisFrame())
                 verticalVelocity = -gravity * jumpAirtime * 0.5f;
         }
  
-        float speed = (grounded ? GroundSpeed() : airSpeed) * SpeedMultiplier;
+        float speed = (grounded ? GroundSpeed() : airSpeed) * SpeedMultiplier * CarrySpeedMultiplier;
  
         Vector3 move = transform.right * input.x + transform.forward * input.y;
         if (move.sqrMagnitude > 1f) move.Normalize();
  
         verticalVelocity += gravity * Time.deltaTime;
  
+        Physics.SyncTransforms();
         CollisionFlags flags = controller.Move((move * speed + Vector3.up * verticalVelocity) * Time.deltaTime);
  
         if ((flags & CollisionFlags.Above) != 0 && verticalVelocity > 0f)

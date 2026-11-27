@@ -139,6 +139,8 @@ public sealed class TrainHealth : NetworkBehaviour
     {
         if (!IsServer || _dead) return;
 
+        if (DebugCheats.TrainGodMode) return;
+
         if (GameSession.Instance != null) GameSession.Instance.AddDamage(damage);
 
         if (_lok != null && hitCollider != null && hitCollider.transform.IsChildOf(_lok))
@@ -618,6 +620,18 @@ public sealed class TrainHealth : NetworkBehaviour
         int before = _lokHp.Value;
         DamageLok(250);
         Debug.Log($"Debug: Lok HP {before} -> {_lokHp.Value} / {_lokMaxHp}");
+    }
+
+    public void DebugSetLokHp(int hp)
+    {
+        if (!IsServer || _dead) return;
+        _lokHp.Value = Mathf.Clamp(hp, 0, _lokMaxHp);
+        if (_lokHp.Value == 0) TriggerGameOver();
+    }
+
+    public void DebugTriggerGameOver()
+    {
+        if (IsServer) TriggerGameOver();
     }
 }
 
