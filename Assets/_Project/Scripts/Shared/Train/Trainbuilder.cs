@@ -198,6 +198,7 @@ public sealed class Trainbuilder : MonoBehaviour
 
         TrainWeapons weapons = GetComponent<TrainWeapons>();
         if (weapons != null) weapons.Rebind();
+        if (TryGetComponent(out StationHub stations)) stations.Rebind();
     }
 
     private WagonStatusPanel CreateStatusPanel(Transform parent, Transform anchor) {
