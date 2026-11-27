@@ -362,7 +362,7 @@ public sealed class WorldItem : NetworkBehaviour
         ItemDefinition def = Definition;
         if (def != null && def.Breakable)
         {
-            Despawn("broke on impact");
+            Break(train.GetCar(car), car, center);
             return;
         }
  
@@ -421,6 +421,21 @@ public sealed class WorldItem : NetworkBehaviour
         _claimed = true;
         Debug.Log($"{name}: {reason}");
         NetworkObject.Despawn(true);
+    }
+
+    // Server: shows the break on every client, then removes the item. Sent relative to the car, so network delay doesn't leave the effect behind the train.
+    private void Break(Transform car, int carIndex, Vector3 position)
+    {
+        BreakClientRpc(carIndex, car.InverseTransformPoint(position));
+        Despawn("broke on impact");
+    }
+
+    [ClientRpc]
+    private void BreakClientRpc(int carIndex, Vector3 localPosition)
+    {
+        Trainbuilder train = Trainbuilder.Instance;
+        Transform car = train != null ? train.GetCar(carIndex) : null;
+        ItemBreakEffect.Play(Definition, car, localPosition, GetComponentInChildren<Renderer>());
     }
  
     // ----- picking up and catching ---------------------------------------------
