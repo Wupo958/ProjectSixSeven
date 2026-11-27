@@ -241,4 +241,16 @@ public class EnemySpawner : NetworkBehaviour
 
         return direction.normalized;
     }
+
+    // ----- debug menu ----------------------------------------------------------------
+
+    public void DebugSpawnGroup(EnemyBase prefab)
+    {
+        if (IsServer && prefab != null) SpawnGroup(prefab);
+    }
+
+    public void DebugSpawnWave()
+    {
+        if (IsServer) SpawnWave();
+    }
 }
