@@ -6295,17 +6295,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   ShowTopMostFoldoutHeaderGroup: 1
   train: {fileID: 950080782}
-  firstWaveDelay: 45
+  firstWaveDelay: 5
   waveIntervalJitter: 10
   distanceBehindTrain: {x: 100, y: 250}
   sideOffset: {x: 20, y: 100}
   groupSpread: 25
+  useSceneEnemiesOnFirstLevel: 1
   enemyTypes:
-  - {fileID: 7284110989491117277, guid: bc9464a17a174e041b2b57508c786253, type: 3}
-  - {fileID: 6068967524307053091, guid: 72d32dc4da0e6b041915116a4373972e, type: 3}
-  minPoolSize: 1
-  maxPoolSize: 2
-  waveInterval: 10
+  - {fileID: 1909479312747434536, guid: 33241a2d8d7f4924d8e6646cab40a7cf, type: 3}
+  - {fileID: 1909479312747434536, guid: 33241a2d8d7f4924d8e6646cab40a7cf, type: 3}
+  minPoolSize: 2
+  maxPoolSize: 3
+  waveInterval: 30
   minGroupsPerWave: 1
   maxGroupsPerWave: 2
 --- !u!4 &2086304838

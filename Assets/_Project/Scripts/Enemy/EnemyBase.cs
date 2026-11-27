@@ -5,16 +5,10 @@ using UnityEngine;
 public abstract class EnemyBase : NetworkBehaviour, IDamageable
 {
     [SerializeField] protected Transform muzzle;
-    [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private float targetAimHeight = 1.5f;
 
     [SerializeField] protected float maxHealth = 3f;
-    [SerializeField] [Range(0f, 100f)] private float armor = 0f;
-
-    [SerializeField] protected float damage = 3f;
-    [SerializeField] protected float maxRange = 200f;
-    [SerializeField] protected float attackInterval = 1f;
-    [SerializeField] protected float firstAttackDelay = 1f;
-    [SerializeField] protected float coneAngle = 30f;
+    [SerializeField] [Range(0f, 100f)] protected float armor = 0f;
 
     [SerializeField] protected float acceleration = 40f;
     [SerializeField] protected float maxSpeed = 60f;
@@ -24,20 +18,20 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
     [SerializeField] private int maxGroupSize = 1;
     [SerializeField] private float spawnHeight = 0f;
 
-    [Tooltip("Name shown on the route map. Falls back to the prefab name.")]
     [SerializeField] private string displayName;
 
     private float health;
     private ulong lastAttackerClientId = WeaponBase.NoOccupant;
-    private Vector3 lastTrainPos;
-    private Vector3 trainVelocity;
-    private bool hasLastTrainPos;
-    private int formationSlot;
-    private float formationSide = 1f;
+    private int groupIndex;
+    private int groupSeed;
+    private float spawnSide = 1f;
     private Vector3 groupCenter;
+    private StatusEffectReceiver status;
+
     protected Rigidbody rb;
-    private StatusEffectReceiver status; 
-    protected float SpeedFactor => status != null ? status.Mods.SpeedMultiplier : 1f;
+    protected int targetIndex = -1;
+
+    private static List<EnemyBase> active = new List<EnemyBase>();
 
     public string DisplayName
     {
@@ -76,40 +70,36 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
         }
     }
 
-    protected float FormationSide => formationSide;
+    protected int GroupIndex => groupIndex;
+    protected int GroupSeed => groupSeed;
+    protected float SpawnSide => spawnSide;
     protected Vector3 GroupCenter => groupCenter;
 
-    protected int FormationRank
-    {
-        get
-        {
-            return (formationSlot + 1) / 2;
-        }
-    }
+    protected float HealthFraction => health / maxHealth;
 
-    protected float StaggeredRank
+    protected float SpeedFactor
     {
         get
         {
-            if (formationSlot % 2 == 0)
+            if (status == null)
             {
-                return -FormationRank;
+                return 1f;
             }
 
-            return FormationRank;
+            return status.Mods.SpeedMultiplier;
         }
     }
 
     protected TrainHealth Train => TrainHealth.Instance;
-    protected Vector3 TrainVelocity => trainVelocity;
+    protected Vector3 TrainVelocity => Train.Velocity;
 
     protected Vector3 TrainHeading
     {
         get
         {
-            if (trainVelocity.sqrMagnitude > 1f)
+            if (TrainVelocity.sqrMagnitude > 1f)
             {
-                return trainVelocity.normalized;
+                return TrainVelocity.normalized;
             }
 
             return Train.transform.forward;
@@ -118,12 +108,31 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
 
     protected Vector3 TrainRight => Vector3.Cross(Vector3.up, TrainHeading);
 
-    private static readonly List<EnemyBase> active = new List<EnemyBase>();
+    protected bool HasTarget => targetIndex >= 0 && Train.IsTargetAlive(targetIndex);
 
-    public void SetFormation(int slot, float side, Vector3 center)
+    protected Vector3 TargetPosition
     {
-        formationSlot = slot;
-        formationSide = side;
+        get
+        {
+            if (HasTarget)
+            {
+                return Train.TargetPosition(targetIndex) + Vector3.up * targetAimHeight;
+            }
+
+            return Train.AimTarget.position;
+        }
+    }
+
+    protected Vector3 PredictedTargetPosition(float seconds)
+    {
+        return Train.PredictTargetPosition(targetIndex, seconds) + Vector3.up * targetAimHeight;
+    }
+
+    public void SetGroup(int index, int seed, float side, Vector3 center)
+    {
+        groupIndex = index;
+        groupSeed = seed;
+        spawnSide = side;
         groupCenter = center;
     }
 
@@ -134,14 +143,12 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
         if (IsServer)
         {
             health = maxHealth;
-            InvokeRepeating(nameof(TryAttack), firstAttackDelay, attackInterval);
         }
     }
 
     public override void OnNetworkDespawn()
     {
         active.Remove(this);
-        CancelInvoke();
     }
 
     public static void DespawnAll()
@@ -174,10 +181,19 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
         lastAttackerClientId = attackerClientId;
         float damageAfterArmor = amount * (1f - armor / 100f);
         health -= damageAfterArmor;
+
         if (health <= 0f)
         {
             Die();
         }
+        else
+        {
+            OnDamaged(damageAfterArmor);
+        }
+    }
+
+    protected virtual void OnDamaged(float amount)
+    {
     }
 
     protected virtual void Die()
@@ -187,69 +203,37 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
             GameSession.Instance.AddKill(lastAttackerClientId);
         }
 
-
         NetworkObject.Despawn();
     }
 
-    private void TryAttack()
+    private void Update()
     {
-        if (!CanAttack())
+        if (!IsServer || Train == null)
         {
             return;
         }
 
-        Attack();
+        Think();
     }
 
-    protected virtual void Update()
+    private void FixedUpdate()
     {
-        if (!IsServer || Time.deltaTime <= 0f)
+        if (!IsServer || Train == null)
         {
             return;
         }
 
-        Vector3 pos = Train.CarryReference.transform.position;
-        if (hasLastTrainPos)
-        {
-            trainVelocity = (pos - lastTrainPos) / Time.deltaTime;
-        }
-
-        lastTrainPos = pos;
-        hasLastTrainPos = true;
-    }
-
-    protected virtual void FixedUpdate()
-    {
-        if (!IsServer)
-        {
-            return;
-        }
         Move();
     }
 
-    protected virtual void Attack()
-    {
-        float projectileSpeed = projectilePrefab.GetComponent<BasicProjectileScript>().Speed;
-
-        Vector3 direction = (PredictAimPoint(muzzle.position, projectileSpeed) - muzzle.position).normalized;
-        direction = RandomizeInCone(direction, coneAngle);
-
-        GameObject projectile = Instantiate(projectilePrefab, muzzle.position, Quaternion.LookRotation(direction));
-        projectile.GetComponent<NetworkObject>().Spawn(destroyWithScene: true);
-        projectile.GetComponent<BasicProjectileScript>().Launch(direction, maxRange, damage);
-    }
+    protected abstract void Think();
 
     protected abstract void Move();
-
-    protected virtual bool CanAttack()
-    {
-        return Vector3.Distance(muzzle.position, Train.AimTarget.transform.position) <= maxRange;
-    }
 
     protected Vector3 DesiredVelocity(Vector3 stationPoint)
     {
         Vector3 toStation = stationPoint - transform.position;
-        return Vector3.ClampMagnitude(trainVelocity + toStation * stationGain, maxSpeed * SpeedFactor);
+        return Vector3.ClampMagnitude(TrainVelocity + toStation * stationGain, maxSpeed * SpeedFactor);
     }
 
     protected void ApplySteering(Vector3 desiredVelocity)
@@ -258,15 +242,52 @@ public abstract class EnemyBase : NetworkBehaviour, IDamageable
         rb.linearVelocity += steering * Time.fixedDeltaTime;
     }
 
-    protected Vector3 PredictAimPoint(Vector3 from, float projectileSpeed)
+    protected Vector3 SeparationVelocity(float radius, float strength)
     {
-        Vector3 trainPos = Train.AimTarget.transform.position;
-        Vector3 aimPoint = trainPos;
+        Vector3 push = Vector3.zero;
+        foreach (EnemyBase other in active)
+        {
+            if (other == this)
+            {
+                continue;
+            }
+
+            Vector3 away = transform.position - other.transform.position;
+            away.y = 0f;
+            float distance = away.magnitude;
+            if (distance > 0.01f && distance < radius)
+            {
+                push += away / distance * ((radius - distance) / radius);
+            }
+        }
+
+        return push * strength;
+    }
+
+    protected Vector3 ParallelStation(int target, float distance, float side)
+    {
+        return Train.TargetPosition(target) + TrainRight * side * distance;
+    }
+
+    protected void FireBullet(GameObject bulletPrefab, float coneAngle, float bulletDamage, float bulletRange)
+    {
+        BasicProjectileScript prefabScript = bulletPrefab.GetComponent<BasicProjectileScript>();
+        Vector3 aimPoint = PredictAimPoint(muzzle.position, TargetPosition, prefabScript.Speed);
+        Vector3 direction = RandomizeInCone((aimPoint - muzzle.position).normalized, coneAngle);
+
+        GameObject bullet = Instantiate(bulletPrefab, muzzle.position, Quaternion.LookRotation(direction));
+        bullet.GetComponent<NetworkObject>().Spawn(destroyWithScene: true);
+        bullet.GetComponent<BasicProjectileScript>().Launch(direction, bulletRange, bulletDamage);
+    }
+
+    protected Vector3 PredictAimPoint(Vector3 from, Vector3 targetPosition, float projectileSpeed)
+    {
+        Vector3 aimPoint = targetPosition;
 
         for (int i = 0; i < 2; i++)
         {
             float travelTime = Vector3.Distance(from, aimPoint) / projectileSpeed;
-            aimPoint = trainPos + trainVelocity * travelTime;
+            aimPoint = targetPosition + TrainVelocity * travelTime;
         }
 
         return aimPoint;

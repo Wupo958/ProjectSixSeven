@@ -41,15 +41,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 61c21fd9e65df60449e9870e99abf209, type: 3}
       propertyPath: m_LocalScale.x
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 61c21fd9e65df60449e9870e99abf209, type: 3}
       propertyPath: m_LocalScale.y
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 61c21fd9e65df60449e9870e99abf209, type: 3}
       propertyPath: m_LocalScale.z
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 61c21fd9e65df60449e9870e99abf209, type: 3}
       propertyPath: m_LocalPosition.x
@@ -97,7 +97,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 61c21fd9e65df60449e9870e99abf209, type: 3}
       propertyPath: m_Name
-      value: truck
+      value: GnuRIder
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -172,27 +172,37 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cee5b235192b6df4d91accb779201d7f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GroundJeepEnemy
+  m_EditorClassIdentifier: Assembly-CSharp::GnuRiderEnemy
   ShowTopMostFoldoutHeaderGroup: 1
   muzzle: {fileID: 226063155636184564}
-  projectilePrefab: {fileID: 8499486844344490790, guid: a20e0f1642f235c40bb893cdb4b6f370, type: 3}
-  maxHealth: 500
-  armor: 0
-  damage: 30
-  maxRange: 200
-  attackInterval: 0.75
-  firstAttackDelay: 3
-  coneAngle: 25
+  targetAimHeight: 1.5
+  maxHealth: 40
+  armor: 50
   acceleration: 15
   maxSpeed: 75
   stationGain: 1
-  minGroupSize: 1
-  maxGroupSize: 3
+  minGroupSize: 3
+  maxGroupSize: 5
   spawnHeight: -3
-  displayName: 
-  sideOffset: 45
-  forwardOffset: 10
-  formationSpacing: 12
+  displayName: Gnu Rider
+  pelletPrefab: {fileID: 8499486844344490790, guid: a20e0f1642f235c40bb893cdb4b6f370, type: 3}
+  pelletsPerShot: 5
+  pelletDamage: 4
+  pelletSpreadAngle: 5
+  pelletRange: 80
+  secondsBetweenShots: 4
+  shotsPerTarget: 3
+  minAttackDistance: 25
+  maxAttackDistance: 50
+  wagonLengthSpread: 5
+  gangSpacing: 6
+  arriveDistance: 4
+  repositionTimeoutSeconds: 4
+  separationRadius: 10
+  separationStrength: 15
+  evadeSeconds: 3
+  evadeWeaveDistance: 8
+  evadeWeaveSpeed: 3
 --- !u!54 &7580223811838290785
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -273,7 +283,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7843062295088612018}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: e36d997f4cecfcb4babf46535f217a36, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -301,5 +311,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StatusEffectReceiver
   ShowTopMostFoldoutHeaderGroup: 1
   _swaySpeed: 0.6
-  _debugEffect: {fileID: 0}
-  _activeEffects: 
