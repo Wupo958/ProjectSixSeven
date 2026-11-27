@@ -19,7 +19,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
  
@@ -71,6 +71,13 @@ jobs:
  
             git checkout -q -B "$into" "origin/$into"
             if git merge --no-ff --no-edit -m "Auto-merge $from into $into" "origin/$from"; then
+              # Only history differs, no files: don't push an empty merge commit.
+              if git diff --quiet "origin/$into" HEAD; then
+                echo "$into has no file changes from $from"
+                git reset -q --hard "origin/$into"
+                return
+              fi
+ 
               # Second try without delta compression, which fixes most
               # "missing necessary objects" rejections.
               if git push -q origin "$into" || git push -q --no-thin origin "$into"; then
