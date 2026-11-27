@@ -1,0 +1,113 @@
+name: Sync branches
+ 
+on:
+  workflow_dispatch:
+    inputs:
+      include_main:
+        description: "Also merge testing into main (release)"
+        type: boolean
+        default: false
+ 
+permissions:
+  contents: write
+ 
+concurrency:
+  group: sync-branches
+  cancel-in-progress: false
+ 
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+ 
+      - name: Merge through the layers
+        env:
+          INCLUDE_MAIN: ${{ inputs.include_main }}
+        run: |
+          set -u
+ 
+          # ----- branch layout -----------
+          PROGRAMMING_BRANCH="programming"
+          PROGRAMMING_MEMBERS="csongor tobias"
+ 
+          ART_BRANCH="art"
+          ART_MEMBERS="Eva-II Julie Destiny Paula Nauras"
+ 
+          DESIGN_BRANCH="design"
+          DESIGN_MEMBERS="Leon"
+ 
+          TESTING_BRANCH="testing"
+          MAIN_BRANCH="main"
+          # ------------------------------------------------------------------------
+ 
+          git config user.name "branch-sync"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+ 
+          FAILED=()
+          MERGED=()
+ 
+          exists() { git show-ref --verify --quiet "refs/remotes/origin/$1"; }
+ 
+          # merge <from> <into>
+          merge() {
+            local from="$1" into="$2"
+ 
+            if ! exists "$from" || ! exists "$into"; then
+              echo "::warning::Skipped $from -> $into: branch not found (check the name)"
+              FAILED+=("$from -> $into (branch not found)")
+              return
+            fi
+ 
+            if git merge-base --is-ancestor "origin/$from" "origin/$into" 2>/dev/null; then
+              echo "$into already has everything from $from"
+              return
+            fi
+ 
+            git checkout -q -B "$into" "origin/$into"
+            if git merge --no-ff --no-edit -m "Auto-merge $from into $into" "origin/$from"; then
+              git push -q origin "$into"
+              MERGED+=("$from -> $into")
+            else
+              git merge --abort 2>/dev/null || true
+              echo "::error::Conflict: $from -> $into. Merge this pair by hand."
+              FAILED+=("$from -> $into (conflict)")
+            fi
+          }
+ 
+          echo "::group::Layer 0 -> 1 (individuals into departments)"
+          for b in $PROGRAMMING_MEMBERS; do merge "$b" "$PROGRAMMING_BRANCH"; done
+          for b in $ART_MEMBERS;         do merge "$b" "$ART_BRANCH"; done
+          for b in $DESIGN_MEMBERS;      do merge "$b" "$DESIGN_BRANCH"; done
+          echo "::endgroup::"
+ 
+          echo "::group::Layer 1 -> 2 (departments into testing)"
+          for d in "$PROGRAMMING_BRANCH" "$ART_BRANCH" "$DESIGN_BRANCH"; do merge "$d" "$TESTING_BRANCH"; done
+          echo "::endgroup::"
+ 
+          SOURCE="$TESTING_BRANCH"
+          if [ "$INCLUDE_MAIN" = "true" ]; then
+            echo "::group::testing -> main"
+            merge "$TESTING_BRANCH" "$MAIN_BRANCH"
+            SOURCE="$MAIN_BRANCH"
+            echo "::endgroup::"
+          fi
+ 
+          echo "::group::Back down ($SOURCE into every department and individual branch)"
+          for d in "$PROGRAMMING_BRANCH" "$ART_BRANCH" "$DESIGN_BRANCH"; do merge "$SOURCE" "$d"; done
+          for b in $PROGRAMMING_MEMBERS $ART_MEMBERS $DESIGN_MEMBERS; do merge "$SOURCE" "$b"; done
+          echo "::endgroup::"
+ 
+          {
+            echo "## Branch sync"
+            echo "### Merged (${#MERGED[@]})"
+            for m in "${MERGED[@]}"; do echo "- $m"; done
+            echo "### Needs a hand merge (${#FAILED[@]})"
+            for f in "${FAILED[@]}"; do echo "- $f"; done
+          } >> "$GITHUB_STEP_SUMMARY"
+ 
+          # Red run (and an email) if anything needs attention.
+          [ ${#FAILED[@]} -eq 0 ]
+ 
