@@ -121,6 +121,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 91652e6c5608cf8469047b30324a1d82, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6205164145030030309}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 91652e6c5608cf8469047b30324a1d82, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -5786179744242247634}
   m_SourcePrefab: {fileID: 100100000, guid: 91652e6c5608cf8469047b30324a1d82, type: 3}
 --- !u!1 &1693677170543308877 stripped
 GameObject:
@@ -282,6 +285,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.1470752, y: 1.1250875, z: 2.77354}
   m_Center: {x: -0.16063404, y: 0.5138707, z: -0.20339489}
+--- !u!114 &-5786179744242247634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1693677170543308877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcd01af5220c2504299ed7a2e677fa73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StatusEffectReceiver
+  ShowTopMostFoldoutHeaderGroup: 1
+  _swaySpeed: 0.6
+  _debugEffect: {fileID: 0}
+  _activeEffects: 
 --- !u!4 &2074741905817365239 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 91652e6c5608cf8469047b30324a1d82, type: 3}

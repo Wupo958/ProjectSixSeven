@@ -19,7 +19,9 @@ MonoBehaviour:
   Type: 2
   ConsumeOnUse: 1
   ExplosiveWhenStored: 0
-  Breakable: 0
+  Breakable: 1
+  BreakEffect: {fileID: 0}
+  Heavy: 0
   AmmoTag: 
   AmmoDamageMultiplier: 1
   _defaultsAppliedFor: 2
