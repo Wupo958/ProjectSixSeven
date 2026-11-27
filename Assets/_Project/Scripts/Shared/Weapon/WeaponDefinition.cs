@@ -58,4 +58,17 @@ public sealed class WeaponDefinition : ScriptableObject
     public bool LimitYaw = false;
     public float YawMin = -180f;
     public float YawMax = 180f;
+
+    [Header("Wear")]
+    [Tooltip("Wear gained per minute just from time passing. 0.1 = fails after 10 minutes without maintenance.")]
+    [Range(0f, 1f)] public float WearPerMinute = 0.1f;
+
+    [Tooltip("Extra wear per shot. 0.001 = 1000 shots from new to failure.")]
+    [Range(0f, 0.1f)] public float WearPerShot = 0.001f;
+
+    [Tooltip("Aim speed just before failing, as a share of the normal speed. Drops evenly with wear.")]
+    [Range(0f, 1f)] public float MinAimSpeed = 0.3f;
+
+    [Tooltip("Wear at which the warning hook fires (squeaking).")]
+    [Range(0f, 1f)] public float WarningWear = 0.6f;
 }

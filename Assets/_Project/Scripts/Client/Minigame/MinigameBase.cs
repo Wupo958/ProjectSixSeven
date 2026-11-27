@@ -6,12 +6,17 @@ public enum MinigameType
     Mash = 0,
     Driving = 1,
     Refuel = 2,
+    Maintenance = 3,
 }
  
 public abstract class MinigameBase : MonoBehaviour
 {
     [SerializeField] private MinigameType _type;
     public MinigameType Type => _type;
+
+    [Tooltip("Frees the cursor while this minigame runs. Only tick it for minigames you click or drag in.")]
+    [SerializeField] private bool _usesMouse = false;
+    public bool UsesMouse => _usesMouse;
  
     private Action _onSuccess;
     private Action _onCancel;
