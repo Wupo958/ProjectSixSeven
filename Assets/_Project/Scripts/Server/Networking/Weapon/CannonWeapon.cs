@@ -41,11 +41,11 @@ public sealed class CannonWeapon : WeaponBase
  
         //pitch: W raises the barrel, S lowers it
         float pitchInput = (kb[_pitchUpKey].isPressed ? 1f : 0f) - (kb[_pitchDownKey].isPressed ? 1f : 0f);
-        Pitch = ClampPitch(Pitch + pitchInput * _definition.PitchSpeed * dt);
+        Pitch = ClampPitch(Pitch + pitchInput * PitchSpeed * dt);
  
         //yaw: A/D swing the turret
         float yawInput = (kb[_yawRightKey].isPressed ? 1f : 0f) - (kb[_yawLeftKey].isPressed ? 1f : 0f);
-        Yaw = ClampYaw(Yaw + yawInput * _definition.YawSpeed * dt);
+        Yaw = ClampYaw(Yaw + yawInput * YawSpeed * dt);
  
         if (kb[_fireKey].wasPressedThisFrame) TryFire();
  

@@ -34,8 +34,14 @@ public sealed class ItemDefinition : ScriptableObject
     [Tooltip("Storing it in a wagon makes that wagon explosive (Ammo, Fuel). Data only for now.")]
     public bool ExplosiveWhenStored;
 
-    [Tooltip("Can break (some spare parts). Data only for now.")]
+    [Tooltip("Breaks when it hits anything (floor, wall, ...) without being caught.")]
     public bool Breakable;
+
+    [Tooltip("Optional effect spawned where it breaks, e.g. a particle system. Empty = placeholder shards.")]
+    public GameObject BreakEffect;
+
+    [Tooltip("Carrying it slows the player down (and can block jumping). Tuned on the player's Player Inventory.")]
+    public bool Heavy;
 
     [Header("Ammo only")]
     [Tooltip("Which weapon this fits, e.g. \"LightAmmo\" or \"HeavyAmmo\". Must match the weapon's Accepted Ammo Tag.")]

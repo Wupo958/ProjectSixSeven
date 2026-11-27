@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a0b26f81a0a91143a792f70981079a1, type: 3}
+  m_Name: Disoriented
+  m_EditorClassIdentifier: Assembly-CSharp::ReverseMovementEffect
+  _displayName: Disoriented
+  _duration: 5
+  _stacking: 0
+  _maxStacks: 1
+  _tickInterval: 0
