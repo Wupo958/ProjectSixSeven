@@ -60,7 +60,10 @@ public class BasicProjectileScript : NetworkBehaviour
         else
         {
             TrainHealth train = other.GetComponentInParent<TrainHealth>();
-            if (train != null) train.ReportHit(other, hitPos, Mathf.RoundToInt(damage));
+            if (train != null)
+            {
+                train.ReportHit(other, hitPos, Mathf.RoundToInt(damage));
+            }
         }
 
         NetworkObject.Despawn();

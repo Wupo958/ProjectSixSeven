@@ -43,10 +43,14 @@ public sealed class MinigameHost : MonoBehaviour
  
         IsRunning = true;
         if (player != null) player.Busy = true;
+        BlockInput(player, true);
  
         //free the cursor for UI-based minigames.
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        if (game.UsesMouse)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
 
         _active = game;
  
@@ -64,6 +68,7 @@ public sealed class MinigameHost : MonoBehaviour
         IsRunning = false;
         lastFinishedFrame = Time.frameCount;
         if (player != null) player.Busy = false;
+        BlockInput(player, false);
  
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -79,5 +84,12 @@ public sealed class MinigameHost : MonoBehaviour
     public void CancelActive()
     {
         if (_active != null) _active.Abort();
+    }
+
+    private static void BlockInput(PlayerInteractor player, bool blocked)
+    {
+        if (player == null) return;
+        FirstPersonController controller = player.GetComponentInParent<FirstPersonController>();
+        if (controller != null) controller.InputBlocked = blocked;
     }
 }

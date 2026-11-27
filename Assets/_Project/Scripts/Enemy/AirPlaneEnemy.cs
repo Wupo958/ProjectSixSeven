@@ -13,6 +13,27 @@ public class AirPlaneEnemy : EnemyBase
     private float orbitAngle;
     private float orbitDirection;
 
+    private int WedgeRank
+    {
+        get
+        {
+            return (GroupIndex + 1) / 2;
+        }
+    }
+
+    private float StaggeredWedgeRank
+    {
+        get
+        {
+            if (GroupIndex % 2 == 0)
+            {
+                return -WedgeRank;
+            }
+
+            return WedgeRank;
+        }
+    }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -24,7 +45,11 @@ public class AirPlaneEnemy : EnemyBase
 
         Vector3 offset = GroupCenter - Train.CarryReference.position;
         orbitAngle = Mathf.Atan2(offset.z, offset.x) * Mathf.Rad2Deg;
-        orbitDirection = FormationSide;
+        orbitDirection = SpawnSide;
+    }
+
+    protected override void Think()
+    {
     }
 
     protected override void Move()
@@ -41,9 +66,9 @@ public class AirPlaneEnemy : EnemyBase
 
     private Vector3 WedgeStation()
     {
-        float slotAngle = orbitAngle - orbitDirection * FormationRank * wedgeDegreesBehind;
-        float slotRadius = orbitRadius + StaggeredRank * wedgeSideSpacing;
-        float slotHeight = orbitHeight + FormationRank * wedgeHeightStep;
+        float slotAngle = orbitAngle - orbitDirection * WedgeRank * wedgeDegreesBehind;
+        float slotRadius = orbitRadius + StaggeredWedgeRank * wedgeSideSpacing;
+        float slotHeight = orbitHeight + WedgeRank * wedgeHeightStep;
 
         float radians = slotAngle * Mathf.Deg2Rad;
         Vector3 ring = new Vector3(Mathf.Cos(radians), 0f, Mathf.Sin(radians)) * slotRadius;
