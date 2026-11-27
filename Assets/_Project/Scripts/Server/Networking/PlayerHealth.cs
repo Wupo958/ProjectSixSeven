@@ -126,6 +126,7 @@ public sealed class PlayerHealth : NetworkBehaviour, IDamageable
                 Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
             return false;
 
+        if (hit.collider.GetComponentInParent<CharacterController>() != null) return false;
         return !IsTrain(hit.collider.transform);
     }
 
@@ -139,10 +140,10 @@ public sealed class PlayerHealth : NetworkBehaviour, IDamageable
  
     public void ApplyDamage(float amount, Vector3 hitPoint, ulong attackerClientId)
     {
+        if (DebugCheats.PlayerGodMode) return;
         if (!IsServer || !IsSpawned || _dead.Value) return;
  
-        bool fromPlayer = attackerClientId != EnvironmentAttacker &&
-                          NetworkManager.ConnectedClients.ContainsKey(attackerClientId);
+        bool fromPlayer = attackerClientId != EnvironmentAttacker && NetworkManager.ConnectedClients.ContainsKey(attackerClientId);
         if (fromPlayer && !_friendlyFire) return;
  
         int damage = Mathf.Max(1, Mathf.RoundToInt(amount));

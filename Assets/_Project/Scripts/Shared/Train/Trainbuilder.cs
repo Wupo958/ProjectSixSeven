@@ -198,6 +198,7 @@ public sealed class Trainbuilder : MonoBehaviour
 
         TrainWeapons weapons = GetComponent<TrainWeapons>();
         if (weapons != null) weapons.Rebind();
+        if (TryGetComponent(out StationHub stations)) stations.Rebind();
     }
 
     private WagonStatusPanel CreateStatusPanel(Transform parent, Transform anchor) {
@@ -352,6 +353,33 @@ public sealed class Trainbuilder : MonoBehaviour
             if (car != null && t.IsChildOf(car)) return i;
         }
         return -1;
+    }
+
+    public Vector3 PredictCarPosition(int carIndex, float seconds)
+    {
+        TrackPath path = _track.Path;
+        PlacedCar car = _placed[carIndex];
+
+        float speed = 0f;
+        if (_motion != null)
+        {
+            speed = _motion.Speed;
+        }
+
+        float nose = _noseDistance + speed * seconds;
+        if (!_track.IsLoop)
+        {
+            nose = Mathf.Min(nose, path.Length);
+        }
+
+        float centre = nose - car.CentreOffset;
+        float halfBogie = car.Bogie * 0.5f;
+        TrackSample front = path.Sample(SampleDistance(centre + halfBogie, path.Length));
+        TrackSample rear = path.Sample(SampleDistance(centre - halfBogie, path.Length));
+
+        Quaternion rotation = Quaternion.LookRotation((front.Position - rear.Position).normalized, Vector3.up);
+        Vector3 seat = (front.Position + rear.Position) * 0.5f;
+        return seat + rotation * (Vector3.up * _rideHeight);
     }
 
 }
