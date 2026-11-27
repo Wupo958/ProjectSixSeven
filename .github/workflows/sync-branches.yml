@@ -27,6 +27,9 @@ jobs:
         env:
           INCLUDE_MAIN: ${{ inputs.include_main }}
         run: |
+          # Don't stop at the first problem: every failure is recorded and the
+          # remaining pairs still run. The summary at the end lists everything.
+          set +e
           set -u
  
           # ----- branch layout -----------
@@ -68,8 +71,14 @@ jobs:
  
             git checkout -q -B "$into" "origin/$into"
             if git merge --no-ff --no-edit -m "Auto-merge $from into $into" "origin/$from"; then
-              git push -q origin "$into"
-              MERGED+=("$from -> $into")
+              # Second try without delta compression, which fixes most
+              # "missing necessary objects" rejections.
+              if git push -q origin "$into" || git push -q --no-thin origin "$into"; then
+                MERGED+=("$from -> $into")
+              else
+                echo "::error::Push to $into was rejected. Merge $from into $into by hand."
+                FAILED+=("$from -> $into (push rejected)")
+              fi
             else
               git merge --abort 2>/dev/null || true
               echo "::error::Conflict: $from -> $into. Merge this pair by hand."
@@ -110,4 +119,3 @@ jobs:
  
           # Red run (and an email) if anything needs attention.
           [ ${#FAILED[@]} -eq 0 ]
- 
